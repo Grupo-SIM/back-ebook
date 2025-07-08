@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+  CUSTOMER
+}
+
+model Admin {
+  id        String   @id @default(uuid())
+  adminUser User     @relation("AdminToUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+
+  admin Admin? @relation("AdminToUser")
+  Image        Image[]       @relation("UserAvatars")
+  favorites    Favorite[]
+  cart         Cart[]
+  orders       Order[]
+  notifications Notification[]
+
+  createdById  String?
+  createdBy    User?   @relation("CreatedUsers", fields: [createdById], references: [id])
+  createdUsers User[]  @relation("CreatedUsers")
+
+  @@map("users")
+}
+
+model Image {
+  id        String    @id @default(uuid())
+  key       String?   @unique
+  url       String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  users    User[]    @relation("UserAvatars")
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  color       String?
+  icon        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  books Book[]
+
+  @@map("categories")
+}
+
+model Book {
+  id            Int      @id @default(autoincrement())
+  title         String
+  author        String
+  price         Float
+  originalPrice Float?
+  rating        Float    @default(0)
+  reviews       Int      @default(0)
+  category      String
+  categoryId    Int?
+  cover         String
+  description   String
+  sales         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  categoryRef Category? @relation(fields: [categoryId], references: [id])
+  favorites   Favorite[]
+  cart        Cart[]
+  orderItems  OrderItem[]
+
+  @@map("books")
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  bookId    Int
+  addedAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@map("favorites")
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  bookId    Int
+  quantity  Int      @default(1)
+  selected  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@map("cart")
+}
+
+model Order {
+  id            Int      @id @default(autoincrement())
+  userId        String
+  orderNumber   String   @unique
+  status        String   @default("pending") // pending, paid, cancelled, delivered
+  totalAmount   Float
+  subtotal      Float
+  tax           Float    @default(0)
+  discount      Float    @default(0)
+  paymentMethod String?
+  paymentStatus String   @default("pending") // pending, paid, failed
+  shippingAddress Json?
+  billingAddress  Json?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  bookId    Int
+  quantity  Int
+  unitPrice Float
+  totalPrice Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id])
+
+  @@map("order_items")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info") // info, success, warning, error
+  read      Boolean  @default(false)
+  action    Json?    // { label: string, onClick: string }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
