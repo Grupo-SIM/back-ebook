@@ -74,7 +74,7 @@ export class FavoriteItemDto {
     bookRating: number;
 
     @ApiProperty({ example: 1250 })
-    bookReviews: number;
+    bookReviewCount: number;
 
     @ApiProperty({ example: 1 })
     bookCategoryId: number;

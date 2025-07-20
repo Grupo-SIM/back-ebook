@@ -8,6 +8,7 @@ import {
     Param,
     Query,
     UseGuards,
+    ParseIntPipe,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -18,9 +19,11 @@ import {
     ApiBearerAuth,
 } from '@nestjs/swagger';
 import { BookService } from './book.service';
-import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedBookResponseDto } from './dto/book.dto';
+import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedBookResponseDto, CreateReviewDto, ReviewResponseDto, PaginatedReviewsResponseDto } from './dto/book.dto';
 import { JwtAuthGuardPanel } from 'src/auth/guard/jwt-auth.guard';
 import { JwtAuthGuardAll } from 'src/auth/guard/jwt-auth.guard';
+import { GetUser } from 'src/common/decorators/user.decorator';
+import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 
 @Controller('books')
 @ApiTags('Books')
@@ -49,8 +52,11 @@ export class BookController {
         description: 'Paginated list of books',
         type: PaginatedBookResponseDto,
     })
-    async getAllBooks(@Query() query: BookQueryDto): Promise<PaginatedBookResponseDto> {
-        return this.bookService.getAllBooks(query);
+    async getAllBooks(
+        @Query() query: BookQueryDto,
+        @GetUser() user?: RequestWithUser['user'],
+    ): Promise<PaginatedBookResponseDto> {
+        return this.bookService.getAllBooks(query, user?.id);
     }
 
     @Get('search')
@@ -66,8 +72,9 @@ export class BookController {
     async searchBooks(
         @Query('q') query: string,
         @Query() pagination: BookQueryDto,
+        @GetUser() user?: RequestWithUser['user'],
     ): Promise<PaginatedBookResponseDto> {
-        return this.bookService.searchBooks(query, pagination);
+        return this.bookService.searchBooks(query, pagination, user?.id);
     }
 
     @Get('category/:categoryId')
@@ -83,8 +90,9 @@ export class BookController {
     async getBooksByCategory(
         @Param('categoryId') categoryId: string,
         @Query() query: BookQueryDto,
+        @GetUser() user?: RequestWithUser['user'],
     ): Promise<PaginatedBookResponseDto> {
-        return this.bookService.getBooksByCategoryId(Number(categoryId), query);
+        return this.bookService.getBooksByCategoryId(Number(categoryId), query, user?.id);
     }
 
     @Get('on-sale')
@@ -98,6 +106,46 @@ export class BookController {
     })
     async getBooksOnSale(@Query() query: BookQueryDto): Promise<PaginatedBookResponseDto> {
         return this.bookService.getBooksOnSale(query);
+    }
+
+    @Post('update-free-status')
+    @UseGuards(JwtAuthGuardPanel)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Atualizar status isFree de todos os livros baseado no preço' })
+    @ApiResponse({
+        status: 200,
+        description: 'Status isFree atualizado com sucesso'
+    })
+    async updateFreeStatus() {
+        return this.bookService.updateFreeStatus();
+    }
+
+    @Post('activate-all')
+    @UseGuards(JwtAuthGuardPanel)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Ativar todos os livros inativos' })
+    @ApiResponse({
+        status: 200,
+        description: 'Todos os livros ativados com sucesso'
+    })
+    async activateAllBooks() {
+        return this.bookService.activateAllBooks();
+    }
+
+    @Get('debug/all')
+    @UseGuards(JwtAuthGuardPanel)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Listar todos os livros sem filtros (debug)' })
+    async getAllBooksDebug() {
+        return this.bookService.getAllBooksDebug();
+    }
+
+    @Get('debug/all-without-filters')
+    @UseGuards(JwtAuthGuardPanel)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Listar todos os livros sem filtros (incluindo inativos)' })
+    async getAllBooksWithoutFilters() {
+        return this.bookService.getAllBooksWithoutFilters();
     }
 
     @Get('top-selling')
@@ -114,38 +162,60 @@ export class BookController {
         return this.bookService.getTopSellingBooks(limit);
     }
 
-    @Get(':id')
+    @Get('free')
     @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get book by ID' })
-    @ApiParam({ name: 'id', description: 'Book ID' })
+    @ApiOperation({ summary: 'Listar livros gratuitos' })
+    async getFreeBooks(
+        @Query() query: BookQueryDto,
+        @GetUser() user?: RequestWithUser['user'],
+    ) {
+        return this.bookService.getAllBooks({ ...query, type: 'free' }, user?.id);
+    }
+
+    @Get('paid')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Listar livros pagos' })
+    async getPaidBooks(
+        @Query() query: BookQueryDto,
+        @GetUser() user?: RequestWithUser['user'],
+    ) {
+        return this.bookService.getAllBooks({ ...query, type: 'paid' }, user?.id);
+    }
+
+    @Get('purchased')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Listar livros comprados/liberados do usuário autenticado' })
     @ApiResponse({
         status: 200,
-        description: 'Book details',
-        type: BookResponseDto,
+        description: 'Lista paginada de livros comprados/liberados',
+        type: PaginatedBookResponseDto,
     })
-    @ApiResponse({
-        status: 404,
-        description: 'Book not found',
-    })
-    async getBookById(@Param('id') id: string): Promise<BookResponseDto> {
-        return this.bookService.getBookById(Number(id));
+    async getPurchasedBooks(
+        @Query() query: BookQueryDto,
+        @GetUser() user: RequestWithUser['user'],
+    ): Promise<PaginatedBookResponseDto> {
+        return this.bookService.getPurchasedBooks(query, user.id);
+    }
+
+    @Get(':id')
+    @ApiOperation({ summary: 'Obter livro por ID' })
+    @ApiResponse({ status: 200, description: 'Livro encontrado', type: BookResponseDto })
+    @ApiResponse({ status: 404, description: 'Book not found' })
+    async getBookById(
+        @Param('id') id: string,
+        @GetUser() user?: RequestWithUser['user'],
+    ): Promise<BookResponseDto> {
+        return this.bookService.getBookById(Number(id), user?.id);
     }
 
     @Put(':id')
-    @UseGuards(JwtAuthGuardPanel)
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Update book by ID' })
-    @ApiParam({ name: 'id', description: 'Book ID' })
-    @ApiResponse({
-        status: 200,
-        description: 'Book updated successfully',
-        type: BookResponseDto,
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'Book not found',
-    })
+    @ApiOperation({ summary: 'Atualizar livro por ID' })
+    @ApiParam({ name: 'id', description: 'ID do livro' })
+    @ApiResponse({ status: 200, description: 'Livro atualizado com sucesso', type: BookResponseDto })
+    @ApiResponse({ status: 404, description: 'Book not found' })
     async updateBook(
         @Param('id') id: string,
         @Body() updateBookDto: UpdateBookDto,
@@ -154,20 +224,31 @@ export class BookController {
     }
 
     @Delete(':id')
-    @UseGuards(JwtAuthGuardPanel)
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Delete book by ID' })
-    @ApiParam({ name: 'id', description: 'Book ID' })
-    @ApiResponse({
-        status: 200,
-        description: 'Book deleted successfully',
-        type: BookResponseDto,
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'Book not found',
-    })
+    @ApiOperation({ summary: 'Deletar livro por ID' })
+    @ApiParam({ name: 'id', description: 'ID do livro' })
+    @ApiResponse({ status: 200, description: 'Livro deletado com sucesso', type: BookResponseDto })
+    @ApiResponse({ status: 404, description: 'Book not found' })
     async deleteBook(@Param('id') id: string): Promise<BookResponseDto> {
         return this.bookService.deleteBook(Number(id));
+    }
+
+    @Post(':bookId/reviews')
+    @ApiOperation({ summary: 'Criar review para um livro (só para quem comprou)' })
+    async createReview(
+        @Param('bookId', ParseIntPipe) bookId: number,
+        @Body() dto: CreateReviewDto,
+        @GetUser() user: RequestWithUser['user'],
+    ): Promise<ReviewResponseDto> {
+        return this.bookService.createReview(bookId, user.id, dto);
+    }
+
+    @Get(':bookId/reviews')
+    @ApiOperation({ summary: 'Listar reviews de um livro' })
+    async getReviews(
+        @Param('bookId') bookId: number,
+        @Query('page') page = 1,
+        @Query('limit') limit = 10,
+    ): Promise<PaginatedReviewsResponseDto> {
+        return this.bookService.getReviews(bookId, Number(page), Number(limit));
     }
 } 

@@ -380,6 +380,29 @@ export class UserService extends GenericService {
     };
   }
 
+  async changePassword(userId: string, currentPassword: string, newPassword: string, confirmNewPassword: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado.');
+    }
+    const passwordMatch = bcrypt.compareSync(currentPassword, user.password);
+    if (!passwordMatch) {
+      throw new BadRequestException('Senha atual incorreta.');
+    }
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException('A nova senha e a confirmação não coincidem.');
+    }
+    if (newPassword.length < 6) {
+      throw new BadRequestException('A nova senha deve ter pelo menos 6 caracteres.');
+    }
+    const hashed = this.generateHashPassword(newPassword);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashed },
+    });
+    await this.invalidateCache(`user:${userId}`);
+  }
+
   private async invalidateCache(cacheKey: string) {
     await this.redisService.del(cacheKey);
   }

@@ -62,8 +62,8 @@ export class CategoryService {
 
         if (search) {
             where.OR = [
-                { name: { contains: search, mode: 'insensitive' as Prisma.QueryMode } },
-                { description: { contains: search, mode: 'insensitive' as Prisma.QueryMode } },
+                { name: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
             ];
         }
 

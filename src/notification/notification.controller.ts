@@ -8,7 +8,8 @@ import {
     Param,
     Query,
     UseGuards,
-    Request
+    Request,
+    ForbiddenException
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuardAll } from 'src/auth/guard/jwt-auth.guard';
@@ -52,6 +53,9 @@ export class NotificationController {
     @ApiOperation({ summary: 'Criar notificação' })
     @ApiResponse({ status: 201, description: 'Notificação criada com sucesso', type: NotificationDto })
     async createNotification(@Request() req, @Body() data: CreateNotificationDto): Promise<Notification> {
+        if (req.user.role !== 'ADMIN') {
+            throw new ForbiddenException('Apenas administradores podem criar notificações.');
+        }
         return this.notificationService.createNotification(req.user.id, data);
     }
 

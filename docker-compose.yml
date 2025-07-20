@@ -1,0 +1,55 @@
+version: "3.8"
+services:
+  api_ebook:
+    image: gabrielglp/api-ebook:latest
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:pUXSu1qNwOgl4It@postgres_prod:5432/back-ebook
+      - DIRECT_URL=postgresql://postgres:pUXSu1qNwOgl4It@postgres_prod:5432/back-ebook
+      - JWT_SECRET=secret
+      - REDIS_PORT=6379
+      - RUN_SEEDS=true
+      - REDIS_HOST=redis_renovada
+      - AWS_ACCESS_KEY_ID=jwpozqt7q7ojmipnlwefm566f4zq
+      - AWS_SECRET_ACCESS_KEY=j2zgjvvpcnhex5hlduqini3fpszxamzvjadt5mldj3ix6qcjfuope
+      - AWS_ACCESS_GRANT=12HtYURWUKjBixiKZtPRKL6sqWKPcidTbgbMatXZx4QeVW6cji61PBSvzagjEdwhV3BYvu8i2hF5yba3H5cBK2MvkweQc2MXyGvVg19n7PJ5oraeaHjU3JGyRpYWAo6HWwDYkMvtP2jSzKqDJ3Gbe1B1YKsyzVb8AZkceXZwvekVk5zfdrc2u9do7e7vuYyHqPixWo7fjvowEsfi9L6cTu7aCaUyPfcjCA5ZQYRoiMakPBRLjgM7xtDZPdtsVg1p6iMqFd3wS34Srj331UrSHNF9S1s12QsuUj98RosgZcymZAa4pvnW7yGGPuAQEdU9J3b3uoFCio2Gt
+      - AWS_BUCKET_NAME=fraternidde
+      - AWS_REGION=US1
+      - AWS_S3_ENDPOINT=https://gateway.storjshare.io
+      - SMTP_HOST="simintermediacoes.com"
+      - SMTP_PORT="465"
+      - SMTP_SECURE="true"
+      - SMTP_USER="noreply@simintermediacoes.com"
+      - SMTP_PASSWORD="p4nkZXkQ5yeiZPM"
+      - SMTP_FROM_EMAIL="noreply@simintermediacoes.com"
+      - URL_APP=https://back.ebooksim.com
+    networks:
+      - externa
+      - interna
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 2
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.api_ebook.loadbalancer.server.port=3332"
+        - "traefik.http.services.api_ebook.loadbalancer.passHostHeader=true"
+        - "traefik.http.routers.api_ebook.service=api_ebook"
+        - "traefik.http.routers.api_ebook.rule=Host(`back.ebooksim.com`)"
+        - "traefik.http.routers.api_ebook.tls.certresolver=le"
+        - "traefik.http.routers.api_ebook.entrypoints=websecure"
+        - "traefik.http.routers.api_ebook.tls=true"
+
+networks:
+  externa:
+    external: true
+  interna:
+    external: true

@@ -38,12 +38,22 @@ export class NotificationService {
     async getNotifications(userId: string, query: NotificationQueryDto): Promise<{ notifications: Notification[], total: number, page: number, limit: number }> {
         console.log('getNotifications called with:', { userId, query });
 
-        const { page = 1, limit = 10, type, read } = query;
-        const skip = (page - 1) * limit;
+        // Conversão segura de page e limit para número
+        const pageNum = Number(query.page) || 1;
+        const limitNum = Number(query.limit) || 10;
+        const { type, read } = query;
+        const skip = (pageNum - 1) * limitNum;
 
         const whereCondition: any = { userId };
         if (type) whereCondition.type = type;
-        if (read !== undefined) whereCondition.read = read;
+        // Garantir que o valor de read seja booleano
+        if (read !== undefined) {
+            if (typeof read === 'string') {
+                whereCondition.read = (read === 'true');
+            } else {
+                whereCondition.read = !!read;
+            }
+        }
 
         console.log('whereCondition:', whereCondition);
 
@@ -53,7 +63,7 @@ export class NotificationService {
                     where: whereCondition,
                     orderBy: { createdAt: 'desc' },
                     skip,
-                    take: limit
+                    take: limitNum
                 }),
                 this.prisma.notification.count({ where: whereCondition })
             ]);
@@ -63,8 +73,8 @@ export class NotificationService {
             return {
                 notifications: notifications.map(notification => this.mapNotificationToResponse(notification)),
                 total,
-                page,
-                limit
+                page: pageNum,
+                limit: limitNum
             };
         } catch (error) {
             console.error('Error in getNotifications:', error);

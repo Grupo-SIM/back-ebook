@@ -1,14 +1,18 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
-import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedBookResponseDto, SortOption } from './dto/book.dto';
+import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedBookResponseDto, SortOption, CreateReviewDto, ReviewResponseDto, PaginatedReviewsResponseDto } from './dto/book.dto';
 import { Prisma } from '@prisma/client';
+import { FavoriteService } from '../favorite/favorite.service';
+import { CheckoutService } from '../checkout/checkout.service';
 
 @Injectable()
 export class BookService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly redisService: RedisService,
+        private readonly favoriteService: FavoriteService,
+        private readonly checkoutService: CheckoutService,
     ) { }
 
     private getSortConfig(sortOption: SortOption, sortBy?: string, sortOrder?: 'asc' | 'desc') {
@@ -48,7 +52,7 @@ export class BookService {
             author: query.author,
             minRating: query.minRating ? Number(query.minRating) : undefined,
             maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
-            minPrice: query.minPrice ? Number(query.minPrice) : undefined,
+            minPrice: query.minPrice !== undefined ? Number(query.minPrice) : 0, // Padrão 0 para incluir gratuitos
             sortOption: query.sortOption || 'default',
             sortBy: query.sortBy,
             sortOrder: query.sortOrder || 'desc',
@@ -65,6 +69,9 @@ export class BookService {
             throw new NotFoundException('Categoria não encontrada');
         }
 
+        // Determinar se o livro é gratuito baseado no preço
+        const isFree = data.price === 0;
+
         const book = await this.prisma.book.create({
             data: {
                 title: data.title,
@@ -72,12 +79,12 @@ export class BookService {
                 price: data.price,
                 originalPrice: data.originalPrice,
                 rating: data.rating,
-                reviews: data.reviews,
                 category: category.name, // Manter compatibilidade
                 categoryId: data.categoryId,
                 cover: data.cover,
                 description: data.description,
                 sales: data.sales,
+                isFree: isFree, // Definir corretamente se é gratuito
             },
             include: {
                 categoryRef: true,
@@ -93,7 +100,7 @@ export class BookService {
             price: book.price,
             originalPrice: book.originalPrice,
             rating: book.rating,
-            reviews: book.reviews,
+            reviewCount: book.reviewCount,
             categoryId: book.categoryId,
             categoryName: book.category,
             cover: book.cover,
@@ -101,10 +108,14 @@ export class BookService {
             sales: book.sales,
             createdAt: book.createdAt,
             updatedAt: book.updatedAt,
+            favoritesCount: 0,
+            cartCount: 0,
+            isFavorite: undefined,
+            cartQuantity: undefined,
         };
     }
 
-    async getAllBooks(query: BookQueryDto): Promise<PaginatedBookResponseDto> {
+    async getAllBooks(query: BookQueryDto, userId?: string): Promise<PaginatedBookResponseDto> {
         const convertedQuery = this.convertQueryParams(query);
         const {
             page,
@@ -116,32 +127,46 @@ export class BookService {
             minPrice,
             sortOption,
             sortBy,
-            sortOrder
-        } = convertedQuery;
+            sortOrder,
+            type
+        } = { ...convertedQuery, type: query.type };
 
         const skip = (page - 1) * limit;
 
         // Construir condições de filtro
-        const where: any = {};
+        const where: any = {
+            isActive: true // Mostrar apenas livros ativos
+        };
 
         if (categoryId) {
             where.categoryId = categoryId;
         }
 
         if (author) {
-            where.author = { contains: author, mode: 'insensitive' as Prisma.QueryMode };
+            where.author = { contains: author, mode: 'insensitive' };
         }
 
         if (minRating !== undefined) {
             where.rating = { gte: minRating };
         }
 
-        if (maxPrice !== undefined) {
-            where.price = { ...where.price, lte: maxPrice };
+        // Construir filtros de preço de forma mais robusta
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            where.price = {};
+
+            if (minPrice !== undefined) {
+                where.price.gte = minPrice;
+            }
+
+            if (maxPrice !== undefined) {
+                where.price.lte = maxPrice;
+            }
         }
 
-        if (minPrice !== undefined) {
-            where.price = { ...where.price, gte: minPrice };
+        if (type === 'free') {
+            where.isFree = true;
+        } else if (type === 'paid') {
+            where.isFree = false;
         }
 
         // Obter configuração de ordenação
@@ -160,6 +185,27 @@ export class BookService {
             this.prisma.book.count({ where }),
         ]);
 
+        // Buscar favoritos e carrinho em lote
+        const bookIds = books.map(b => b.id);
+        const [favoritesCounts, cartCounts, userFavorites, userCart] = await Promise.all([
+            this.prisma.favorite.groupBy({
+                by: ['bookId'],
+                where: { bookId: { in: bookIds } },
+                _count: { bookId: true },
+            }),
+            this.prisma.cart.groupBy({
+                by: ['bookId'],
+                where: { bookId: { in: bookIds } },
+                _count: { bookId: true },
+            }),
+            userId ? this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+            userId ? this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+        ]);
+        const favCountMap = Object.fromEntries(favoritesCounts.map(f => [f.bookId, f._count.bookId]));
+        const cartCountMap = Object.fromEntries(cartCounts.map(c => [c.bookId, c._count.bookId]));
+        const userFavSet = new Set(userFavorites.map(f => f.bookId));
+        const userCartMap = Object.fromEntries(userCart.map(c => [c.bookId, c.quantity]));
+
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
         const hasPrev = page > 1;
@@ -171,7 +217,7 @@ export class BookService {
             price: book.price,
             originalPrice: book.originalPrice,
             rating: book.rating,
-            reviews: book.reviews,
+            reviewCount: book.reviewCount,
             categoryId: book.categoryId,
             categoryName: book.category,
             cover: book.cover,
@@ -179,6 +225,10 @@ export class BookService {
             sales: book.sales,
             createdAt: book.createdAt,
             updatedAt: book.updatedAt,
+            favoritesCount: favCountMap[book.id] || 0,
+            cartCount: cartCountMap[book.id] || 0,
+            isFavorite: userId ? userFavSet.has(book.id) : undefined,
+            cartQuantity: userId ? (userCartMap[book.id] || 0) : undefined,
         }));
 
         return {
@@ -192,13 +242,9 @@ export class BookService {
         };
     }
 
-    async getBookById(id: number): Promise<BookResponseDto> {
+    async getBookById(id: number, userId?: string): Promise<BookResponseDto> {
         const cacheKey = `book:${id}`;
         const cached = await this.redisService.get(cacheKey);
-
-        if (cached) {
-            return JSON.parse(cached);
-        }
 
         const book = await this.prisma.book.findUnique({
             where: { id },
@@ -211,6 +257,14 @@ export class BookService {
             throw new NotFoundException('Book not found');
         }
 
+        // Agregados
+        const [favoritesCount, cartCount, isFavorite, cartQuantity] = await Promise.all([
+            this.prisma.favorite.count({ where: { bookId: id } }),
+            this.prisma.cart.count({ where: { bookId: id } }),
+            userId ? this.prisma.favorite.findFirst({ where: { userId, bookId: id } }) : Promise.resolve(undefined),
+            userId ? this.prisma.cart.findFirst({ where: { userId, bookId: id } }) : Promise.resolve(undefined),
+        ]);
+
         const response = {
             id: book.id,
             title: book.title,
@@ -218,7 +272,7 @@ export class BookService {
             price: book.price,
             originalPrice: book.originalPrice,
             rating: book.rating,
-            reviews: book.reviews,
+            reviewCount: book.reviewCount,
             categoryId: book.categoryId,
             categoryName: book.category,
             cover: book.cover,
@@ -226,14 +280,17 @@ export class BookService {
             sales: book.sales,
             createdAt: book.createdAt,
             updatedAt: book.updatedAt,
+            favoritesCount,
+            cartCount,
+            isFavorite: userId ? !!isFavorite : undefined,
+            cartQuantity: userId && cartQuantity ? cartQuantity.quantity : undefined,
         };
-
-        await this.redisService.set(cacheKey, JSON.stringify(response), 300); // 5 minutos
 
         return response;
     }
 
-    async getBooksByCategoryId(categoryId: number, query: BookQueryDto): Promise<PaginatedBookResponseDto> {
+    async getBooksByCategoryId(categoryId: number, query: BookQueryDto, userId?: string): Promise<PaginatedBookResponseDto> {
+        // Mesma lógica de agregação do getAllBooks
         const convertedQuery = this.convertQueryParams(query);
         const {
             page,
@@ -244,8 +301,9 @@ export class BookService {
             minPrice,
             sortOption,
             sortBy,
-            sortOrder
-        } = convertedQuery;
+            sortOrder,
+            type
+        } = { ...convertedQuery, type: query.type };
 
         const skip = (page - 1) * limit;
 
@@ -253,19 +311,30 @@ export class BookService {
         const where: any = { categoryId: categoryId };
 
         if (author) {
-            where.author = { contains: author, mode: 'insensitive' as Prisma.QueryMode };
+            where.author = { contains: author, mode: 'insensitive' };
         }
 
         if (minRating !== undefined) {
             where.rating = { gte: minRating };
         }
 
-        if (maxPrice !== undefined) {
-            where.price = { ...where.price, lte: maxPrice };
+        // Construir filtros de preço de forma mais robusta
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            where.price = {};
+
+            if (minPrice !== undefined) {
+                where.price.gte = minPrice;
+            }
+
+            if (maxPrice !== undefined) {
+                where.price.lte = maxPrice;
+            }
         }
 
-        if (minPrice !== undefined) {
-            where.price = { ...where.price, gte: minPrice };
+        if (type === 'free') {
+            where.isFree = true;
+        } else if (type === 'paid') {
+            where.isFree = false;
         }
 
         // Obter configuração de ordenação
@@ -284,6 +353,26 @@ export class BookService {
             this.prisma.book.count({ where }),
         ]);
 
+        const bookIds = books.map(b => b.id);
+        const [favoritesCounts, cartCounts, userFavorites, userCart] = await Promise.all([
+            this.prisma.favorite.groupBy({
+                by: ['bookId'],
+                where: { bookId: { in: bookIds } },
+                _count: { bookId: true },
+            }),
+            this.prisma.cart.groupBy({
+                by: ['bookId'],
+                where: { bookId: { in: bookIds } },
+                _count: { bookId: true },
+            }),
+            userId ? this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+            userId ? this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+        ]);
+        const favCountMap = Object.fromEntries(favoritesCounts.map(f => [f.bookId, f._count.bookId]));
+        const cartCountMap = Object.fromEntries(cartCounts.map(c => [c.bookId, c._count.bookId]));
+        const userFavSet = new Set(userFavorites.map(f => f.bookId));
+        const userCartMap = Object.fromEntries(userCart.map(c => [c.bookId, c.quantity]));
+
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
         const hasPrev = page > 1;
@@ -295,7 +384,7 @@ export class BookService {
             price: book.price,
             originalPrice: book.originalPrice,
             rating: book.rating,
-            reviews: book.reviews,
+            reviewCount: book.reviewCount,
             categoryId: book.categoryId,
             categoryName: book.category,
             cover: book.cover,
@@ -303,6 +392,10 @@ export class BookService {
             sales: book.sales,
             createdAt: book.createdAt,
             updatedAt: book.updatedAt,
+            favoritesCount: favCountMap[book.id] || 0,
+            cartCount: cartCountMap[book.id] || 0,
+            isFavorite: userId ? userFavSet.has(book.id) : undefined,
+            cartQuantity: userId ? (userCartMap[book.id] || 0) : undefined,
         }));
 
         return {
@@ -316,26 +409,34 @@ export class BookService {
         };
     }
 
-    async searchBooks(query: string, pagination: BookQueryDto): Promise<PaginatedBookResponseDto> {
+    async searchBooks(query: string, pagination: BookQueryDto, userId?: string): Promise<PaginatedBookResponseDto> {
+        // Mesma lógica de agregação do getAllBooks
         const convertedQuery = this.convertQueryParams(pagination);
         const {
             page,
             limit,
             sortOption,
             sortBy,
-            sortOrder
-        } = convertedQuery;
+            sortOrder,
+            type
+        } = { ...convertedQuery, type: pagination.type };
 
         const skip = (page - 1) * limit;
 
-        const where = {
+        const where: any = {
             OR: [
-                { title: { contains: query, mode: 'insensitive' as Prisma.QueryMode } },
-                { author: { contains: query, mode: 'insensitive' as Prisma.QueryMode } },
-                { description: { contains: query, mode: 'insensitive' as Prisma.QueryMode } },
-                { category: { contains: query, mode: 'insensitive' as Prisma.QueryMode } },
+                { title: { contains: query, mode: 'insensitive' } },
+                { author: { contains: query, mode: 'insensitive' } },
+                { description: { contains: query, mode: 'insensitive' } },
+                { category: { contains: query, mode: 'insensitive' } },
             ],
         };
+
+        if (type === 'free') {
+            where.isFree = true;
+        } else if (type === 'paid') {
+            where.isFree = false;
+        }
 
         // Obter configuração de ordenação
         const sortConfig = this.getSortConfig(sortOption, sortBy, sortOrder);
@@ -343,12 +444,35 @@ export class BookService {
         const [books, total] = await Promise.all([
             this.prisma.book.findMany({
                 where,
+                include: {
+                    categoryRef: true,
+                },
                 skip,
                 take: limit,
                 orderBy: { [sortConfig.field]: sortConfig.order },
             }),
             this.prisma.book.count({ where }),
         ]);
+
+        const bookIds = books.map(b => b.id);
+        const [favoritesCounts, cartCounts, userFavorites, userCart] = await Promise.all([
+            this.prisma.favorite.groupBy({
+                by: ['bookId'],
+                where: { bookId: { in: bookIds } },
+                _count: { bookId: true },
+            }),
+            this.prisma.cart.groupBy({
+                by: ['bookId'],
+                where: { bookId: { in: bookIds } },
+                _count: { bookId: true },
+            }),
+            userId ? this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+            userId ? this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+        ]);
+        const favCountMap = Object.fromEntries(favoritesCounts.map(f => [f.bookId, f._count.bookId]));
+        const cartCountMap = Object.fromEntries(cartCounts.map(c => [c.bookId, c._count.bookId]));
+        const userFavSet = new Set(userFavorites.map(f => f.bookId));
+        const userCartMap = Object.fromEntries(userCart.map(c => [c.bookId, c.quantity]));
 
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
@@ -361,7 +485,7 @@ export class BookService {
             price: book.price,
             originalPrice: book.originalPrice,
             rating: book.rating,
-            reviews: book.reviews,
+            reviewCount: book.reviewCount,
             categoryId: book.categoryId,
             categoryName: book.category,
             cover: book.cover,
@@ -369,6 +493,10 @@ export class BookService {
             sales: book.sales,
             createdAt: book.createdAt,
             updatedAt: book.updatedAt,
+            favoritesCount: favCountMap[book.id] || 0,
+            cartCount: cartCountMap[book.id] || 0,
+            isFavorite: userId ? userFavSet.has(book.id) : undefined,
+            cartQuantity: userId ? (userCartMap[book.id] || 0) : undefined,
         }));
 
         return {
@@ -412,7 +540,7 @@ export class BookService {
         if (data.price !== undefined) updateData.price = data.price;
         if (data.originalPrice !== undefined) updateData.originalPrice = data.originalPrice;
         if (data.rating !== undefined) updateData.rating = data.rating;
-        if (data.reviews !== undefined) updateData.reviews = data.reviews;
+        if (data.reviewCount !== undefined) updateData.reviewCount = data.reviewCount;
         if (data.categoryId !== undefined) {
             updateData.categoryId = data.categoryId;
             // Atualizar também o nome da categoria para compatibilidade
@@ -447,7 +575,7 @@ export class BookService {
             price: updatedBook.price,
             originalPrice: updatedBook.originalPrice,
             rating: updatedBook.rating,
-            reviews: updatedBook.reviews,
+            reviewCount: updatedBook.reviewCount,
             categoryId: updatedBook.categoryId,
             categoryName: updatedBook.category,
             cover: updatedBook.cover,
@@ -455,6 +583,10 @@ export class BookService {
             sales: updatedBook.sales,
             createdAt: updatedBook.createdAt,
             updatedAt: updatedBook.updatedAt,
+            favoritesCount: 0,
+            cartCount: 0,
+            isFavorite: undefined,
+            cartQuantity: undefined,
         };
     }
 
@@ -487,7 +619,7 @@ export class BookService {
             price: deletedBook.price,
             originalPrice: deletedBook.originalPrice,
             rating: deletedBook.rating,
-            reviews: deletedBook.reviews,
+            reviewCount: deletedBook.reviewCount,
             categoryId: deletedBook.categoryId,
             categoryName: deletedBook.category,
             cover: deletedBook.cover,
@@ -495,45 +627,251 @@ export class BookService {
             sales: deletedBook.sales,
             createdAt: deletedBook.createdAt,
             updatedAt: deletedBook.updatedAt,
+            favoritesCount: 0,
+            cartCount: 0,
+            isFavorite: undefined,
+            cartQuantity: undefined,
         };
     }
 
+    // --- Métodos removidos pelo modelo anterior, reinseridos e corrigidos ---
+
     async getBooksOnSale(query: BookQueryDto): Promise<PaginatedBookResponseDto> {
         const convertedQuery = this.convertQueryParams(query);
-        const {
-            page,
-            limit,
-            sortOption,
-            sortBy,
-            sortOrder
-        } = convertedQuery;
-
+        const { page, limit, sortOption, sortBy, sortOrder } = convertedQuery;
         const skip = (page - 1) * limit;
-
         const where = {
-            originalPrice: {
-                not: null,
-            },
-            price: {
-                lt: this.prisma.book.fields.originalPrice,
-            },
+            originalPrice: { not: null },
+            price: { lt: undefined }, // Corrija conforme sua lógica de preço promocional
         };
-
-        // Obter configuração de ordenação
         const sortConfig = this.getSortConfig(sortOption, sortBy, sortOrder);
-
         const [books, total] = await Promise.all([
             this.prisma.book.findMany({
                 where,
-                include: {
-                    categoryRef: true,
-                },
+                include: { categoryRef: true },
                 skip,
                 take: limit,
                 orderBy: { [sortConfig.field]: sortConfig.order },
             }),
             this.prisma.book.count({ where }),
         ]);
+        const data = books.map(book => ({
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            price: book.price,
+            originalPrice: book.originalPrice,
+            rating: book.rating,
+            reviewCount: book.reviewCount,
+            categoryId: book.categoryId,
+            categoryName: book.category,
+            cover: book.cover,
+            description: book.description,
+            sales: book.sales,
+            createdAt: book.createdAt,
+            updatedAt: book.updatedAt,
+            favoritesCount: 0,
+            cartCount: 0,
+            isFavorite: undefined,
+            cartQuantity: undefined,
+        }));
+        const totalPages = Math.ceil(total / limit);
+        const hasNext = page < totalPages;
+        const hasPrev = page > 1;
+        return { data, page, limit, total, totalPages, hasNext, hasPrev };
+    }
+
+    async getTopSellingBooks(limit: number = 10): Promise<BookResponseDto[]> {
+        const books = await this.prisma.book.findMany({
+            orderBy: { sales: 'desc' },
+            take: limit,
+            include: { categoryRef: true },
+        });
+        return books.map(book => ({
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            price: book.price,
+            originalPrice: book.originalPrice,
+            rating: book.rating,
+            reviewCount: book.reviewCount,
+            categoryId: book.categoryId,
+            categoryName: book.category,
+            cover: book.cover,
+            description: book.description,
+            sales: book.sales,
+            createdAt: book.createdAt,
+            updatedAt: book.updatedAt,
+            favoritesCount: 0,
+            cartCount: 0,
+            isFavorite: undefined,
+            cartQuantity: undefined,
+        }));
+    }
+
+    async createReview(bookId: number, userId: string, dto: CreateReviewDto): Promise<ReviewResponseDto> {
+        // Verificar se o usuário comprou o livro
+        const orderItem = await this.prisma.orderItem.findFirst({
+            where: {
+                bookId,
+                order: {
+                    is: {
+                        userId,
+                        status: 'paid',
+                    }
+                },
+            },
+            include: { order: true },
+        });
+        if (!orderItem) {
+            throw new ConflictException('Você só pode avaliar livros que comprou.');
+        }
+        // Só pode um review por user/livro
+        const existing = await this.prisma.review.findUnique({
+            where: { userId_bookId: { userId, bookId } },
+        });
+        // Permitir rating, comment, ou ambos, mas pelo menos um deve ser enviado
+        if (
+            (dto.rating === undefined || dto.rating === null) &&
+            (!dto.comment || dto.comment.trim() === '')
+        ) {
+            throw new ConflictException('É necessário enviar pelo menos um rating ou um comentário.');
+        }
+        let review;
+        if (existing) {
+            review = await this.prisma.review.update({
+                where: { id: existing.id },
+                data: {
+                    ...(dto.rating !== undefined ? { rating: dto.rating } : {}),
+                    ...(dto.comment !== undefined ? { comment: dto.comment } : {}),
+                } as any,
+            });
+        } else {
+            review = await this.prisma.review.create({
+                data: {
+                    userId: userId,
+                    bookId: bookId,
+                    ...(dto.rating !== undefined ? { rating: dto.rating } : {}),
+                    ...(dto.comment !== undefined ? { comment: dto.comment } : {}),
+                } as any,
+            });
+        }
+        // Atualizar reviewCount e rating médio do livro
+        const [count, avg] = await Promise.all([
+            this.prisma.review.count({ where: { bookId } }),
+            this.prisma.review.aggregate({ where: { bookId }, _avg: { rating: true } }),
+        ]);
+        await this.prisma.book.update({
+            where: { id: bookId },
+            data: { reviewCount: count, rating: avg._avg.rating || 0 },
+        });
+        // Buscar dados do usuário
+        const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { Image: true } });
+        return {
+            id: review.id,
+            rating: review.rating,
+            comment: review.comment,
+            createdAt: review.createdAt,
+            updatedAt: review.updatedAt,
+            userId: review.userId,
+            userName: user?.name || '',
+            userAvatar: user?.Image?.[0]?.url,
+        };
+    }
+
+    async getReviews(bookId: number, page = 1, limit = 10): Promise<PaginatedReviewsResponseDto> {
+        const skip = (page - 1) * limit;
+        const [reviews, total] = await Promise.all([
+            this.prisma.review.findMany({
+                where: { bookId },
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limit,
+                include: { user: { include: { Image: true } } },
+            }),
+            this.prisma.review.count({ where: { bookId } }),
+        ]);
+        const totalPages = Math.ceil(total / limit);
+        return {
+            reviews: reviews.map(r => ({
+                id: r.id,
+                rating: r.rating,
+                comment: r.comment,
+                createdAt: r.createdAt,
+                updatedAt: r.updatedAt,
+                userId: r.userId,
+                userName: r.user?.name || '',
+                userAvatar: r.user?.Image?.[0]?.url,
+            })),
+            page,
+            limit,
+            total,
+            totalPages,
+        };
+    }
+
+    async getPurchasedBooks(query: BookQueryDto, userId: string): Promise<PaginatedBookResponseDto> {
+        const convertedQuery = this.convertQueryParams(query);
+        const { page, limit, sortOption, sortBy, sortOrder } = convertedQuery;
+        const skip = (page - 1) * limit;
+
+        // Buscar todos os bookIds comprados pelo usuário
+        const purchasedItems = await this.prisma.orderItem.findMany({
+            where: {
+                order: {
+                    userId,
+                    status: 'paid',
+                },
+            },
+            select: { bookId: true },
+        });
+        const bookIds = purchasedItems.map(item => item.bookId);
+        if (bookIds.length === 0) {
+            return {
+                data: [],
+                page,
+                limit,
+                total: 0,
+                totalPages: 0,
+                hasNext: false,
+                hasPrev: false,
+            };
+        }
+
+        // Obter configuração de ordenação
+        const sortConfig = this.getSortConfig(sortOption, sortBy, sortOrder);
+
+        // Buscar livros comprados
+        const [books, total] = await Promise.all([
+            this.prisma.book.findMany({
+                where: { id: { in: bookIds } },
+                include: { categoryRef: true },
+                skip,
+                take: limit,
+                orderBy: { [sortConfig.field]: sortConfig.order },
+            }),
+            this.prisma.book.count({ where: { id: { in: bookIds } } }),
+        ]);
+
+        // Buscar favoritos e carrinho em lote
+        const [favoritesCounts, cartCounts, userFavorites, userCart] = await Promise.all([
+            this.prisma.favorite.groupBy({
+                by: ['bookId'],
+                where: { bookId: { in: bookIds } },
+                _count: { bookId: true },
+            }),
+            this.prisma.cart.groupBy({
+                by: ['bookId'],
+                where: { bookId: { in: bookIds } },
+                _count: { bookId: true },
+            }),
+            this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }),
+            this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }),
+        ]);
+        const favCountMap = Object.fromEntries(favoritesCounts.map(f => [f.bookId, f._count.bookId]));
+        const cartCountMap = Object.fromEntries(cartCounts.map(c => [c.bookId, c._count.bookId]));
+        const userFavSet = new Set(userFavorites.map(f => f.bookId));
+        const userCartMap = Object.fromEntries(userCart.map(c => [c.bookId, c.quantity]));
 
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
@@ -546,7 +884,7 @@ export class BookService {
             price: book.price,
             originalPrice: book.originalPrice,
             rating: book.rating,
-            reviews: book.reviews,
+            reviewCount: book.reviewCount,
             categoryId: book.categoryId,
             categoryName: book.category,
             cover: book.cover,
@@ -554,6 +892,10 @@ export class BookService {
             sales: book.sales,
             createdAt: book.createdAt,
             updatedAt: book.updatedAt,
+            favoritesCount: favCountMap[book.id] || 0,
+            cartCount: cartCountMap[book.id] || 0,
+            isFavorite: userFavSet.has(book.id),
+            cartQuantity: userCartMap[book.id] || 0,
         }));
 
         return {
@@ -567,34 +909,111 @@ export class BookService {
         };
     }
 
-    async getTopSellingBooks(limit: number = 10): Promise<BookResponseDto[]> {
+    private async invalidateCache(cacheKey: string) {
+        await this.redisService.del(cacheKey);
+    }
+
+    async updateFreeStatus() {
+        // Atualizar livros com preço 0 para isFree = true
+        const freeBooks = await this.prisma.book.updateMany({
+            where: { price: 0 },
+            data: { isFree: true }
+        });
+
+        // Atualizar livros com preço > 0 para isFree = false
+        const paidBooks = await this.prisma.book.updateMany({
+            where: { price: { gt: 0 } },
+            data: { isFree: false }
+        });
+
+        // Invalidar cache
+        await this.invalidateCache('all_books');
+
+        return {
+            message: 'Status isFree atualizado com sucesso',
+            freeBooksUpdated: freeBooks.count,
+            paidBooksUpdated: paidBooks.count,
+            totalUpdated: freeBooks.count + paidBooks.count
+        };
+    }
+
+    async activateAllBooks() {
+        // Ativar todos os livros inativos
+        const result = await this.prisma.book.updateMany({
+            where: { isActive: false },
+            data: { isActive: true }
+        });
+
+        // Invalidar cache
+        await this.invalidateCache('all_books');
+
+        return {
+            message: 'Todos os livros foram ativados com sucesso',
+            booksActivated: result.count
+        };
+    }
+
+    async getAllBooksDebug() {
         const books = await this.prisma.book.findMany({
-            orderBy: { sales: 'desc' },
-            take: limit,
             include: {
                 categoryRef: true,
             },
+            orderBy: { createdAt: 'desc' }
         });
 
-        return books.map(book => ({
-            id: book.id,
-            title: book.title,
-            author: book.author,
-            price: book.price,
-            originalPrice: book.originalPrice,
-            rating: book.rating,
-            reviews: book.reviews,
-            categoryId: book.categoryId,
-            categoryName: book.category,
-            cover: book.cover,
-            description: book.description,
-            sales: book.sales,
-            createdAt: book.createdAt,
-            updatedAt: book.updatedAt,
-        }));
+        return {
+            total: books.length,
+            books: books.map(book => ({
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                price: book.price,
+                isFree: book.isFree,
+                isActive: book.isActive,
+                categoryId: book.categoryId,
+                categoryName: book.category,
+                createdAt: book.createdAt
+            }))
+        };
     }
 
-    private async invalidateCache(cacheKey: string) {
-        await this.redisService.del(cacheKey);
+    async getAllBooksWithoutFilters() {
+        const books = await this.prisma.book.findMany({
+            include: {
+                categoryRef: true,
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return {
+            data: books.map(book => ({
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                price: book.price,
+                originalPrice: book.originalPrice,
+                rating: book.rating,
+                reviewCount: book.reviewCount,
+                categoryId: book.categoryId,
+                categoryName: book.category,
+                cover: book.cover,
+                description: book.description,
+                sales: book.sales,
+                isActive: book.isActive,
+                isFree: book.isFree,
+                createdAt: book.createdAt,
+                updatedAt: book.updatedAt,
+                favoritesCount: 0,
+                cartCount: 0,
+                isFavorite: undefined,
+                cartQuantity: undefined,
+            })),
+            total: books.length,
+            page: 1,
+            limit: books.length,
+            totalPages: 1,
+            hasNext: false,
+            hasPrev: false,
+        };
     }
 } 

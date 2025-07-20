@@ -38,6 +38,7 @@ model User {
   cart         Cart[]
   orders       Order[]
   notifications Notification[]
+  reviews      Review[]
 
   createdById  String?
   createdBy    User?   @relation("CreatedUsers", fields: [createdById], references: [id])
@@ -74,22 +75,35 @@ model Book {
   id            Int      @id @default(autoincrement())
   title         String
   author        String
+  description   String
   price         Float
   originalPrice Float?
-  rating        Float    @default(0)
-  reviews       Int      @default(0)
   category      String
-  categoryId    Int?
   cover         String
-  description   String
+  isbn          String?
+  language      String?
+  pageCount     Int?
+  publisher     String?
+  publishedDate String?
+  rating        Float    @default(0)
+  reviewCount       Int      @default(0)
   sales         Int      @default(0)
+  isActive      Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  isFree        Boolean  @default(false)
+  fileSize      String?
+  format        String?  // 'PDF', 'EPUB', 'MOBI'
+  downloadUrl   String?
+  downloadCount Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  categoryRef Category? @relation(fields: [categoryId], references: [id])
-  favorites   Favorite[]
-  cart        Cart[]
-  orderItems  OrderItem[]
+  categoryRef   Category? @relation(fields: [categoryId], references: [id])
+  categoryId    Int?
+  favorites     Favorite[]
+  cart          Cart[]
+  orderItems    OrderItem[]
+  reviews       Review[]
 
   @@map("books")
 }
@@ -178,4 +192,20 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  bookId    Int
+  rating    Int      // 1 a 5 estrelas
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@map("reviews")
 }

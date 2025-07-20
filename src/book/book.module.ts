@@ -3,8 +3,11 @@ import { BookController } from './book.controller';
 import { BookService } from './book.service';
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
+import { FavoriteModule } from '../favorite/favorite.module';
+import { CheckoutModule } from '../checkout/checkout.module';
 
 @Module({
+    imports: [FavoriteModule, CheckoutModule],
     controllers: [BookController],
     providers: [BookService, PrismaService, RedisService],
     exports: [BookService],

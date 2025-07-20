@@ -49,12 +49,17 @@ export class BookQueryDto extends PaginationDto {
     @Min(0)
     maxPrice?: number;
 
-    @ApiProperty({ example: 10.0, required: false })
+    @ApiProperty({
+        example: 0.0,
+        required: false,
+        description: 'Preço mínimo (0 para incluir livros gratuitos)',
+        default: 0
+    })
     @IsOptional()
     @Type(() => Number)
     @IsNumber()
     @Min(0)
-    minPrice?: number;
+    minPrice?: number = 0;
 
     @ApiProperty({
         example: 'default',
@@ -80,6 +85,16 @@ export class BookQueryDto extends PaginationDto {
     @IsOptional()
     @IsString()
     sortOrder?: 'asc' | 'desc' = 'desc';
+
+    @ApiProperty({
+        example: 'all',
+        enum: ['all', 'paid', 'free'],
+        required: false,
+        description: 'Filtrar por tipo de livro: all (todos), paid (pagos), free (gratuitos)'
+    })
+    @IsOptional()
+    @IsEnum(['all', 'paid', 'free'])
+    type?: 'all' | 'paid' | 'free' = 'all';
 }
 
 export class CreateBookDto {
@@ -111,7 +126,7 @@ export class CreateBookDto {
     @ApiProperty({ example: 1250 })
     @IsNumber()
     @Min(0)
-    reviews: number;
+    reviewCount: number;
 
     @ApiProperty({ example: 1, description: 'ID da categoria' })
     @IsNumber()
@@ -166,7 +181,7 @@ export class UpdateBookDto {
     @IsOptional()
     @IsNumber()
     @Min(0)
-    reviews?: number;
+    reviewCount?: number;
 
     @ApiProperty({ example: 1, description: 'ID da categoria', required: false })
     @IsOptional()
@@ -211,7 +226,7 @@ export class BookResponseDto {
     rating: number;
 
     @ApiProperty({ example: 1250 })
-    reviews: number;
+    reviewCount: number;
 
     @ApiProperty({ example: 1 })
     categoryId: number;
@@ -233,6 +248,18 @@ export class BookResponseDto {
 
     @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
     updatedAt: Date;
+
+    @ApiProperty({ example: 12, description: 'Quantidade de usuários que favoritaram este livro' })
+    favoritesCount: number;
+
+    @ApiProperty({ example: 3, description: 'Quantidade de vezes que este livro está no carrinho de usuários' })
+    cartCount: number;
+
+    @ApiProperty({ example: true, required: false, description: 'Se o livro está nos favoritos do usuário autenticado' })
+    isFavorite?: boolean;
+
+    @ApiProperty({ example: 2, required: false, description: 'Quantidade deste livro no carrinho do usuário autenticado' })
+    cartQuantity?: number;
 }
 
 export class PaginatedBookResponseDto {
@@ -256,4 +283,61 @@ export class PaginatedBookResponseDto {
 
     @ApiProperty({ example: false })
     hasPrev: boolean;
+}
+
+export class CreateReviewDto {
+    @ApiProperty({ example: 5, minimum: 1, maximum: 5, required: false })
+    @IsOptional()
+    @IsNumber()
+    @Min(1)
+    @Max(5)
+    rating?: number;
+
+    @ApiProperty({ example: 'Excelente livro, recomendo!', required: false })
+    @IsOptional()
+    @IsString()
+    comment?: string;
+}
+
+export class ReviewResponseDto {
+    @ApiProperty({ example: 1 })
+    id: number;
+
+    @ApiProperty({ example: 5 })
+    rating: number;
+
+    @ApiProperty({ example: 'Excelente livro, recomendo!' })
+    comment: string;
+
+    @ApiProperty({ example: '2024-07-16T15:00:00.000Z' })
+    createdAt: Date;
+
+    @ApiProperty({ example: '2024-07-16T15:00:00.000Z' })
+    updatedAt: Date;
+
+    @ApiProperty({ example: 'user-id-uuid' })
+    userId: string;
+
+    @ApiProperty({ example: 'João da Silva' })
+    userName: string;
+
+    @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false })
+    userAvatar?: string;
+}
+
+export class PaginatedReviewsResponseDto {
+    @ApiProperty({ type: [ReviewResponseDto] })
+    reviews: ReviewResponseDto[];
+
+    @ApiProperty({ example: 1 })
+    page: number;
+
+    @ApiProperty({ example: 10 })
+    limit: number;
+
+    @ApiProperty({ example: 100 })
+    total: number;
+
+    @ApiProperty({ example: 10 })
+    totalPages: number;
 } 

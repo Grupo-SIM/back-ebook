@@ -250,7 +250,7 @@ export class CheckoutService {
     }
 
     // Pedidos
-    async createOrder(userId: string, data: CreateOrderDto): Promise<OrderResponseDto> {
+    async createOrder(userId: string, data: CreateOrderDto): Promise<OrderResponseDto & { checkoutUrl: string }> {
         // Verificar se os itens do carrinho existem e estão selecionados
         const cartItems = await this.prisma.cart.findMany({
             where: {
@@ -322,52 +322,63 @@ export class CheckoutService {
         await this.invalidateOrderCache(userId);
 
         // Buscar pedido completo
-        const completeOrder = await this.prisma.order.findUnique({
+        const orderWithItems = await this.prisma.order.findUnique({
             where: { id: order.id },
-            include: {
-                orderItems: {
-                    include: {
-                        book: true
-                    }
-                }
-            }
+            include: { orderItems: { include: { book: true } } },
         });
+        const orderResponse = this.mapOrderToResponse(orderWithItems);
 
-        return this.mapOrderToResponse(completeOrder);
+        // Gerar link de checkout
+        const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
+        const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
+        const checkoutUrl = `https://checkout.seusite.com/?value=${value}&description=${description}`;
+
+        return {
+            ...orderResponse,
+            checkoutUrl,
+        };
     }
 
     async getOrders(userId: string, query: OrderQueryDto): Promise<{ orders: OrderResponseDto[], total: number, page: number, limit: number }> {
-        const { page = 1, limit = 10, status } = query;
-        const skip = (page - 1) * limit;
+        try {
+            // Garantir que page e limit são números
+            const page = Number(query.page) || 1;
+            const limit = Number(query.limit) || 10;
+            const { status } = query;
+            const skip = (page - 1) * limit;
 
-        const whereCondition: any = { userId };
-        if (status) {
-            whereCondition.status = status;
-        }
+            const whereCondition: any = { userId };
+            if (status) {
+                whereCondition.status = status;
+            }
 
-        const [orders, total] = await Promise.all([
-            this.prisma.order.findMany({
-                where: whereCondition,
-                include: {
-                    orderItems: {
-                        include: {
-                            book: true
+            const [orders, total] = await Promise.all([
+                this.prisma.order.findMany({
+                    where: whereCondition,
+                    include: {
+                        orderItems: {
+                            include: {
+                                book: true
+                            }
                         }
-                    }
-                },
-                orderBy: { createdAt: 'desc' },
-                skip,
-                take: limit
-            }),
-            this.prisma.order.count({ where: whereCondition })
-        ]);
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    skip,
+                    take: limit
+                }),
+                this.prisma.order.count({ where: whereCondition })
+            ]);
 
-        return {
-            orders: orders.map(order => this.mapOrderToResponse(order)),
-            total,
-            page,
-            limit
-        };
+            return {
+                orders: orders.map(order => this.mapOrderToResponse(order)),
+                total,
+                page,
+                limit
+            };
+        } catch (error) {
+            console.error('Erro ao listar pedidos do usuário:', error);
+            throw new BadRequestException('Erro ao listar pedidos do usuário: ' + error.message);
+        }
     }
 
     async getOrderById(userId: string, orderId: number): Promise<OrderResponseDto> {

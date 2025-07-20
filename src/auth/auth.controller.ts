@@ -140,11 +140,40 @@ export class AuthController {
     }
   }
 
-  @ApiOperation({ summary: 'Send password recovery link' })
-  @ApiParam({ name: 'email', required: true, type: String })
+  @ApiOperation({
+    summary: 'Esqueci minha senha - Gerar nova senha',
+    description: 'Gera uma nova senha aleatória e envia por email para o usuário'
+  })
+  @ApiParam({
+    name: 'email',
+    required: true,
+    type: String,
+    description: 'Email do usuário que esqueceu a senha'
+  })
   @ApiResponse({
     status: 200,
-    description: 'Password recovery link sent successfully',
+    description: 'Nova senha gerada e enviada por email com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Nova senha enviada para o email'
+        },
+        email: {
+          type: 'string',
+          example: 'usuario@exemplo.com'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Usuário não encontrado'
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Usuário inativo'
   })
   @Post('/recovery/:email')
   async recovery(@Param('email') email: string) {

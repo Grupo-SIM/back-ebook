@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { AuthService } from 'src/auth/auth.service';
 import { AppService } from 'src/app.service';
+import { NotificationService } from 'src/notification/notification.service';
 import { Role } from 'src/types/interfaces/role';
 export interface PayloadWebhook {
   type: string;
@@ -37,6 +38,7 @@ export class WebhookService {
     private readonly prismaService: PrismaService,
     private readonly authService: AuthService,
     private readonly appService: AppService,
+    public readonly notificationService: NotificationService,
   ) { }
 
   private shouldSendEmail(email: string, eventType: string): boolean {
@@ -429,6 +431,8 @@ export class WebhookService {
 
         // Cria o usuário se não existir
         await this.createUser(email, name, true);
+        // Após criar, buscar novamente
+        return await this.notifyInvoicePaid(email, name, planDescription, planValue, subscriptionId);
       } else if (!user.isActive) {
         this.logger.log(`Reativando usuário após pagamento: ${user.id}`);
         await this.prismaService.user.update({
@@ -436,6 +440,53 @@ export class WebhookService {
           data: { isActive: true },
         });
       }
+
+      // --- LIBERAÇÃO DO EBOOK ---
+      // Tenta encontrar o livro pelo título (planDescription)
+      const book = await this.prismaService.book.findFirst({
+        where: { title: planDescription },
+      });
+      if (book) {
+        // Cria Order se não existir para este pagamento
+        let order = await this.prismaService.order.findFirst({
+          where: {
+            userId: user.id,
+            status: 'paid',
+            orderItems: { some: { bookId: book.id } },
+          },
+        });
+        if (!order) {
+          order = await this.prismaService.order.create({
+            data: {
+              userId: user.id,
+              orderNumber: `DOM-${Date.now()}`,
+              status: 'paid',
+              totalAmount: book.price,
+              subtotal: book.price,
+              tax: 0,
+              discount: 0,
+              paymentMethod: 'dom',
+              paymentStatus: 'paid',
+              notes: `Pagamento DOM: ${subscriptionId}`,
+              orderItems: {
+                create: [{
+                  bookId: book.id,
+                  quantity: 1,
+                  unitPrice: book.price,
+                  totalPrice: book.price,
+                }],
+              },
+            },
+            include: { orderItems: true },
+          });
+          this.logger.log(`Order criada e ebook liberado para o usuário: ${user.email} - Livro: ${book.title}`);
+        } else {
+          this.logger.log(`Order já existente para este usuário e livro: ${user.email} - ${book.title}`);
+        }
+      } else {
+        this.logger.warn(`Livro não encontrado para liberação: ${planDescription}`);
+      }
+      // --- FIM DA LIBERAÇÃO DO EBOOK ---
 
       const formattedValue = new Intl.NumberFormat('pt-BR', {
         style: 'currency',
@@ -634,7 +685,7 @@ export class WebhookService {
       data: {
         customer: {
           dom_customer_id: 'eeacab24-81a2-453c-85b9-68a2364f9045',
-          email: 'brenohslima@gmail.com',
+          email: 'gabrielpg.at@gmail.com',
           name: 'Breno Henrique de Souza Lima',
         },
         subscription: {
@@ -694,7 +745,7 @@ export class WebhookService {
         customer: {
           id: '7db67756-19f7-472a-88fd-99d993d4d14c',
           name: 'Breno Henrique de Souza Lima',
-          email: 'brenohslima@gmail.com',
+          email: 'gabrielpg.at@gmail.com',
         },
         plan: {
           id: 'a8607237-4ea8-495d-a710-b90ca5469f1f',
@@ -756,7 +807,7 @@ export class WebhookService {
         customer: {
           id: '7db67756-19f7-472a-88fd-99d993d4d14c',
           name: 'Breno Henrique de Souza Lima',
-          email: 'brenohslima@gmail.com',
+          email: 'gabrielpg.at@gmail.com',
         },
         plan: {
           id: 'a8607237-4ea8-495d-a710-b90ca5469f1f',

@@ -11,6 +11,7 @@ import {
   HttpStatus,
   Query,
   Req,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -256,5 +257,22 @@ export class UserController {
         error.status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Patch('change-password')
+  @ApiOperation({ summary: 'Alterar senha do usuário autenticado' })
+  @ApiResponse({ status: 200, description: 'Senha alterada com sucesso.' })
+  @ApiResponse({ status: 400, description: 'Dados inválidos ou senha atual incorreta.' })
+  async changePassword(
+    @Body() changePasswordDto: any, // Assuming ChangePasswordDto is no longer exported
+    @GetUser() authenticatedUser: RequestWithUser['user'],
+  ): Promise<{ message: string }> {
+    await this.userService.changePassword(
+      authenticatedUser.id,
+      changePasswordDto.currentPassword,
+      changePasswordDto.newPassword,
+      changePasswordDto.confirmNewPassword
+    );
+    return { message: 'Senha alterada com sucesso.' };
   }
 }

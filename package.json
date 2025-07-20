@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "npx prisma generate && npx prisma migrate deploy && npx ts-node seeds/index.ts && node dist/src/main",
+    "start": "npx prisma generate && npx prisma migrate deploy && node dist/src/main",
     "start:pm2": "pm2 start npm --name api-pagelas -- run start",
     "migrate": "npx prisma migrate deploy --name init",
     "start:dev": "nest start --watch",
