@@ -10,10 +10,10 @@ services:
       - REDIS_PORT=6379
       - RUN_SEEDS=true
       - REDIS_HOST=redis_renovada
-      - AWS_ACCESS_KEY_ID=jwpozqt7q7ojmipnlwefm566f4zq
-      - AWS_SECRET_ACCESS_KEY=j2zgjvvpcnhex5hlduqini3fpszxamzvjadt5mldj3ix6qcjfuope
-      - AWS_ACCESS_GRANT=12HtYURWUKjBixiKZtPRKL6sqWKPcidTbgbMatXZx4QeVW6cji61PBSvzagjEdwhV3BYvu8i2hF5yba3H5cBK2MvkweQc2MXyGvVg19n7PJ5oraeaHjU3JGyRpYWAo6HWwDYkMvtP2jSzKqDJ3Gbe1B1YKsyzVb8AZkceXZwvekVk5zfdrc2u9do7e7vuYyHqPixWo7fjvowEsfi9L6cTu7aCaUyPfcjCA5ZQYRoiMakPBRLjgM7xtDZPdtsVg1p6iMqFd3wS34Srj331UrSHNF9S1s12QsuUj98RosgZcymZAa4pvnW7yGGPuAQEdU9J3b3uoFCio2Gt
-      - AWS_BUCKET_NAME=fraternidde
+      - AWS_ACCESS_KEY_ID=jwedqlbin4rklmmkvqtzaqbkdncq
+      - AWS_SECRET_ACCESS_KEY=j3khsrqjvyypuuuh7ywyk64uyzuphychv4s3trddjjt6f74tmxr3y
+      - AWS_ACCESS_GRANT=1z7iraFeGiSz7FsS3wAe6wU9UcUtwEPfiMh1q7JN12McbJLYB41poncQKRfW5iSJ8N16Z2yaTpzBUcsU6GNyqQT5CG3Uodehuk1Ztf8SgfBnbro3De5k6oRXhcYprqcrqtsG3ujQUz54KTNekYmfkLPy3PMVT6Bn5P6RrJKzxXPVDQYiqs2ujBDBMsUp3yLGehHPJVGpiE7nbwSpEmrM7hKJPSfZqXzQq5vParg8r8VLBH95Bt2xj9tLzDD5a862Rmnq8KMxC21RY5kePMWi4YJLUAkcbCk
+      - AWS_BUCKET_NAME=ebook
       - AWS_REGION=US1
       - AWS_S3_ENDPOINT=https://gateway.storjshare.io
       - SMTP_HOST="simintermediacoes.com"

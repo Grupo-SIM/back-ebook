@@ -206,60 +206,71 @@ export class UpdateBookDto {
     sales?: number;
 }
 
-export class BookResponseDto {
+export class ReviewResponseDto {
     @ApiProperty({ example: 1 })
     id: number;
 
-    @ApiProperty({ example: 'O Senhor dos Anéis' })
-    title: string;
-
-    @ApiProperty({ example: 'J.R.R. Tolkien' })
-    author: string;
-
-    @ApiProperty({ example: 49.90 })
-    price: number;
-
-    @ApiProperty({ example: 59.90, nullable: true })
-    originalPrice: number | null;
-
-    @ApiProperty({ example: 4.5 })
+    @ApiProperty({ example: 5 })
     rating: number;
 
-    @ApiProperty({ example: 1250 })
-    reviewCount: number;
+    @ApiProperty({ example: 'Excelente livro, recomendo!' })
+    comment: string;
 
-    @ApiProperty({ example: 1 })
-    categoryId: number;
-
-    @ApiProperty({ example: 'Fantasia' })
-    categoryName: string;
-
-    @ApiProperty({ example: 'https://example.com/cover.jpg' })
-    cover: string;
-
-    @ApiProperty({ example: 'Uma épica jornada pela Terra-média...' })
-    description: string;
-
-    @ApiProperty({ example: 5000 })
-    sales: number;
-
-    @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
+    @ApiProperty({ example: '2024-07-16T15:00:00.000Z' })
     createdAt: Date;
 
-    @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
+    @ApiProperty({ example: '2024-07-16T15:00:00.000Z' })
     updatedAt: Date;
 
+    @ApiProperty({ example: 'user-id-uuid' })
+    userId: string;
+
+    @ApiProperty({ example: 'João da Silva' })
+    userName: string;
+
+    @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false })
+    userAvatar?: string;
+}
+
+export class BookResponseDto {
+    @ApiProperty({ example: 1 })
+    id: number;
+    @ApiProperty({ example: 'O Senhor dos Anéis' })
+    title: string;
+    @ApiProperty({ example: 'J.R.R. Tolkien' })
+    author: string;
+    @ApiProperty({ example: 49.90 })
+    price: number;
+    @ApiProperty({ example: 59.90, nullable: true })
+    originalPrice: number | null;
+    @ApiProperty({ example: 4.5 })
+    rating: number;
+    @ApiProperty({ example: 1250 })
+    reviewCount: number;
+    @ApiProperty({ example: 1 })
+    categoryId: number;
+    @ApiProperty({ example: 'Fantasia' })
+    categoryName: string;
+    @ApiProperty({ example: 'https://example.com/cover.jpg' })
+    cover: string;
+    @ApiProperty({ example: 'Uma épica jornada pela Terra-média...' })
+    description: string;
+    @ApiProperty({ example: 5000 })
+    sales: number;
+    @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
+    createdAt: Date;
+    @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
+    updatedAt: Date;
     @ApiProperty({ example: 12, description: 'Quantidade de usuários que favoritaram este livro' })
     favoritesCount: number;
-
     @ApiProperty({ example: 3, description: 'Quantidade de vezes que este livro está no carrinho de usuários' })
     cartCount: number;
-
     @ApiProperty({ example: true, required: false, description: 'Se o livro está nos favoritos do usuário autenticado' })
     isFavorite?: boolean;
-
     @ApiProperty({ example: 2, required: false, description: 'Quantidade deste livro no carrinho do usuário autenticado' })
     cartQuantity?: number;
+    @ApiProperty({ type: [ReviewResponseDto], required: false, description: 'Lista de reviews do livro' })
+    reviews?: ReviewResponseDto[];
 }
 
 export class PaginatedBookResponseDto {
@@ -297,32 +308,6 @@ export class CreateReviewDto {
     @IsOptional()
     @IsString()
     comment?: string;
-}
-
-export class ReviewResponseDto {
-    @ApiProperty({ example: 1 })
-    id: number;
-
-    @ApiProperty({ example: 5 })
-    rating: number;
-
-    @ApiProperty({ example: 'Excelente livro, recomendo!' })
-    comment: string;
-
-    @ApiProperty({ example: '2024-07-16T15:00:00.000Z' })
-    createdAt: Date;
-
-    @ApiProperty({ example: '2024-07-16T15:00:00.000Z' })
-    updatedAt: Date;
-
-    @ApiProperty({ example: 'user-id-uuid' })
-    userId: string;
-
-    @ApiProperty({ example: 'João da Silva' })
-    userName: string;
-
-    @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false })
-    userAvatar?: string;
 }
 
 export class PaginatedReviewsResponseDto {

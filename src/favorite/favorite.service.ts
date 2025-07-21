@@ -109,12 +109,12 @@ export class FavoriteService {
 
     async getFavorites(userId: string, query: FavoriteQueryDto): Promise<FavoritesResponseDto> {
         const {
-            page = 1,
-            limit = 10,
             sortBy = 'recent',
             filterCategory
         } = query;
 
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
         const skip = (page - 1) * limit;
 
         // Construir condições de filtro
@@ -123,6 +123,7 @@ export class FavoriteService {
         };
 
         if (filterCategory) {
+            // Corrigir filtro para string
             where.book = {
                 category: {
                     contains: filterCategory,
@@ -134,56 +135,61 @@ export class FavoriteService {
         // Configurar ordenação
         const orderBy = this.getFavoriteSortConfig(sortBy);
 
-        const [favorites, total] = await Promise.all([
-            this.prisma.favorite.findMany({
-                where,
-                include: {
-                    book: {
-                        include: {
-                            categoryRef: true,
+        try {
+            const [favorites, total] = await Promise.all([
+                this.prisma.favorite.findMany({
+                    where,
+                    include: {
+                        book: {
+                            include: {
+                                categoryRef: true,
+                            },
                         },
                     },
-                },
-                skip,
-                take: limit,
-                orderBy,
-            }),
-            this.prisma.favorite.count({ where }),
-        ]);
+                    skip,
+                    take: limit,
+                    orderBy,
+                }),
+                this.prisma.favorite.count({ where }),
+            ]);
 
-        const totalPages = Math.ceil(total / limit);
-        const hasNext = page < totalPages;
-        const hasPrev = page > 1;
+            const totalPages = Math.ceil(total / limit);
+            const hasNext = page < totalPages;
+            const hasPrev = page > 1;
 
-        const items: FavoriteItemDto[] = favorites.map(favorite => ({
-            id: favorite.id,
-            bookId: favorite.bookId,
-            bookTitle: favorite.book.title,
-            bookAuthor: favorite.book.author,
-            bookPrice: favorite.book.price,
-            bookOriginalPrice: favorite.book.originalPrice,
-            bookRating: favorite.book.rating,
-            bookReviewCount: favorite.book.reviewCount,
-            bookCategoryId: favorite.book.categoryId,
-            bookCategoryName: favorite.book.category,
-            bookCover: favorite.book.cover,
-            bookDescription: favorite.book.description,
-            bookSales: favorite.book.sales,
-            bookCreatedAt: favorite.book.createdAt,
-            bookUpdatedAt: favorite.book.updatedAt,
-            addedAt: favorite.addedAt,
-        }));
+            const items: FavoriteItemDto[] = favorites.map(favorite => ({
+                id: favorite.id,
+                bookId: favorite.bookId,
+                bookTitle: favorite.book.title,
+                bookAuthor: favorite.book.author,
+                bookPrice: favorite.book.price,
+                bookOriginalPrice: favorite.book.originalPrice,
+                bookRating: favorite.book.rating,
+                bookReviewCount: favorite.book.reviewCount,
+                bookCategoryId: favorite.book.categoryId,
+                bookCategoryName: favorite.book.category,
+                bookCover: favorite.book.cover,
+                bookDescription: favorite.book.description,
+                bookSales: favorite.book.sales,
+                bookCreatedAt: favorite.book.createdAt,
+                bookUpdatedAt: favorite.book.updatedAt,
+                addedAt: favorite.addedAt,
+            }));
 
-        return {
-            items,
-            count: items.length,
-            page,
-            limit,
-            total,
-            totalPages,
-            hasNext,
-            hasPrev,
-        };
+            return {
+                items,
+                count: items.length,
+                page,
+                limit,
+                total,
+                totalPages,
+                hasNext,
+                hasPrev,
+            };
+        } catch (error) {
+            console.error('[FavoriteService][getFavorites] Erro ao buscar favoritos:', error);
+            throw new Error('Erro ao buscar favoritos: ' + (error?.message || error));
+        }
     }
 
     async getFavoriteStatus(userId: string, bookId: number): Promise<FavoriteStatusDto> {

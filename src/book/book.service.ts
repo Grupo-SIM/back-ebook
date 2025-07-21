@@ -177,6 +177,10 @@ export class BookService {
                 where,
                 include: {
                     categoryRef: true,
+                    reviews: {
+                        include: { user: true },
+                        orderBy: { createdAt: 'desc' },
+                    },
                 },
                 skip,
                 take: limit,
@@ -228,7 +232,16 @@ export class BookService {
             favoritesCount: favCountMap[book.id] || 0,
             cartCount: cartCountMap[book.id] || 0,
             isFavorite: userId ? userFavSet.has(book.id) : undefined,
-            cartQuantity: userId ? (userCartMap[book.id] || 0) : undefined,
+            cartQuantity: userId ? userCartMap[book.id] || 0 : undefined,
+            reviews: (book.reviews || []).map(r => ({
+                id: r.id,
+                rating: r.rating,
+                comment: r.comment,
+                createdAt: r.createdAt,
+                updatedAt: r.updatedAt,
+                userId: r.userId,
+                userName: r.user?.name || '',
+            })),
         }));
 
         return {
@@ -257,6 +270,22 @@ export class BookService {
             throw new NotFoundException('Book not found');
         }
 
+        // Buscar reviews do livro (com nome do usuário)
+        const reviews = await this.prisma.review.findMany({
+            where: { bookId: id },
+            orderBy: { createdAt: 'desc' },
+            include: { user: true },
+        });
+        const mappedReviews = reviews.map(r => ({
+            id: r.id,
+            rating: r.rating,
+            comment: r.comment,
+            createdAt: r.createdAt,
+            updatedAt: r.updatedAt,
+            userId: r.userId,
+            userName: r.user?.name || '',
+        }));
+
         // Agregados
         const [favoritesCount, cartCount, isFavorite, cartQuantity] = await Promise.all([
             this.prisma.favorite.count({ where: { bookId: id } }),
@@ -284,6 +313,7 @@ export class BookService {
             cartCount,
             isFavorite: userId ? !!isFavorite : undefined,
             cartQuantity: userId && cartQuantity ? cartQuantity.quantity : undefined,
+            reviews: mappedReviews,
         };
 
         return response;

@@ -20,8 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { BookService } from './book.service';
 import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedBookResponseDto, CreateReviewDto, ReviewResponseDto, PaginatedReviewsResponseDto } from './dto/book.dto';
-import { JwtAuthGuardPanel } from 'src/auth/guard/jwt-auth.guard';
-import { JwtAuthGuardAll } from 'src/auth/guard/jwt-auth.guard';
+import { JwtAuthGuardAll, JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/user.decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 
@@ -31,7 +30,7 @@ export class BookController {
     constructor(private readonly bookService: BookService) { }
 
     @Post()
-    @UseGuards(JwtAuthGuardPanel)
+    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create a new book' })
     @ApiResponse({
@@ -109,7 +108,7 @@ export class BookController {
     }
 
     @Post('update-free-status')
-    @UseGuards(JwtAuthGuardPanel)
+    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Atualizar status isFree de todos os livros baseado no preço' })
     @ApiResponse({
@@ -121,7 +120,7 @@ export class BookController {
     }
 
     @Post('activate-all')
-    @UseGuards(JwtAuthGuardPanel)
+    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Ativar todos os livros inativos' })
     @ApiResponse({
@@ -133,7 +132,7 @@ export class BookController {
     }
 
     @Get('debug/all')
-    @UseGuards(JwtAuthGuardPanel)
+    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar todos os livros sem filtros (debug)' })
     async getAllBooksDebug() {
@@ -141,7 +140,7 @@ export class BookController {
     }
 
     @Get('debug/all-without-filters')
-    @UseGuards(JwtAuthGuardPanel)
+    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar todos os livros sem filtros (incluindo inativos)' })
     async getAllBooksWithoutFilters() {
@@ -201,6 +200,8 @@ export class BookController {
     }
 
     @Get(':id')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Obter livro por ID' })
     @ApiResponse({ status: 200, description: 'Livro encontrado', type: BookResponseDto })
     @ApiResponse({ status: 404, description: 'Book not found' })
@@ -212,7 +213,9 @@ export class BookController {
     }
 
     @Put(':id')
-    @ApiOperation({ summary: 'Atualizar livro por ID' })
+    @UseGuards(JwtAuthGuardAdmin)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Atualizar livro por ID (apenas ADMIN)' })
     @ApiParam({ name: 'id', description: 'ID do livro' })
     @ApiResponse({ status: 200, description: 'Livro atualizado com sucesso', type: BookResponseDto })
     @ApiResponse({ status: 404, description: 'Book not found' })
@@ -224,7 +227,9 @@ export class BookController {
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Deletar livro por ID' })
+    @UseGuards(JwtAuthGuardAdmin)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Deletar livro por ID (apenas ADMIN)' })
     @ApiParam({ name: 'id', description: 'ID do livro' })
     @ApiResponse({ status: 200, description: 'Livro deletado com sucesso', type: BookResponseDto })
     @ApiResponse({ status: 404, description: 'Book not found' })
@@ -233,6 +238,8 @@ export class BookController {
     }
 
     @Post(':bookId/reviews')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Criar review para um livro (só para quem comprou)' })
     async createReview(
         @Param('bookId', ParseIntPipe) bookId: number,
@@ -243,6 +250,8 @@ export class BookController {
     }
 
     @Get(':bookId/reviews')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar reviews de um livro' })
     async getReviews(
         @Param('bookId') bookId: number,
