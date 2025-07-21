@@ -768,13 +768,16 @@ export class BookService {
             },
             include: { order: true },
         });
+
         if (!orderItem) {
             throw new ConflictException('Você só pode avaliar livros que comprou.');
         }
+
         // Só pode um review por user/livro
         const existing = await this.prisma.review.findUnique({
             where: { userId_bookId: { userId, bookId } },
         });
+
         // Permitir rating, comment, ou ambos, mas pelo menos um deve ser enviado
         if (
             (dto.rating === undefined || dto.rating === null) &&
@@ -782,6 +785,7 @@ export class BookService {
         ) {
             throw new ConflictException('É necessário enviar pelo menos um rating ou um comentário.');
         }
+
         let review;
         if (existing) {
             review = await this.prisma.review.update({
@@ -801,30 +805,37 @@ export class BookService {
                 } as any,
             });
         }
+
         // Atualizar reviewCount e rating médio do livro
         const [count, avg] = await Promise.all([
             this.prisma.review.count({ where: { bookId } }),
             this.prisma.review.aggregate({ where: { bookId }, _avg: { rating: true } }),
         ]);
+
         await this.prisma.book.update({
             where: { id: bookId },
             data: { reviewCount: count, rating: avg._avg.rating || 0 },
         });
-        // Buscar dados do usuário
-        const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { Image: true } });
-        // Log de review
-        const book = review.book;
-        if (book && book.createdBy?.id) {
+
+        // Buscar dados do usuário e do livro
+        const [user, book] = await Promise.all([
+            this.prisma.user.findUnique({ where: { id: userId }, include: { Image: true } }),
+            this.prisma.book.findUnique({ where: { id: bookId } })
+        ]);
+
+        // ✅ CORREÇÃO: Log de review corrigido
+        if (book && book.createdById) {
             await this.prisma['activityLog'].create({
                 data: {
-                    adminId: book.createdBy.id,
+                    adminId: book.createdById,
                     type: 'review',
-                    message: `Nova avaliação ${review.rating} estrelas para "${book.title}"`,
+                    message: `Nova avaliação ${review.rating || 'sem nota'} ${review.rating ? 'estrelas' : ''} para "${book.title}" por ${user?.name || 'usuário'}`,
                     bookId: book.id,
                     bookTitle: book.title,
                 }
             });
         }
+
         return {
             id: review.id,
             rating: review.rating,
@@ -869,6 +880,9 @@ export class BookService {
     }
 
     async getPurchasedBooks(query: BookQueryDto, userId: string): Promise<PaginatedBookResponseDto> {
+        // ✅ NOVO: Detectar e logar novas compras antes de retornar a lista
+        await this.detectAndLogNewPurchases();
+
         const convertedQuery = this.convertQueryParams(query);
         const { page, limit, sortOption, sortBy, sortOrder } = convertedQuery;
         const skip = (page - 1) * limit;
@@ -883,6 +897,7 @@ export class BookService {
             },
             select: { bookId: true },
         });
+
         const bookIds = purchasedItems.map(item => item.bookId);
         if (bookIds.length === 0) {
             return {
@@ -926,6 +941,7 @@ export class BookService {
             this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }),
             this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }),
         ]);
+
         const favCountMap = Object.fromEntries(favoritesCounts.map(f => [f.bookId, f._count.bookId]));
         const cartCountMap = Object.fromEntries(cartCounts.map(c => [c.bookId, c._count.bookId]));
         const userFavSet = new Set(userFavorites.map(f => f.bookId));
@@ -1073,5 +1089,82 @@ export class BookService {
             hasNext: false,
             hasPrev: false,
         };
+    }
+
+    async detectAndLogNewPurchases(): Promise<void> {
+        try {
+            console.log('🔍 Iniciando detecção de novas compras...');
+
+            // Buscar compras recentes (últimas 24 horas) que ainda não foram logadas
+            const recentPurchases = await this.prisma.orderItem.findMany({
+                where: {
+                    order: {
+                        status: 'paid',
+                        updatedAt: {
+                            gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // últimas 24 horas
+                        }
+                    }
+                },
+                include: {
+                    book: true,
+                    order: {
+                        include: {
+                            user: true
+                        }
+                    }
+                }
+            });
+
+            console.log(`📦 Encontradas ${recentPurchases.length} compras recentes`);
+
+            for (const purchase of recentPurchases) {
+                const { book, order } = purchase;
+
+                console.log(`📚 Processando: Livro "${book?.title}" - Pedido #${order.id} - Status: ${order.status}`);
+                console.log(`👤 Usuário: ${order.user?.name} - Admin criador: ${book?.createdById}`);
+
+                if (book && book.createdById && order.user) {
+                    // Verificar se já existe um log para esta compra específica
+                    const existingLog = await this.prisma['activityLog'].findFirst({
+                        where: {
+                            type: 'sale',
+                            bookId: book.id,
+                            message: {
+                                contains: `Pedido #${order.id}`
+                            }
+                        }
+                    });
+
+                    console.log(`📋 Log existente para pedido #${order.id}:`, !!existingLog);
+
+                    // Se não existe log para esta compra, criar
+                    if (!existingLog) {
+                        const logData = {
+                            adminId: book.createdById,
+                            type: 'sale',
+                            message: `Venda realizada: "${book.title}" comprado por ${order.user.name || 'usuário'} - Qtd: ${purchase.quantity} - Total: R$ ${purchase.totalPrice.toFixed(2)} - Pedido #${order.id}`,
+                            bookId: book.id,
+                            bookTitle: book.title,
+                        };
+
+                        console.log('📝 Criando log:', logData);
+
+                        await this.prisma['activityLog'].create({
+                            data: logData
+                        });
+
+                        console.log(`✅ Log de venda criado: ${book.title} para admin ${book.createdById}`);
+                    } else {
+                        console.log(`⏭️ Log já existe para pedido #${order.id}`);
+                    }
+                } else {
+                    console.log(`❌ Dados insuficientes - Book: ${!!book}, CreatedById: ${book?.createdById}, User: ${!!order.user}`);
+                }
+            }
+
+            console.log('🏁 Detecção de novas compras finalizada');
+        } catch (error) {
+            console.error('❌ Erro ao detectar e logar novas compras:', error);
+        }
     }
 } 

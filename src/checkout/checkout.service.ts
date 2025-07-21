@@ -524,7 +524,8 @@ export class CheckoutService {
                     include: {
                         book: true
                     }
-                }
+                },
+                user: true // ✅ ADICIONAR: incluir dados do usuário
             }
         });
 
@@ -540,9 +541,28 @@ export class CheckoutService {
                     include: {
                         book: true
                     }
-                }
+                },
+                user: true // ✅ ADICIONAR: incluir dados do usuário
             }
         });
+
+        // ✅ MELHORAR: Log de venda com mais informações
+        if (status === 'paid') {
+            for (const item of updatedOrder.orderItems) {
+                const book = item.book;
+                if (book && book.createdById) {
+                    await this.prisma['activityLog'].create({
+                        data: {
+                            adminId: book.createdById,
+                            type: 'sale',
+                            message: `Venda realizada: "${book.title}" comprado por ${order.user?.name || 'usuário'} - Qtd: ${item.quantity} - Total: R$ ${item.totalPrice.toFixed(2)}`,
+                            bookId: book.id,
+                            bookTitle: book.title,
+                        }
+                    });
+                }
+            }
+        }
 
         return this.mapOrderToResponse(updatedOrder);
     }
