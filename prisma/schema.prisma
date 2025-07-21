@@ -44,6 +44,8 @@ model User {
   createdBy    User?   @relation("CreatedUsers", fields: [createdById], references: [id])
   createdUsers User[]  @relation("CreatedUsers")
 
+  booksCreated Book[] @relation("BooksCreatedByUser")
+
   @@map("users")
 }
 
@@ -86,7 +88,7 @@ model Book {
   publisher     String?
   publishedDate String?
   rating        Float    @default(0)
-  reviewCount       Int      @default(0)
+  reviewCount   Int      @default(0)
   sales         Int      @default(0)
   isActive      Boolean  @default(true)
   isFeatured    Boolean  @default(false)
@@ -97,6 +99,9 @@ model Book {
   downloadCount Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  createdById String?
+  createdBy   User? @relation("BooksCreatedByUser", fields: [createdById], references: [id])
 
   categoryRef   Category? @relation(fields: [categoryId], references: [id])
   categoryId    Int?
@@ -208,4 +213,14 @@ model Review {
 
   @@unique([userId, bookId])
   @@map("reviews")
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  adminId   String
+  type      String   // 'book_created', 'book_updated', 'book_deleted', 'sale', 'review'
+  message   String
+  timestamp DateTime @default(now())
+  bookId    Int?
+  bookTitle String?
 }

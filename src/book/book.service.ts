@@ -59,7 +59,7 @@ export class BookService {
         };
     }
 
-    async createBook(data: CreateBookDto): Promise<BookResponseDto> {
+    async createBook(data: CreateBookDto, createdById: string): Promise<BookResponseDto> {
         // Verificar se a categoria existe
         const category = await this.prisma.category.findUnique({
             where: { id: data.categoryId }
@@ -85,12 +85,22 @@ export class BookService {
                 description: data.description,
                 sales: data.sales,
                 isFree: isFree, // Definir corretamente se é gratuito
+                createdById: createdById,
             },
             include: {
                 categoryRef: true,
             },
         });
-
+        // Log de criação
+        await this.prisma['activityLog'].create({
+            data: {
+                adminId: createdById,
+                type: 'book_created',
+                message: `Novo livro "${book.title}" foi criado`,
+                bookId: book.id,
+                bookTitle: book.title,
+            }
+        });
         await this.invalidateCache('all_books');
 
         return {
@@ -540,14 +550,11 @@ export class BookService {
         };
     }
 
-    async updateBook(id: number, data: UpdateBookDto): Promise<BookResponseDto> {
+    async updateBook(id: number, data: UpdateBookDto, adminId?: string): Promise<BookResponseDto> {
         const existingBook = await this.prisma.book.findUnique({
             where: { id },
-            include: {
-                categoryRef: true,
-            },
+            include: { createdBy: true },
         });
-
         if (!existingBook) {
             throw new NotFoundException('Book not found');
         }
@@ -595,6 +602,19 @@ export class BookService {
             },
         });
 
+        // Log de atualização
+        if (existingBook.createdBy?.id) {
+            await this.prisma['activityLog'].create({
+                data: {
+                    adminId: existingBook.createdBy.id,
+                    type: 'book_updated',
+                    message: `Livro "${existingBook.title}" foi atualizado`,
+                    bookId: existingBook.id,
+                    bookTitle: existingBook.title,
+                }
+            });
+        }
+
         await this.invalidateCache(`book:${id}`);
         await this.invalidateCache('all_books');
 
@@ -620,47 +640,42 @@ export class BookService {
         };
     }
 
-    async deleteBook(id: number): Promise<BookResponseDto> {
-        const book = await this.prisma.book.findUnique({
-            where: { id },
-            include: {
-                categoryRef: true,
-            },
-        });
-
+    async deleteBook(id: number, adminId?: string): Promise<BookResponseDto> {
+        const book = await this.prisma.book.findUnique({ where: { id }, include: { createdBy: true } });
         if (!book) {
             throw new NotFoundException('Book not found');
         }
-
-        const deletedBook = await this.prisma.book.delete({
-            where: { id },
-            include: {
-                categoryRef: true,
-            },
-        });
-
-        await this.invalidateCache(`book:${id}`);
+        // Registrar log de deleção
+        if (book.createdBy?.id) {
+            await this.prisma['activityLog'].create({
+                data: {
+                    adminId: book.createdBy.id,
+                    type: 'book_deleted',
+                    message: `Livro "${book.title}" foi removido`,
+                    bookId: book.id,
+                    bookTitle: book.title,
+                }
+            });
+        }
+        const deleted = await this.prisma.book.delete({ where: { id } });
         await this.invalidateCache('all_books');
-
         return {
-            id: deletedBook.id,
-            title: deletedBook.title,
-            author: deletedBook.author,
-            price: deletedBook.price,
-            originalPrice: deletedBook.originalPrice,
-            rating: deletedBook.rating,
-            reviewCount: deletedBook.reviewCount,
-            categoryId: deletedBook.categoryId,
-            categoryName: deletedBook.category,
-            cover: deletedBook.cover,
-            description: deletedBook.description,
-            sales: deletedBook.sales,
-            createdAt: deletedBook.createdAt,
-            updatedAt: deletedBook.updatedAt,
+            id: deleted.id,
+            title: deleted.title,
+            author: deleted.author,
+            price: deleted.price,
+            originalPrice: deleted.originalPrice,
+            rating: deleted.rating,
+            reviewCount: deleted.reviewCount,
+            categoryId: deleted.categoryId,
+            categoryName: deleted.category,
+            cover: deleted.cover,
+            description: deleted.description,
+            sales: deleted.sales,
+            createdAt: deleted.createdAt,
+            updatedAt: deleted.updatedAt,
             favoritesCount: 0,
             cartCount: 0,
-            isFavorite: undefined,
-            cartQuantity: undefined,
         };
     }
 
@@ -797,6 +812,19 @@ export class BookService {
         });
         // Buscar dados do usuário
         const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { Image: true } });
+        // Log de review
+        const book = review.book;
+        if (book && book.createdBy?.id) {
+            await this.prisma['activityLog'].create({
+                data: {
+                    adminId: book.createdBy.id,
+                    type: 'review',
+                    message: `Nova avaliação ${review.rating} estrelas para "${book.title}"`,
+                    bookId: book.id,
+                    bookTitle: book.title,
+                }
+            });
+        }
         return {
             id: review.id,
             rating: review.rating,

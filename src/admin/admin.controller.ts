@@ -11,6 +11,7 @@ import {
   HttpStatus,
   ConflictException,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -23,6 +24,7 @@ import { UserService } from '../user/user.service';
 import { CreateAdminDto, UpdateAdminDto, AdminResponseDto } from './admin.dto';
 import { CreateUserDto } from '../user/user.dto';
 import { JwtAuthGuardPanel } from '../auth/guard/jwt-auth.guard';
+import { JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/user.decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 
@@ -185,6 +187,22 @@ export class AdminController {
   })
   async getAllAdminNames(): Promise<string[]> {
     return this.adminService.getAllAdminNames();
+  }
+
+  @Get('activities')
+  @UseGuards(JwtAuthGuardAdmin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar atividades recentes do admin (dashboard)' })
+  @ApiResponse({ status: 200, description: 'Atividades recentes do admin' })
+  async getRecentActivities(
+    @GetUser() admin: RequestWithUser['user'],
+    @Query('page') page: number | string = 1,
+    @Query('limit') limit: number | string = 10
+  ) {
+    // Garantir que page e limit são números
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    return this.adminService.getRecentActivities(admin.id, pageNum, limitNum);
   }
 
   @Get(':id')

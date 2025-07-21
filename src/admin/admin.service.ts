@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { GenericService } from 'src/generic.service';
 import { AdminResponseDto } from './admin.dto';
 import dayjs from 'dayjs';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class AdminService extends GenericService {
@@ -28,11 +29,11 @@ export class AdminService extends GenericService {
 
   async getAllAdminNames(): Promise<string[]> {
     const admins = await this.prisma.admin.findMany({
-      select: { 
+      select: {
         adminUser: {
-          select: { 
-            name: true 
-          } 
+          select: {
+            name: true
+          }
         }
       },
     });
@@ -115,9 +116,9 @@ export class AdminService extends GenericService {
   }
 
   async updateAdmin(id: string, data: { name?: string; email?: string }): Promise<any> {
-    const admin = await this.prisma.admin.findUnique({ 
-      where: { id }, 
-      include: { adminUser: true } 
+    const admin = await this.prisma.admin.findUnique({
+      where: { id },
+      include: { adminUser: true }
     });
 
     if (!admin) {
@@ -150,7 +151,7 @@ export class AdminService extends GenericService {
   async getAdminByUserId(userId: string): Promise<AdminResponseDto | null | any> {
     const cacheKey = `admin:user:${userId}`;
     const cachedData = await this.redisService.get(cacheKey);
-    
+
     if (cachedData) {
       return JSON.parse(cachedData);
     }
@@ -165,5 +166,34 @@ export class AdminService extends GenericService {
     }
 
     return admin;
+  }
+
+  async getRecentActivities(adminId: string, page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+    // Buscar logs imutáveis da tabela ActivityLog
+    const [logs, total] = await Promise.all([
+      this.prisma['activityLog'].findMany({
+        where: { adminId },
+        orderBy: { timestamp: 'desc' },
+        skip,
+        take: limit,
+      }),
+      this.prisma['activityLog'].count({ where: { adminId } })
+    ]);
+    const totalPages = Math.ceil(total / limit);
+    return {
+      data: logs.map(log => ({
+        id: log.id,
+        type: log.type,
+        message: log.message,
+        timestamp: log.timestamp,
+        bookId: log.bookId,
+        bookTitle: log.bookTitle,
+      })),
+      page,
+      limit,
+      total,
+      totalPages
+    };
   }
 }

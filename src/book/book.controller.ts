@@ -30,16 +30,14 @@ export class BookController {
     constructor(private readonly bookService: BookService) { }
 
     @Post()
-    @UseGuards(JwtAuthGuardAll)
+    @UseGuards(JwtAuthGuardAdmin)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Create a new book' })
-    @ApiResponse({
-        status: 201,
-        description: 'Book created successfully',
-        type: BookResponseDto,
-    })
-    async createBook(@Body() createBookDto: CreateBookDto): Promise<BookResponseDto> {
-        return this.bookService.createBook(createBookDto);
+    async createBook(
+        @Body() createBookDto: CreateBookDto,
+        @GetUser() user: RequestWithUser['user'],
+    ): Promise<BookResponseDto> {
+        return this.bookService.createBook(createBookDto, user.id);
     }
 
     @Get()
@@ -233,8 +231,11 @@ export class BookController {
     @ApiParam({ name: 'id', description: 'ID do livro' })
     @ApiResponse({ status: 200, description: 'Livro deletado com sucesso', type: BookResponseDto })
     @ApiResponse({ status: 404, description: 'Book not found' })
-    async deleteBook(@Param('id') id: string): Promise<BookResponseDto> {
-        return this.bookService.deleteBook(Number(id));
+    async deleteBook(
+        @Param('id') id: string,
+        @GetUser() user: RequestWithUser['user'],
+    ): Promise<BookResponseDto> {
+        return this.bookService.deleteBook(Number(id), user.id);
     }
 
     @Post(':bookId/reviews')
