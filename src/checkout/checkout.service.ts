@@ -135,7 +135,8 @@ export class CheckoutService {
             bookCover: item.book.cover,
             quantity: item.quantity,
             selected: item.selected,
-            totalPrice: item.book.price * item.quantity
+            totalPrice: item.book.price * item.quantity,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${item.book.price}&description=${encodeURIComponent(item.book.title)}`
         } as CheckoutItem));
 
         await this.redisService.set(cacheKey, JSON.stringify(cartItemsDto), 300); // 5 minutos

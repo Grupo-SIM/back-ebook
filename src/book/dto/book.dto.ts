@@ -95,6 +95,11 @@ export class BookQueryDto extends PaginationDto {
     @IsOptional()
     @IsEnum(['all', 'paid', 'free'])
     type?: 'all' | 'paid' | 'free' = 'all';
+
+    @ApiProperty({ example: 'admin-uuid', required: false, description: 'Filtrar livros pelo admin criador' })
+    @IsOptional()
+    @IsString()
+    createdById?: string;
 }
 
 export class CreateBookDto {

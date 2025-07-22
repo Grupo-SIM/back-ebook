@@ -56,6 +56,7 @@ export class BookService {
             sortOption: query.sortOption || 'default',
             sortBy: query.sortBy,
             sortOrder: query.sortOrder || 'desc',
+            createdById: query.createdById,
         };
     }
 
@@ -152,7 +153,7 @@ export class BookService {
         };
     }
 
-    async getAllBooks(query: BookQueryDto, userId?: string): Promise<PaginatedBookResponseDto> {
+    async getAllBooks(query: BookQueryDto, userId?: string, onlyAdminBooks?: boolean): Promise<PaginatedBookResponseDto> {
         const convertedQuery = this.convertQueryParams(query);
         const {
             page,
@@ -165,8 +166,9 @@ export class BookService {
             sortOption,
             sortBy,
             sortOrder,
-            type
-        } = { ...convertedQuery, type: query.type };
+            type,
+            createdById
+        } = { ...convertedQuery, type: query.type, createdById: query.createdById };
 
         const skip = (page - 1) * limit;
 
@@ -204,6 +206,10 @@ export class BookService {
             where.isFree = true;
         } else if (type === 'paid') {
             where.isFree = false;
+        }
+
+        if (onlyAdminBooks && createdById) {
+            where.createdById = createdById;
         }
 
         // Obter configuração de ordenação
@@ -301,7 +307,7 @@ export class BookService {
         };
     }
 
-    async getBookById(id: number, userId?: string): Promise<BookResponseDto> {
+    async getBookById(id: number, userId?: string, onlyAdminBooks?: boolean): Promise<BookResponseDto> {
         const cacheKey = `book:${id}`;
         const cached = await this.redisService.get(cacheKey);
 
@@ -314,6 +320,10 @@ export class BookService {
 
         if (!book) {
             throw new NotFoundException('Book not found');
+        }
+
+        if (onlyAdminBooks && userId && book.createdById !== userId) {
+            throw new NotFoundException('Book not found for this admin');
         }
 
         // Buscar reviews do livro (com nome do usuário)
@@ -613,13 +623,16 @@ export class BookService {
         };
     }
 
-    async updateBook(id: number, data: UpdateBookDto, adminId?: string): Promise<BookResponseDto> {
+    async updateBook(id: number, data: UpdateBookDto, adminId?: string, onlyAdminBooks?: boolean): Promise<BookResponseDto> {
         const existingBook = await this.prisma.book.findUnique({
             where: { id },
             include: { createdBy: true },
         });
         if (!existingBook) {
             throw new NotFoundException('Book not found');
+        }
+        if (onlyAdminBooks && adminId && existingBook.createdById !== adminId) {
+            throw new NotFoundException('Book not found for this admin');
         }
 
         // Se categoryId está sendo alterado, verificar se a categoria existe
@@ -728,10 +741,13 @@ export class BookService {
         };
     }
 
-    async deleteBook(id: number, adminId?: string): Promise<BookResponseDto> {
+    async deleteBook(id: number, adminId?: string, onlyAdminBooks?: boolean): Promise<BookResponseDto> {
         const book = await this.prisma.book.findUnique({ where: { id }, include: { createdBy: true } });
         if (!book) {
             throw new NotFoundException('Book not found');
+        }
+        if (onlyAdminBooks && adminId && book.createdById !== adminId) {
+            throw new NotFoundException('Book not found for this admin');
         }
         // Registrar log de deleção
         if (book.createdBy?.id) {
