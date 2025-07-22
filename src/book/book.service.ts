@@ -104,6 +104,7 @@ export class BookService {
                 publishedDate: data.publishedDate,
                 printLength: data.printLength,
                 downloadUrl: data.downloadUrl,
+                readingAge: data.readingAge,
                 ...(coverImageId ? { coverImageId } : {}),
             },
             include: {
@@ -149,6 +150,7 @@ export class BookService {
             printLength: book.printLength ?? undefined,
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
+            readingAge: book.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         };
     }
@@ -293,6 +295,7 @@ export class BookService {
             printLength: book.printLength ?? undefined,
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
+            readingAge: book.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
@@ -378,6 +381,7 @@ export class BookService {
             printLength: book.printLength ?? undefined,
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
+            readingAge: book.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         };
 
@@ -499,6 +503,7 @@ export class BookService {
             printLength: book.printLength ?? undefined,
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
+            readingAge: book.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
@@ -609,6 +614,7 @@ export class BookService {
             printLength: book.printLength ?? undefined,
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
+            readingAge: book.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
@@ -676,6 +682,7 @@ export class BookService {
         if (data.publishedDate !== undefined) updateData.publishedDate = data.publishedDate;
         if (data.printLength !== undefined) updateData.printLength = data.printLength;
         if (data.downloadUrl !== undefined) updateData.downloadUrl = data.downloadUrl;
+        if (data.readingAge !== undefined) updateData.readingAge = data.readingAge;
 
         // Se cover for enviado, buscar ou criar imagem e associar coverImageId
         if (data.cover) {
@@ -737,6 +744,7 @@ export class BookService {
             printLength: updatedBook.printLength ?? undefined,
             downloadUrl: updatedBook.downloadUrl ?? undefined,
             isFree: updatedBook.isFree ?? false,
+            readingAge: updatedBook.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${updatedBook.price}&description=${encodeURIComponent(updatedBook.title)}`,
         };
     }
@@ -781,6 +789,7 @@ export class BookService {
             favoritesCount: 0,
             cartCount: 0,
             isFree: deleted.isFree ?? false,
+            readingAge: deleted.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${deleted.price}&description=${encodeURIComponent(deleted.title)}`,
         };
     }
@@ -826,6 +835,7 @@ export class BookService {
             isFavorite: undefined,
             cartQuantity: undefined,
             isFree: book.isFree ?? false,
+            readingAge: book.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
         const totalPages = Math.ceil(total / limit);
@@ -866,6 +876,7 @@ export class BookService {
             publishedDate: book.publishedDate ?? undefined,
             printLength: book.printLength ?? undefined,
             isFree: book.isFree ?? false,
+            readingAge: book.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
     }
@@ -1094,6 +1105,7 @@ export class BookService {
             printLength: book.printLength ?? undefined,
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
+            readingAge: book.readingAge ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
@@ -1191,6 +1203,7 @@ export class BookService {
                 publisher: book.publisher ?? undefined,
                 publishedDate: book.publishedDate ?? undefined,
                 printLength: book.printLength ?? undefined,
+                readingAge: book.readingAge ?? undefined,
             }))
         };
     }
@@ -1231,6 +1244,7 @@ export class BookService {
                 publisher: book.publisher ?? undefined,
                 publishedDate: book.publishedDate ?? undefined,
                 printLength: book.printLength ?? undefined,
+                readingAge: book.readingAge ?? undefined,
             })),
             total: books.length,
             page: 1,

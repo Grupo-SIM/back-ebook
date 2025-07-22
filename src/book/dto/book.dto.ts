@@ -188,6 +188,10 @@ export class CreateBookDto {
     @IsOptional()
     @IsString()
     downloadUrl?: string;
+
+    @ApiProperty({ example: '12-16' })
+    @IsString()
+    readingAge: string;
 }
 
 export class UpdateBookDto {
@@ -278,6 +282,11 @@ export class UpdateBookDto {
     @IsOptional()
     @IsString()
     downloadUrl?: string;
+
+    @ApiProperty({ example: '12-16', required: false })
+    @IsOptional()
+    @IsString()
+    readingAge?: string;
 }
 
 export class ReviewResponseDto {
@@ -366,6 +375,9 @@ export class BookResponseDto {
 
     @ApiProperty({ example: 'https://checkout.jbmidia.com/?value=49.9&description=O Senhor dos Anéis', required: false, description: 'URL de checkout para compra do livro' })
     checkoutUrl?: string;
+
+    @ApiProperty({ example: '12-16', required: false })
+    readingAge?: string;
 }
 
 export class PaginatedBookResponseDto {

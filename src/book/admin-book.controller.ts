@@ -109,6 +109,7 @@ export class AdminBookController {
                 publisher: { type: 'string' },
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
+                readingAge: { type: 'string' },
                 file: { type: 'string', format: 'binary' }
             }
         }
