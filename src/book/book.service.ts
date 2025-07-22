@@ -983,7 +983,7 @@ export class BookService {
                 orderBy: { createdAt: 'desc' },
                 skip,
                 take: limit,
-                include: { user: { include: { Image: true } } },
+                include: { user: { include: { avatarImage: true } } },
             }),
             this.prisma.review.count({ where: { bookId } }),
         ]);
@@ -997,7 +997,7 @@ export class BookService {
                 updatedAt: r.updatedAt,
                 userId: r.userId,
                 userName: r.user?.name || '',
-                userAvatar: r.user?.Image?.[0]?.url,
+                userAvatar: r.user?.avatarImage?.url,
             })),
             page,
             limit,
