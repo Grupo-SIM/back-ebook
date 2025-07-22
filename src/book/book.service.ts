@@ -228,8 +228,8 @@ export class BookService {
                 where: { bookId: { in: bookIds } },
                 _count: { bookId: true },
             }),
-            userId ? this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
-            userId ? this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+            this.prisma.favorite.findMany({ where: { bookId: { in: bookIds } } }),
+            this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }),
         ]);
         const favCountMap = Object.fromEntries(favoritesCounts.map(f => [f.bookId, f._count.bookId]));
         const cartCountMap = Object.fromEntries(cartCounts.map(c => [c.bookId, c._count.bookId]));
@@ -325,7 +325,7 @@ export class BookService {
         const [favoritesCount, cartCount, isFavorite, cartQuantity] = await Promise.all([
             this.prisma.favorite.count({ where: { bookId: id } }),
             this.prisma.cart.count({ where: { bookId: id } }),
-            userId ? this.prisma.favorite.findFirst({ where: { userId, bookId: id } }) : Promise.resolve(undefined),
+            userId ? await this.prisma.favorite.findFirst({ where: { bookId: id } }) : Promise.resolve(undefined),
             userId ? this.prisma.cart.findFirst({ where: { userId, bookId: id } }) : Promise.resolve(undefined),
         ]);
 
@@ -439,8 +439,8 @@ export class BookService {
                 where: { bookId: { in: bookIds } },
                 _count: { bookId: true },
             }),
-            userId ? this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
-            userId ? this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+            this.prisma.favorite.findMany({ where: { bookId: { in: bookIds } } }),
+            this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }),
         ]);
         const favCountMap = Object.fromEntries(favoritesCounts.map(f => [f.bookId, f._count.bookId]));
         const cartCountMap = Object.fromEntries(cartCounts.map(c => [c.bookId, c._count.bookId]));
@@ -549,8 +549,8 @@ export class BookService {
                 where: { bookId: { in: bookIds } },
                 _count: { bookId: true },
             }),
-            userId ? this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
-            userId ? this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }) : Promise.resolve([]),
+            this.prisma.favorite.findMany({ where: { bookId: { in: bookIds } } }),
+            this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }),
         ]);
         const favCountMap = Object.fromEntries(favoritesCounts.map(f => [f.bookId, f._count.bookId]));
         const cartCountMap = Object.fromEntries(cartCounts.map(c => [c.bookId, c._count.bookId]));
@@ -1018,7 +1018,7 @@ export class BookService {
                 where: { bookId: { in: bookIds } },
                 _count: { bookId: true },
             }),
-            this.prisma.favorite.findMany({ where: { userId, bookId: { in: bookIds } } }),
+            this.prisma.favorite.findMany({ where: { bookId: { in: bookIds } } }),
             this.prisma.cart.findMany({ where: { userId, bookId: { in: bookIds } } }),
         ]);
 

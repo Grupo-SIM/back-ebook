@@ -18,50 +18,94 @@ export class FavoriteService {
         private readonly redisService: RedisService,
     ) { }
 
-    async addFavorite(userId: string, data: AddFavoriteDto): Promise<FavoriteItemDto> {
+    async addFavorite(data: AddFavoriteDto): Promise<FavoriteItemDto> {
         // Verificar se o livro existe
         const book = await this.prisma.book.findUnique({
             where: { id: data.bookId },
-            include: {
-                categoryRef: true,
-            },
         });
-
         if (!book) {
             throw new NotFoundException('Livro não encontrado');
         }
-
         // Verificar se já é favorito
         const existingFavorite = await this.prisma.favorite.findUnique({
-            where: {
-                userId_bookId: {
-                    userId,
-                    bookId: data.bookId,
-                },
-            },
+            where: { bookId: data.bookId },
         });
-
         if (existingFavorite) {
             throw new ConflictException('Livro já está nos favoritos');
         }
-
         const favorite = await this.prisma.favorite.create({
             data: {
-                userId,
                 bookId: data.bookId,
             },
-            include: {
-                book: {
-                    include: {
-                        categoryRef: true,
-                    },
-                },
-            },
         });
-
-        await this.invalidateUserFavoritesCache(userId);
-
         return {
+            id: favorite.id,
+            bookId: favorite.bookId,
+            bookTitle: book.title,
+            bookAuthor: book.author,
+            bookPrice: book.price,
+            bookOriginalPrice: book.originalPrice,
+            bookRating: book.rating,
+            bookReviewCount: book.reviewCount,
+            bookCategoryId: book.categoryId,
+            bookCategoryName: book.category,
+            bookCover: book.cover,
+            bookDescription: book.description,
+            bookSales: book.sales,
+            bookCreatedAt: book.createdAt,
+            bookUpdatedAt: book.updatedAt,
+            addedAt: favorite.addedAt,
+        };
+    }
+
+    async removeFavorite(data: RemoveFavoriteDto): Promise<void> {
+        const favorite = await this.prisma.favorite.findUnique({
+            where: { bookId: data.bookId },
+        });
+        if (!favorite) {
+            throw new NotFoundException('Favorito não encontrado');
+        }
+        await this.prisma.favorite.delete({
+            where: { bookId: data.bookId },
+        });
+    }
+
+    async getFavorites(query: FavoriteQueryDto): Promise<FavoritesResponseDto> {
+        const {
+            sortBy = 'recent',
+            filterCategory
+        } = query;
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
+        const skip = (page - 1) * limit;
+        // Construir condições de filtro
+        const where: any = {};
+        if (filterCategory) {
+            where.book = {
+                category: {
+                    contains: filterCategory,
+                    mode: 'insensitive',
+                },
+            };
+        }
+        // Configurar ordenação
+        const orderBy = this.getFavoriteSortConfig(sortBy);
+        const [favorites, total] = await Promise.all([
+            this.prisma.favorite.findMany({
+                where,
+                include: {
+                    book: true,
+                },
+                skip,
+                take: limit,
+                orderBy,
+            }),
+            this.prisma.favorite.count({ where }),
+        ]);
+        const totalPages = Math.ceil(total / limit);
+        const hasNext = page < totalPages;
+        const hasPrev = page > 1;
+        const items: FavoriteItemDto[] = favorites.map(favorite => ({
             id: favorite.id,
             bookId: favorite.bookId,
             bookTitle: favorite.book.title,
@@ -78,150 +122,36 @@ export class FavoriteService {
             bookCreatedAt: favorite.book.createdAt,
             bookUpdatedAt: favorite.book.updatedAt,
             addedAt: favorite.addedAt,
+        }));
+        return {
+            items,
+            count: items.length,
+            page,
+            limit,
+            total,
+            totalPages,
+            hasNext,
+            hasPrev,
         };
     }
 
-    async removeFavorite(userId: string, data: RemoveFavoriteDto): Promise<void> {
+    async getFavoriteStatus(bookId: number): Promise<FavoriteStatusDto> {
         const favorite = await this.prisma.favorite.findUnique({
-            where: {
-                userId_bookId: {
-                    userId,
-                    bookId: data.bookId,
-                },
-            },
+            where: { bookId },
         });
-
-        if (!favorite) {
-            throw new NotFoundException('Favorito não encontrado');
-        }
-
-        await this.prisma.favorite.delete({
-            where: {
-                userId_bookId: {
-                    userId,
-                    bookId: data.bookId,
-                },
-            },
-        });
-
-        await this.invalidateUserFavoritesCache(userId);
-    }
-
-    async getFavorites(userId: string, query: FavoriteQueryDto): Promise<FavoritesResponseDto> {
-        const {
-            sortBy = 'recent',
-            filterCategory
-        } = query;
-
-        const page = Number(query.page) || 1;
-        const limit = Number(query.limit) || 10;
-        const skip = (page - 1) * limit;
-
-        // Construir condições de filtro
-        const where: any = {
-            userId,
-        };
-
-        if (filterCategory) {
-            // Corrigir filtro para string
-            where.book = {
-                category: {
-                    contains: filterCategory,
-                    mode: 'insensitive',
-                },
-            };
-        }
-
-        // Configurar ordenação
-        const orderBy = this.getFavoriteSortConfig(sortBy);
-
-        try {
-            const [favorites, total] = await Promise.all([
-                this.prisma.favorite.findMany({
-                    where,
-                    include: {
-                        book: {
-                            include: {
-                                categoryRef: true,
-                            },
-                        },
-                    },
-                    skip,
-                    take: limit,
-                    orderBy,
-                }),
-                this.prisma.favorite.count({ where }),
-            ]);
-
-            const totalPages = Math.ceil(total / limit);
-            const hasNext = page < totalPages;
-            const hasPrev = page > 1;
-
-            const items: FavoriteItemDto[] = favorites.map(favorite => ({
-                id: favorite.id,
-                bookId: favorite.bookId,
-                bookTitle: favorite.book.title,
-                bookAuthor: favorite.book.author,
-                bookPrice: favorite.book.price,
-                bookOriginalPrice: favorite.book.originalPrice,
-                bookRating: favorite.book.rating,
-                bookReviewCount: favorite.book.reviewCount,
-                bookCategoryId: favorite.book.categoryId,
-                bookCategoryName: favorite.book.category,
-                bookCover: favorite.book.cover,
-                bookDescription: favorite.book.description,
-                bookSales: favorite.book.sales,
-                bookCreatedAt: favorite.book.createdAt,
-                bookUpdatedAt: favorite.book.updatedAt,
-                addedAt: favorite.addedAt,
-            }));
-
-            return {
-                items,
-                count: items.length,
-                page,
-                limit,
-                total,
-                totalPages,
-                hasNext,
-                hasPrev,
-            };
-        } catch (error) {
-            console.error('[FavoriteService][getFavorites] Erro ao buscar favoritos:', error);
-            throw new Error('Erro ao buscar favoritos: ' + (error?.message || error));
-        }
-    }
-
-    async getFavoriteStatus(userId: string, bookId: number): Promise<FavoriteStatusDto> {
-        const favorite = await this.prisma.favorite.findUnique({
-            where: {
-                userId_bookId: {
-                    userId,
-                    bookId,
-                },
-            },
-        });
-
         return {
             isFavorite: !!favorite,
             addedAt: favorite?.addedAt,
         };
     }
 
-    async getFavoritesCount(userId: string): Promise<{ count: number }> {
-        const count = await this.prisma.favorite.count({
-            where: { userId },
-        });
-
+    async getFavoritesCount(): Promise<{ count: number }> {
+        const count = await this.prisma.favorite.count();
         return { count };
     }
 
-    async clearFavorites(userId: string): Promise<void> {
-        await this.prisma.favorite.deleteMany({
-            where: { userId },
-        });
-
-        await this.invalidateUserFavoritesCache(userId);
+    async clearFavorites(): Promise<void> {
+        await this.prisma.favorite.deleteMany();
     }
 
     private getFavoriteSortConfig(sortBy: FavoriteSortBy) {

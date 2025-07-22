@@ -254,6 +254,18 @@ export class BookController {
         return this.bookService.getBookById(Number(id), user?.id);
     }
 
+    @Get(':bookId/reviews')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Listar reviews de um livro' })
+    async getReviews(
+        @Param('bookId') bookId: number,
+        @Query('page') page = 1,
+        @Query('limit') limit = 10,
+    ): Promise<PaginatedReviewsResponseDto> {
+        return this.bookService.getReviews(bookId, Number(page), Number(limit));
+    }
+
     @Put(':id')
     @UseGuards(JwtAuthGuardAdmin)
     @ApiBearerAuth()
@@ -333,18 +345,6 @@ export class BookController {
         @GetUser() user: RequestWithUser['user'],
     ): Promise<ReviewResponseDto> {
         return this.bookService.createReview(bookId, user.id, dto);
-    }
-
-    @Get(':bookId/reviews')
-    @UseGuards(JwtAuthGuardAll)
-    @ApiBearerAuth()
-    @ApiOperation({ summary: 'Listar reviews de um livro' })
-    async getReviews(
-        @Param('bookId') bookId: number,
-        @Query('page') page = 1,
-        @Query('limit') limit = 10,
-    ): Promise<PaginatedReviewsResponseDto> {
-        return this.bookService.getReviews(bookId, Number(page), Number(limit));
     }
 
     @Get(':id/download')
