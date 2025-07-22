@@ -50,6 +50,8 @@ export class CategoryController {
     }
 
     @Get()
+    @UseGuards(JwtAuthGuardAdminOrUser)
+    @ApiBearerAuth()
     @ApiOperation({
         summary: 'Listar todas as categorias',
         description: 'Lista todas as categorias (USER e ADMIN)'
@@ -64,6 +66,8 @@ export class CategoryController {
     }
 
     @Get('active')
+    @UseGuards(JwtAuthGuardAdminOrUser)
+    @ApiBearerAuth()
     @ApiOperation({
         summary: 'Listar categorias ativas',
         description: 'Lista apenas categorias ativas (USER e ADMIN)'
@@ -78,6 +82,8 @@ export class CategoryController {
     }
 
     @Get('popular')
+    @UseGuards(JwtAuthGuardAdminOrUser)
+    @ApiBearerAuth()
     @ApiOperation({
         summary: 'Listar categorias populares',
         description: 'Lista categorias com mais livros (USER e ADMIN)'
@@ -109,6 +115,8 @@ export class CategoryController {
     }
 
     @Get(':id')
+    @UseGuards(JwtAuthGuardAdminOrUser)
+    @ApiBearerAuth()
     @ApiOperation({
         summary: 'Buscar categoria por ID',
         description: 'Busca uma categoria específica por ID (USER e ADMIN)'
@@ -127,6 +135,8 @@ export class CategoryController {
     }
 
     @Get('name/:name')
+    @UseGuards(JwtAuthGuardAdminOrUser)
+    @ApiBearerAuth()
     @ApiOperation({
         summary: 'Buscar categoria por nome',
         description: 'Busca uma categoria específica por nome (USER e ADMIN)'

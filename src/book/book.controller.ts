@@ -255,7 +255,6 @@ export class BookController {
     }
 
     @Get(':bookId/reviews')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar reviews de um livro' })
     async getReviews(

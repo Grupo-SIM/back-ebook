@@ -31,8 +31,8 @@ import {
 
 @ApiTags('Checkout')
 @Controller('checkout')
-// @UseGuards(JwtAuthGuardAll)
-// @ApiBearerAuth()
+@UseGuards(JwtAuthGuardAll)
+@ApiBearerAuth()
 export class CheckoutController {
     constructor(private readonly checkoutService: CheckoutService) { }
 
@@ -41,17 +41,15 @@ export class CheckoutController {
     @ApiOperation({ summary: 'Adicionar item ao carrinho' })
     @ApiResponse({ status: 201, description: 'Item adicionado com sucesso', type: CheckoutItemDto })
     @ApiResponse({ status: 404, description: 'Livro não encontrado' })
-    async addToCart(/*@Request() req,*/ @Body() data: AddToCartDto): Promise<CheckoutItem> {
-        // return this.checkoutService.addToCart(req.user.id, data);
-        return this.checkoutService.addToCart(undefined, data);
+    async addToCart(@Request() req, @Body() data: AddToCartDto): Promise<CheckoutItem> {
+        return this.checkoutService.addToCart(req.user.id, data);
     }
 
     @Get('cart')
     @ApiOperation({ summary: 'Obter itens do carrinho' })
     @ApiResponse({ status: 200, description: 'Lista de itens do carrinho', type: [CheckoutItemDto] })
-    async getCart(/*@Request() req*/): Promise<CheckoutItem[]> {
-        // return this.checkoutService.getCart(req.user.id);
-        return this.checkoutService.getCart(undefined);
+    async getCart(@Request() req): Promise<CheckoutItem[]> {
+        return this.checkoutService.getCart(req.user.id);
     }
 
     @Put('cart/:id')
@@ -60,12 +58,11 @@ export class CheckoutController {
     @ApiResponse({ status: 200, description: 'Item atualizado com sucesso', type: CheckoutItemDto })
     @ApiResponse({ status: 404, description: 'Item do carrinho não encontrado' })
     async updateCartItem(
-        /*@Request() req,*/
+        @Request() req,
         @Param('id', ParseIntPipe) cartItemId: number,
         @Body() data: UpdateCartItemDto
     ): Promise<CheckoutItem> {
-        // return this.checkoutService.updateCartItem(req.user.id, cartItemId, data);
-        return this.checkoutService.updateCartItem(undefined, cartItemId, data);
+        return this.checkoutService.updateCartItem(req.user.id, cartItemId, data);
     }
 
     @Delete('cart/:id')
@@ -74,19 +71,17 @@ export class CheckoutController {
     @ApiResponse({ status: 200, description: 'Item removido com sucesso' })
     @ApiResponse({ status: 404, description: 'Item do carrinho não encontrado' })
     async removeFromCart(
-        /*@Request() req,*/
+        @Request() req,
         @Param('id', ParseIntPipe) cartItemId: number
     ): Promise<void> {
-        // return this.checkoutService.removeFromCart(req.user.id, cartItemId);
-        return this.checkoutService.removeFromCart(undefined, cartItemId);
+        return this.checkoutService.removeFromCart(req.user.id, cartItemId);
     }
 
     @Delete('cart')
     @ApiOperation({ summary: 'Limpar carrinho' })
     @ApiResponse({ status: 200, description: 'Carrinho limpo com sucesso' })
-    async clearCart(/*@Request() req*/): Promise<void> {
-        // return this.checkoutService.clearCart(req.user.id);
-        return this.checkoutService.clearCart(undefined);
+    async clearCart(@Request() req): Promise<void> {
+        return this.checkoutService.clearCart(req.user.id);
     }
 
     @Post('cart/select')

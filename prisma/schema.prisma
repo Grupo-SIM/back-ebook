@@ -34,6 +34,7 @@ model User {
 
   admin Admin? @relation("AdminToUser")
   Image        Image[]       @relation("UserAvatars")
+  favorites    Favorite[]
   cart         Cart[]
   orders       Order[]
   notifications Notification[]
@@ -113,13 +114,16 @@ model Book {
 
 model Favorite {
   id        Int      @id @default(autoincrement())
-  bookId    Int     @unique
+  userId    String?
+  bookId    Int
   addedAt   DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
   book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, bookId])
   @@map("favorites")
 }
 

@@ -33,8 +33,8 @@ import { GetUser } from 'src/common/decorators/user.decorator';
 
 @Controller('favorites')
 @ApiTags('Favorites')
-// @UseGuards(JwtAuthGuardAll)
-// @ApiBearerAuth()
+@UseGuards(JwtAuthGuardAll)
+@ApiBearerAuth()
 export class FavoriteController {
     constructor(private readonly favoriteService: FavoriteService) { }
 
@@ -54,9 +54,10 @@ export class FavoriteController {
         description: 'Book already in favorites',
     })
     async addFavorite(
-        @Body() data: AddFavoriteDto
+        @Body() data: AddFavoriteDto,
+        @GetUser() user: any,
     ): Promise<FavoriteItemDto> {
-        return this.favoriteService.addFavorite(data);
+        return this.favoriteService.addFavorite(user.id, data);
     }
 
     @Delete()
@@ -71,9 +72,10 @@ export class FavoriteController {
     })
     @HttpCode(HttpStatus.NO_CONTENT)
     async removeFavorite(
-        @Body() data: RemoveFavoriteDto
+        @Body() data: RemoveFavoriteDto,
+        @GetUser() user: any,
     ): Promise<void> {
-        await this.favoriteService.removeFavorite(data);
+        await this.favoriteService.removeFavorite(user.id, data);
     }
 
     @Get()
@@ -93,9 +95,10 @@ export class FavoriteController {
         type: FavoritesResponseDto,
     })
     async getFavorites(
-        @Query() query: FavoriteQueryDto
+        @Query() query: FavoriteQueryDto,
+        @GetUser() user: any,
     ): Promise<FavoritesResponseDto> {
-        return this.favoriteService.getFavorites(query);
+        return this.favoriteService.getFavorites(user.id, query);
     }
 
     @Get('count')
@@ -110,8 +113,8 @@ export class FavoriteController {
             },
         },
     })
-    async getFavoritesCount(): Promise<{ count: number }> {
-        return this.favoriteService.getFavoritesCount();
+    async getFavoritesCount(@GetUser() user: any): Promise<{ count: number }> {
+        return this.favoriteService.getFavoritesCount(user.id);
     }
 
     @Get('status/:bookId')
@@ -123,9 +126,10 @@ export class FavoriteController {
         type: FavoriteStatusDto,
     })
     async getFavoriteStatus(
-        @Param('bookId', ParseIntPipe) bookId: number
+        @Param('bookId', ParseIntPipe) bookId: number,
+        @GetUser() user: any,
     ): Promise<FavoriteStatusDto> {
-        return this.favoriteService.getFavoriteStatus(bookId);
+        return this.favoriteService.getFavoriteStatus(user.id, bookId);
     }
 
     @Delete('clear')
@@ -135,7 +139,7 @@ export class FavoriteController {
         description: 'All favorites cleared successfully',
     })
     @HttpCode(HttpStatus.NO_CONTENT)
-    async clearFavorites(): Promise<void> {
-        await this.favoriteService.clearFavorites();
+    async clearFavorites(@GetUser() user: any): Promise<void> {
+        await this.favoriteService.clearFavorites(user.id);
     }
 } 
