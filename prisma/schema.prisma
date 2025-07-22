@@ -46,6 +46,9 @@ model User {
 
   booksCreated Book[] @relation("BooksCreatedByUser")
 
+  avatarImageId String?
+  avatarImage   Image? @relation("UserAvatarImage", fields: [avatarImageId], references: [id])
+
   @@map("users")
 }
 
@@ -55,7 +58,10 @@ model Image {
   url       String
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
-  users    User[]    @relation("UserAvatars")
+
+  users         User[]  @relation("UserAvatars")
+  avatarOf      User[]  @relation("UserAvatarImage")
+  coverOfBooks  Book[]  @relation("BookCoverImage")
 }
 
 model Category {
@@ -82,6 +88,8 @@ model Book {
   originalPrice Float?
   category      String
   cover         String
+  coverImageId String?
+  coverImage   Image? @relation("BookCoverImage", fields: [coverImageId], references: [id])
   isbn          String?
   language      String?
   printLength   Int?

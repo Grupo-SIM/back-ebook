@@ -105,7 +105,8 @@ export class UserService extends GenericService {
             name: true,
             email: true
           }
-        }
+        },
+        avatarImage: true,
       }
     });
 
@@ -121,6 +122,7 @@ export class UserService extends GenericService {
       role: user.role as Role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      avatarUrl: user.avatarImage?.url,
       createdBy: user.createdBy
     };
   }
@@ -248,7 +250,7 @@ export class UserService extends GenericService {
 
   async updateUser(
     id: string,
-    data: { name?: string; email?: string; password?: string },
+    data: { name?: string; email?: string; password?: string; avatarUrl?: string },
     updaterUserId?: string,
     req?: any
   ): Promise<UserResponseDto> {
@@ -282,7 +284,7 @@ export class UserService extends GenericService {
       throw new UnauthorizedException('You can only update users you created');
     }
 
-    if (updater.role === Role.USER) {
+    if (updater.role === Role.USER && id !== updater.id) {
       throw new UnauthorizedException('Users cannot update other users');
     }
 
@@ -308,6 +310,15 @@ export class UserService extends GenericService {
     if (data.email !== undefined) updateData.email = data.email;
     if (data.password && data.password.trim().length > 0) {
       updateData.password = this.generateHashPassword(data.password);
+    }
+    // Atualizar avatar via URL
+    if (data.avatarUrl && typeof data.avatarUrl === 'string') {
+      // Buscar se já existe uma imagem com essa URL
+      let image = await this.prisma.image.findFirst({ where: { url: data.avatarUrl } });
+      if (!image) {
+        image = await this.prisma.image.create({ data: { url: data.avatarUrl } });
+      }
+      updateData.avatarImageId = image.id;
     }
 
     const updatedUser = await this.prisma.user.update({

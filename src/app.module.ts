@@ -28,6 +28,8 @@ import { FavoriteModule } from './favorite/favorite.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { NotificationModule } from './notification/notification.module';
 import { AllExceptionsFilter } from './all-exceptions.filter';
+import { ImageControllerUser } from './image/image.controller';
+import { ImageService } from './image/image.service';
 
 dotenv.config();
 
@@ -60,6 +62,7 @@ dotenv.config();
     AdminController,
     UserController,
     WebhookController,
+    ImageControllerUser
   ],
   providers: [
     {
@@ -78,7 +81,8 @@ dotenv.config();
     GenericService,
     RedisService,
     AdminService,
-    WebhookService
+    WebhookService,
+    ImageService
   ],
 })
 export class AppModule { }

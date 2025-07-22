@@ -72,6 +72,16 @@ export class BookService {
         // Determinar se o livro é gratuito baseado no preço
         const isFree = data.price === 0;
 
+        // Se cover for enviado, buscar ou criar imagem e associar coverImageId
+        let coverImageId: string | undefined = undefined;
+        if (data.cover) {
+            let image = await this.prisma.image.findFirst({ where: { url: data.cover } });
+            if (!image) {
+                image = await this.prisma.image.create({ data: { url: data.cover } });
+            }
+            coverImageId = image.id;
+        }
+
         const book = await this.prisma.book.create({
             data: {
                 title: data.title,
@@ -93,6 +103,7 @@ export class BookService {
                 publishedDate: data.publishedDate,
                 printLength: data.printLength,
                 downloadUrl: data.downloadUrl,
+                ...(coverImageId ? { coverImageId } : {}),
             },
             include: {
                 categoryRef: true,
@@ -652,6 +663,15 @@ export class BookService {
         if (data.publishedDate !== undefined) updateData.publishedDate = data.publishedDate;
         if (data.printLength !== undefined) updateData.printLength = data.printLength;
         if (data.downloadUrl !== undefined) updateData.downloadUrl = data.downloadUrl;
+
+        // Se cover for enviado, buscar ou criar imagem e associar coverImageId
+        if (data.cover) {
+            let image = await this.prisma.image.findFirst({ where: { url: data.cover } });
+            if (!image) {
+                image = await this.prisma.image.create({ data: { url: data.cover } });
+            }
+            updateData.coverImageId = image.id;
+        }
 
         const updatedBook = await this.prisma.book.update({
             where: { id },

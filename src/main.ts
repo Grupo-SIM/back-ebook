@@ -16,7 +16,11 @@ const PORT = 3332;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  }));
 
   const config = new DocumentBuilder()
     .setTitle('Ebook API')

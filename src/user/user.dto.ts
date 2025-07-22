@@ -34,15 +34,10 @@ export class UpdateUserDto {
   @IsString()
   name?: string;
 
-  @ApiProperty({ example: 'john.updated@example.com', required: false })
-  @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @ApiProperty({ example: 'newSecurePassword123', required: false })
+  @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false, description: 'URL da imagem de avatar' })
   @IsOptional()
   @IsString()
-  password?: string;
+  avatarUrl?: string;
 }
 
 export class UserResponseDto {
@@ -66,6 +61,9 @@ export class UserResponseDto {
 
   @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
   updatedAt: Date;
+
+  @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false, description: 'URL da imagem de avatar' })
+  avatarUrl?: string;
 
   @ApiProperty({
     example: {

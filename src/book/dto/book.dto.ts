@@ -107,28 +107,33 @@ export class CreateBookDto {
     author: string;
 
     @ApiProperty({ example: 49.90 })
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
     price: number;
 
     @ApiProperty({ example: 59.90, required: false })
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
     originalPrice?: number;
 
     @ApiProperty({ example: 4.5, minimum: 0, maximum: 5 })
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
     @Max(5)
     rating: number;
 
     @ApiProperty({ example: 1250 })
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
     reviewCount: number;
 
     @ApiProperty({ example: 1, description: 'ID da categoria' })
+    @Type(() => Number)
     @IsNumber()
     @Min(1)
     categoryId: number;
@@ -142,6 +147,7 @@ export class CreateBookDto {
     description: string;
 
     @ApiProperty({ example: 5000 })
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
     sales: number;
@@ -169,6 +175,7 @@ export class CreateBookDto {
 
     @ApiProperty({ example: 576, required: false })
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     printLength?: number;
 

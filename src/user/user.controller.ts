@@ -149,41 +149,6 @@ export class UserController {
     }
   }
 
-  @Put(':id')
-  @ApiOperation({
-    summary: 'Update a user',
-    description: 'Permite que usuários atualizem um usuário'
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'User updated successfully.',
-    type: UserResponseDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Não autorizado'
-  })
-  async updateUser(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-    @GetUser() updater: RequestWithUser['user'],
-    @Req() req: any,
-  ): Promise<UserResponseDto> {
-    try {
-      const updaterUserId = updater.createdById || updater.id;
-      return await this.userService.updateUser(id, updateUserDto, updaterUserId, req);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      console.error('Erro inesperado ao atualizar usuário:', error);
-      throw new HttpException(
-        'Erro interno do servidor ao atualizar usuário.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
   @Put('my-profile')
   @ApiOperation({ summary: 'Update current user profile' })
   @ApiResponse({
@@ -235,44 +200,5 @@ export class UserController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-
-  @Get('role/:role')
-  @ApiOperation({ summary: 'Get users by role within context' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return users by role within the authenticated user context.',
-    type: [UserResponseDto],
-  })
-  async getUsersByRole(
-    @Param('role') role: string,
-    @GetUser() authenticatedUser: RequestWithUser['user'],
-  ): Promise<UserResponseDto[]> {
-    try {
-      const contextId = authenticatedUser.createdById || authenticatedUser.id;
-      return await this.userService.getUsersByRole(role, contextId);
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Erro interno do servidor ao buscar usuários por role.',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Patch('change-password')
-  @ApiOperation({ summary: 'Alterar senha do usuário autenticado' })
-  @ApiResponse({ status: 200, description: 'Senha alterada com sucesso.' })
-  @ApiResponse({ status: 400, description: 'Dados inválidos ou senha atual incorreta.' })
-  async changePassword(
-    @Body() changePasswordDto: any, // Assuming ChangePasswordDto is no longer exported
-    @GetUser() authenticatedUser: RequestWithUser['user'],
-  ): Promise<{ message: string }> {
-    await this.userService.changePassword(
-      authenticatedUser.id,
-      changePasswordDto.currentPassword,
-      changePasswordDto.newPassword,
-      changePasswordDto.confirmNewPassword
-    );
-    return { message: 'Senha alterada com sucesso.' };
   }
 }
