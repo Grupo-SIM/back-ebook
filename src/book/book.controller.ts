@@ -258,7 +258,7 @@ export class BookController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar reviews de um livro' })
     async getReviews(
-        @Param('bookId') bookId: number,
+        @Param('bookId', ParseIntPipe) bookId: number,
         @Query('page') page = 1,
         @Query('limit') limit = 10,
     ): Promise<PaginatedReviewsResponseDto> {
