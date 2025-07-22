@@ -266,6 +266,13 @@ export class BookController {
         return this.bookService.getReviews(bookId, Number(page), Number(limit));
     }
 
+    @Get(':bookId/reviews/stats')
+    @ApiOperation({ summary: 'Obter estatísticas de reviews do livro (quantidade por estrela e média)' })
+    @ApiResponse({ status: 200, description: 'Estatísticas de reviews', schema: { example: { quantity1: 4, quantity2: 3, quantity3: 14, quantity4: 30, quantity5: 1500, average: 4.5 } } })
+    async getReviewStats(@Param('bookId', ParseIntPipe) bookId: number) {
+        return this.bookService.getReviewStats(bookId);
+    }
+
     @Put(':id')
     @UseGuards(JwtAuthGuardAdmin)
     @ApiBearerAuth()
@@ -340,6 +347,19 @@ export class BookController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Criar review para um livro (só para quem comprou)' })
     async createReview(
+        @Param('bookId', ParseIntPipe) bookId: number,
+        @Body() dto: CreateReviewDto,
+        @GetUser() user: RequestWithUser['user'],
+    ): Promise<ReviewResponseDto> {
+        return this.bookService.createReview(bookId, user.id, dto);
+    }
+
+    @Put(':bookId/reviews')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Editar review do usuário autenticado para um livro' })
+    @ApiResponse({ status: 200, description: 'Review atualizado', type: ReviewResponseDto })
+    async updateReview(
         @Param('bookId', ParseIntPipe) bookId: number,
         @Body() dto: CreateReviewDto,
         @GetUser() user: RequestWithUser['user'],

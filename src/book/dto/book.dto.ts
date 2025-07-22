@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum, Validate } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export type SortOption = 'default' | 'bestsellers' | 'toprated' | 'price-low' | 'price-high';
@@ -122,6 +122,9 @@ export class CreateBookDto {
     @Type(() => Number)
     @IsNumber()
     @Min(0)
+    @Validate((o: CreateBookDto) => o.originalPrice === undefined || o.originalPrice === 0 || o.originalPrice > o.price, {
+        message: 'O preço base (originalPrice) deve ser maior que o preço promocional (price) se informado.'
+    })
     originalPrice?: number;
 
     @ApiProperty({ example: 4.5, minimum: 0, maximum: 5 })
@@ -207,14 +210,19 @@ export class UpdateBookDto {
 
     @ApiProperty({ example: 49.90, required: false })
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
     price?: number;
 
     @ApiProperty({ example: 59.90, required: false })
     @IsOptional()
+    @Type(() => Number)
     @IsNumber()
     @Min(0)
+    @Validate((o: UpdateBookDto) => o.originalPrice === undefined || o.originalPrice === 0 || (o.price !== undefined ? o.originalPrice > o.price : true), {
+        message: 'O preço base (originalPrice) deve ser maior que o preço promocional (price) se informado.'
+    })
     originalPrice?: number;
 
     @ApiProperty({ example: 4.5, minimum: 0, maximum: 5, required: false })
@@ -324,8 +332,8 @@ export class BookResponseDto {
     author: string;
     @ApiProperty({ example: 49.90 })
     price: number;
-    @ApiProperty({ example: 59.90, nullable: true })
-    originalPrice: number | null;
+    @ApiProperty({ example: 59.90, required: false, nullable: true })
+    originalPrice?: number;
     @ApiProperty({ example: 4.5 })
     rating: number;
     @ApiProperty({ example: 1250 })

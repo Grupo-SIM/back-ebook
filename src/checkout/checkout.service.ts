@@ -269,15 +269,24 @@ export class CheckoutService {
             throw new BadRequestException('Nenhum item selecionado para o pedido');
         }
 
-        // Calcular totais
-        const subtotal = cartItems.reduce((sum, item) => sum + (item.book.price * item.quantity), 0);
-        const tax = subtotal * 0.1; // 10% de imposto
+        // NOVA LÓGICA: Se todos os livros têm originalPrice, usar originalPrice como totalAmount, price como subtotal
+        // Se não, usar price para ambos
+        let subtotal = 0;
+        let totalAmount = 0;
+        for (const item of cartItems) {
+            const price = item.book.price;
+            const originalPrice = item.book.originalPrice;
+            if (originalPrice && originalPrice > 0) {
+                subtotal += price * item.quantity;
+                totalAmount += originalPrice * item.quantity;
+            } else {
+                subtotal += price * item.quantity;
+                totalAmount += price * item.quantity;
+            }
+        }
         const discount = 0; // Pode ser implementado com cupons
-        const totalAmount = subtotal + tax - discount;
-
         // Gerar número do pedido
         const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
-
         // Criar pedido
         const order = await this.prisma.order.create({
             data: {
@@ -286,15 +295,12 @@ export class CheckoutService {
                 status: 'pending' as OrderStatus,
                 totalAmount,
                 subtotal,
-                tax,
                 discount,
                 paymentStatus: 'pending' as PaymentStatus,
-                // Removido: paymentMethod, shippingAddress, billingAddress, notes
             }
         });
-
         // Criar itens do pedido
-        const orderItems = await Promise.all(
+        await Promise.all(
             cartItems.map(item =>
                 this.prisma.orderItem.create({
                     data: {
@@ -307,7 +313,6 @@ export class CheckoutService {
                 })
             )
         );
-
         // Remover itens do carrinho
         await this.prisma.cart.deleteMany({
             where: {
@@ -315,23 +320,19 @@ export class CheckoutService {
                 id: { in: data.cartItemIds }
             }
         });
-
         // Invalidar cache
         await this.invalidateCartCache(userId);
         await this.invalidateOrderCache(userId);
-
         // Buscar pedido completo
         const orderWithItems = await this.prisma.order.findUnique({
             where: { id: order.id },
             include: { orderItems: { include: { book: true } } },
         });
         const orderResponse = this.mapOrderToResponse(orderWithItems);
-
         // Gerar link de checkout
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
         const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
         const checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
-
         return {
             ...orderResponse,
             checkoutUrl,
@@ -345,10 +346,13 @@ export class CheckoutService {
             throw new NotFoundException('Livro não encontrado');
         }
         const quantity = data.quantity && data.quantity > 0 ? data.quantity : 1;
-        const subtotal = book.price * quantity;
-        const tax = subtotal * 0.1; // 10% de imposto
+        // NOVA LÓGICA: se originalPrice existir, totalAmount = originalPrice * quantity, subtotal = price * quantity
+        let subtotal = book.price * quantity;
+        let totalAmount = book.price * quantity;
+        if (book.originalPrice && book.originalPrice > 0) {
+            totalAmount = book.originalPrice * quantity;
+        }
         const discount = 0;
-        const totalAmount = subtotal + tax - discount;
         const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
         // Criar pedido
         const order = await this.prisma.order.create({
@@ -358,7 +362,6 @@ export class CheckoutService {
                 status: 'pending',
                 totalAmount,
                 subtotal,
-                tax,
                 discount,
                 paymentStatus: 'pending',
             }
@@ -522,13 +525,26 @@ export class CheckoutService {
     }
 
     private mapOrderToResponse(order: any): OrderResponseDto {
+        // NOVA LÓGICA: calcular subtotal e totalAmount conforme originalPrice
+        let subtotal = 0;
+        let totalAmount = 0;
+        for (const item of order.orderItems) {
+            const price = item.book.price;
+            const originalPrice = item.book.originalPrice;
+            if (originalPrice && originalPrice > 0) {
+                subtotal += price * item.quantity;
+                totalAmount += originalPrice * item.quantity;
+            } else {
+                subtotal += price * item.quantity;
+                totalAmount += price * item.quantity;
+            }
+        }
         return {
             id: order.id,
             orderNumber: order.orderNumber,
             status: order.status as OrderStatus,
-            totalAmount: order.totalAmount,
-            subtotal: order.subtotal,
-            tax: order.tax,
+            totalAmount,
+            subtotal,
             discount: order.discount,
             paymentMethod: order.paymentMethod,
             paymentStatus: order.paymentStatus as PaymentStatus,
@@ -544,8 +560,8 @@ export class CheckoutService {
                 bookAuthor: item.book.author,
                 bookCover: item.book.cover,
                 quantity: item.quantity,
-                unitPrice: item.unitPrice,
-                totalPrice: item.totalPrice
+                unitPrice: item.book.price,
+                totalPrice: item.book.price * item.quantity
             }))
         };
     }

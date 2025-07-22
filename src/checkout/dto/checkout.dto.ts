@@ -226,9 +226,6 @@ export class OrderResponseDto {
     @ApiProperty({ example: 149.70 })
     subtotal: number;
 
-    @ApiProperty({ example: 0 })
-    tax: number;
-
     @ApiProperty({ example: 10.00 })
     discount: number;
 

@@ -128,7 +128,7 @@ export class BookService {
             title: book.title,
             author: book.author,
             price: book.price,
-            originalPrice: book.originalPrice,
+            originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
             rating: book.rating,
             reviewCount: book.reviewCount,
             categoryId: book.categoryId,
@@ -264,7 +264,7 @@ export class BookService {
             title: book.title,
             author: book.author,
             price: book.price,
-            originalPrice: book.originalPrice,
+            originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
             rating: book.rating,
             reviewCount: book.reviewCount,
             categoryId: book.categoryId,
@@ -358,7 +358,7 @@ export class BookService {
             title: book.title,
             author: book.author,
             price: book.price,
-            originalPrice: book.originalPrice,
+            originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
             rating: book.rating,
             reviewCount: book.reviewCount,
             categoryId: book.categoryId,
@@ -481,7 +481,7 @@ export class BookService {
             title: book.title,
             author: book.author,
             price: book.price,
-            originalPrice: book.originalPrice,
+            originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
             rating: book.rating,
             reviewCount: book.reviewCount,
             categoryId: book.categoryId,
@@ -592,7 +592,7 @@ export class BookService {
             title: book.title,
             author: book.author,
             price: book.price,
-            originalPrice: book.originalPrice,
+            originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
             rating: book.rating,
             reviewCount: book.reviewCount,
             categoryId: book.categoryId,
@@ -722,7 +722,7 @@ export class BookService {
             title: updatedBook.title,
             author: updatedBook.author,
             price: updatedBook.price,
-            originalPrice: updatedBook.originalPrice,
+            originalPrice: (updatedBook.originalPrice && updatedBook.originalPrice > 0) ? updatedBook.originalPrice : undefined,
             rating: updatedBook.rating,
             reviewCount: updatedBook.reviewCount,
             categoryId: updatedBook.categoryId,
@@ -776,7 +776,7 @@ export class BookService {
             title: deleted.title,
             author: deleted.author,
             price: deleted.price,
-            originalPrice: deleted.originalPrice,
+            originalPrice: (deleted.originalPrice && deleted.originalPrice > 0) ? deleted.originalPrice : undefined,
             rating: deleted.rating,
             reviewCount: deleted.reviewCount,
             categoryId: deleted.categoryId,
@@ -820,7 +820,7 @@ export class BookService {
             title: book.title,
             author: book.author,
             price: book.price,
-            originalPrice: book.originalPrice,
+            originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
             rating: book.rating,
             reviewCount: book.reviewCount,
             categoryId: book.categoryId,
@@ -855,7 +855,7 @@ export class BookService {
             title: book.title,
             author: book.author,
             price: book.price,
-            originalPrice: book.originalPrice,
+            originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
             rating: book.rating,
             reviewCount: book.reviewCount,
             categoryId: book.categoryId,
@@ -1083,7 +1083,7 @@ export class BookService {
             title: book.title,
             author: book.author,
             price: book.price,
-            originalPrice: book.originalPrice,
+            originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
             rating: book.rating,
             reviewCount: book.reviewCount,
             categoryId: book.categoryId,
@@ -1192,6 +1192,7 @@ export class BookService {
                 title: book.title,
                 author: book.author,
                 price: book.price,
+                originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
                 isFree: book.isFree,
                 isActive: book.isActive,
                 categoryId: book.categoryId,
@@ -1222,7 +1223,7 @@ export class BookService {
                 title: book.title,
                 author: book.author,
                 price: book.price,
-                originalPrice: book.originalPrice,
+                originalPrice: (book.originalPrice && book.originalPrice > 0) ? book.originalPrice : undefined,
                 rating: book.rating,
                 reviewCount: book.reviewCount,
                 categoryId: book.categoryId,
@@ -1330,5 +1331,34 @@ export class BookService {
         } catch (error) {
             console.error('❌ Erro ao detectar e logar novas compras:', error);
         }
+    }
+
+    async getReviewStats(bookId: number) {
+        // Buscar todos os reviews do livro
+        const reviews = await this.prisma.review.findMany({
+            where: { bookId },
+            select: { rating: true }
+        });
+        // Inicializar contadores
+        const stats = {
+            quantity1: 0,
+            quantity2: 0,
+            quantity3: 0,
+            quantity4: 0,
+            quantity5: 0,
+            average: 0
+        };
+        if (reviews.length === 0) return stats;
+        let sum = 0;
+        for (const r of reviews) {
+            sum += r.rating;
+            if (r.rating === 1) stats.quantity1++;
+            if (r.rating === 2) stats.quantity2++;
+            if (r.rating === 3) stats.quantity3++;
+            if (r.rating === 4) stats.quantity4++;
+            if (r.rating === 5) stats.quantity5++;
+        }
+        stats.average = Math.round((sum / reviews.length) * 10) / 10;
+        return stats;
     }
 } 
