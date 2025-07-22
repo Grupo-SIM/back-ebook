@@ -9,13 +9,17 @@ import {
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import type { PayloadWebhook } from './dom-webhook.service';
 import { WebhookService } from './dom-webhook.service';
+import { CheckoutService } from 'src/checkout/checkout.service';
 
 @ApiTags('Webhook')
 @Controller('webhook')
 export class WebhookController {
   private readonly logger = new Logger(WebhookController.name);
 
-  constructor(private readonly webhookService: WebhookService) { }
+  constructor(
+    private readonly webhookService: WebhookService,
+    private readonly checkoutService: CheckoutService,
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Processa webhooks de pagamento' })
@@ -767,6 +771,9 @@ export class WebhookController {
             'paid'
           );
 
+          // Remover livros do carrinho após pagamento
+          await this.checkoutService.removeOrderBooksFromCart(existingOrder.userId, existingOrder.id);
+
           return {
             ok: true,
             message: `Pedido ${existingOrder.orderNumber} atualizado com sucesso`,
@@ -808,6 +815,9 @@ export class WebhookController {
               mostRecentOrder.orderNumber,
               'paid'
             );
+
+            // Remover livros do carrinho após pagamento
+            await this.checkoutService.removeOrderBooksFromCart(mostRecentOrder.userId, mostRecentOrder.id);
 
             return {
               ok: true,

@@ -1,5 +1,6 @@
 import {
   IsEmail,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -40,6 +41,15 @@ export class RegisterInputDTO {
   @IsString()
   @IsNotEmpty()
   confirmPassword: string;
+
+  @ApiProperty({
+    enum: ['ADMIN', 'USER', 'CUSTOMER'],
+    default: 'USER', // Remova isso se a role for sempre obrigatória e sem default
+    type: () => String,
+  })
+  @IsNotEmpty() // Certifique-se de que é @IsNotEmpty() e não @IsOptional()
+  @IsString()
+  role: 'ADMIN' | 'USER' | 'CUSTOMER';
 }
 
 export class UpdatePasswordInputDTO {
@@ -173,5 +183,8 @@ export class CreateUserInputDTO {
     default: 'USER',
     type: () => String,
   })
+  @IsOptional() // ✅ Campo opcional
+  @IsString()   // ✅ Validação de string
+  @IsIn(['ADMIN', 'USER', 'CUSTOMER']) // ✅ Validação do enum
   role?: 'ADMIN' | 'USER' | 'CUSTOMER' = 'USER';
 }

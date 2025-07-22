@@ -47,6 +47,37 @@ export class AdminBookController {
         return this.bookService.getAllBooks({ ...query, createdById: admin.id }, admin.id, true);
     }
 
+    @Get('purchased')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Listar livros comprados/liberados do admin autenticado (apenas livros criados por ele)' })
+    async getPurchasedBooks(
+        @Query() query: BookQueryDto,
+        @GetUser() admin: RequestWithUser['user'],
+    ): Promise<PaginatedBookResponseDto> {
+        // Só livros criados pelo admin
+        return this.bookService.getPurchasedBooks({ ...query, createdById: admin.id }, admin.id);
+    }
+
+    @Get('free')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Listar livros gratuitos criados pelo admin autenticado' })
+    async getFreeBooks(
+        @Query() query: BookQueryDto,
+        @GetUser() admin: RequestWithUser['user'],
+    ) {
+        return this.bookService.getAllBooks({ ...query, type: 'free', createdById: admin.id }, admin.id, true);
+    }
+
+    @Get('paid')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Listar livros pagos criados pelo admin autenticado' })
+    async getPaidBooks(
+        @Query() query: BookQueryDto,
+        @GetUser() admin: RequestWithUser['user'],
+    ) {
+        return this.bookService.getAllBooks({ ...query, type: 'paid', createdById: admin.id }, admin.id, true);
+    }
+
     @Get(':id')
     @ApiOperation({ summary: 'Obter livro do admin por ID' })
     @ApiResponse({ status: 200, type: BookResponseDto })

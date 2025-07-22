@@ -130,10 +130,32 @@ export class JwtAuthGuardPanel extends AuthGuard('jwt') implements CanActivate {
 @Injectable()
 export class JwtAuthGuardAll extends AuthGuard('jwt') implements CanActivate {
   canActivate(context: ExecutionContext) {
+    const request = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(request);
+
+    // Token especial para checkout
+    const CHECKOUT_TOKEN = 'checkout-token-2025-simint';
+
+    if (token === CHECKOUT_TOKEN) {
+      // Criar um "usuário fake" para o checkout e permitir acesso
+      request.user = {
+        id: 'checkout-system',
+        role: 'CHECKOUT',
+        name: 'Sistema de Checkout'
+      };
+      return true; // Permite acesso imediatamente
+    }
+
+    // Continua com autenticação JWT normal
     return super.canActivate(context);
   }
 
   handleRequest(err: any, user: any, info: any) {
+    // Se for o usuário de checkout, permite acesso
+    if (user && user.id === 'checkout-system' && user.role === 'CHECKOUT') {
+      return user;
+    }
+
     if (err || !user) {
       throw err || new UnauthorizedException();
     }
@@ -143,5 +165,10 @@ export class JwtAuthGuardAll extends AuthGuard('jwt') implements CanActivate {
     }
 
     return user;
+  }
+
+  private extractTokenFromHeader(request: any): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

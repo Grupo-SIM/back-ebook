@@ -191,32 +191,23 @@ export class OrderItemDto {
 }
 
 export class CreateOrderDto {
-    @ApiProperty({
-        example: 'credit_card',
-        enum: ['credit_card', 'pix', 'bank_transfer', 'paypal'],
-        description: 'Método de pagamento'
-    })
-    @IsEnum(['credit_card', 'pix', 'bank_transfer', 'paypal'])
-    paymentMethod: PaymentMethod;
-
-    @ApiProperty({ type: AddressDto })
-    @IsObject()
-    shippingAddress: AddressDto;
-
-    @ApiProperty({ type: AddressDto, required: false })
-    @IsOptional()
-    @IsObject()
-    billingAddress?: AddressDto;
-
-    @ApiProperty({ example: 'Entregar após às 18h', required: false })
-    @IsOptional()
-    @IsString()
-    notes?: string;
-
     @ApiProperty({ example: [1, 2, 3], description: 'IDs dos itens do carrinho' })
     @IsNumber({}, { each: true })
     @Type(() => Number)
     cartItemIds: number[];
+}
+
+export class CreateOrderFromBookDto {
+    @ApiProperty({ example: 123, description: 'ID do livro' })
+    @IsNumber()
+    @Type(() => Number)
+    bookId: number;
+
+    @ApiProperty({ example: 1, required: false, description: 'Quantidade' })
+    @IsOptional()
+    @IsNumber()
+    @Type(() => Number)
+    quantity?: number = 1;
 }
 
 export class OrderResponseDto {

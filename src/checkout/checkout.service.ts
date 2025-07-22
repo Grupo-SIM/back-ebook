@@ -19,6 +19,7 @@ import {
     CheckoutItem,
     CheckoutState
 } from './dto/checkout.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CheckoutService {
@@ -287,11 +288,8 @@ export class CheckoutService {
                 subtotal,
                 tax,
                 discount,
-                paymentMethod: data.paymentMethod,
                 paymentStatus: 'pending' as PaymentStatus,
-                shippingAddress: data.shippingAddress as any,
-                billingAddress: data.billingAddress as any,
-                notes: data.notes
+                // Removido: paymentMethod, shippingAddress, billingAddress, notes
             }
         });
 
@@ -332,7 +330,7 @@ export class CheckoutService {
         // Gerar link de checkout
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
         const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
-        const checkoutUrl = `https://checkout.seusite.com/?value=${value}&description=${description}`;
+        const checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
 
         return {
             ...orderResponse,
@@ -340,7 +338,50 @@ export class CheckoutService {
         };
     }
 
-    async getOrders(userId: string, query: OrderQueryDto): Promise<{ orders: OrderResponseDto[], total: number, page: number, limit: number }> {
+    async createOrderFromBook(userId: string, data: { bookId: number; quantity?: number }): Promise<OrderResponseDto> {
+        // Buscar o livro
+        const book = await this.prisma.book.findUnique({ where: { id: data.bookId } });
+        if (!book) {
+            throw new NotFoundException('Livro não encontrado');
+        }
+        const quantity = data.quantity && data.quantity > 0 ? data.quantity : 1;
+        const subtotal = book.price * quantity;
+        const tax = subtotal * 0.1; // 10% de imposto
+        const discount = 0;
+        const totalAmount = subtotal + tax - discount;
+        const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+        // Criar pedido
+        const order = await this.prisma.order.create({
+            data: {
+                userId,
+                orderNumber,
+                status: 'pending',
+                totalAmount,
+                subtotal,
+                tax,
+                discount,
+                paymentStatus: 'pending',
+            }
+        });
+        // Criar item do pedido
+        await this.prisma.orderItem.create({
+            data: {
+                orderId: order.id,
+                bookId: book.id,
+                quantity,
+                unitPrice: book.price,
+                totalPrice: book.price * quantity
+            }
+        });
+        // Buscar pedido completo
+        const orderWithItems = await this.prisma.order.findUnique({
+            where: { id: order.id },
+            include: { orderItems: { include: { book: true } } },
+        });
+        return this.mapOrderToResponse(orderWithItems);
+    }
+
+    async getOrders(userId: string, query: OrderQueryDto): Promise<{ orders: (OrderResponseDto & { checkoutUrl: string })[], total: number, page: number, limit: number }> {
         try {
             // Garantir que page e limit são números
             const page = Number(query.page) || 1;
@@ -371,7 +412,14 @@ export class CheckoutService {
             ]);
 
             return {
-                orders: orders.map(order => this.mapOrderToResponse(order)),
+                orders: orders.map(order => {
+                    const orderResponse = this.mapOrderToResponse(order);
+                    // Gerar checkoutUrl baseado no primeiro item do pedido
+                    const value = Math.round(orderResponse.totalAmount * 100);
+                    const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
+                    const checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+                    return { ...orderResponse, checkoutUrl };
+                }),
                 total,
                 page,
                 limit
@@ -382,12 +430,14 @@ export class CheckoutService {
         }
     }
 
-    async getOrderById(userId: string, orderId: number): Promise<OrderResponseDto> {
+    async getOrderById(userId: string, orderId: number): Promise<OrderResponseDto & { checkoutUrl: string }> {
+        // Se for o sistema de checkout, busca sem filtrar por userId
+        const whereCondition = userId === 'checkout-system'
+            ? { id: orderId }  // Não filtra por usuário
+            : { id: orderId, userId }; // Filtra por usuário normalmente
+
         const order = await this.prisma.order.findFirst({
-            where: {
-                id: orderId,
-                userId
-            },
+            where: whereCondition,
             include: {
                 orderItems: {
                     include: {
@@ -401,7 +451,11 @@ export class CheckoutService {
             throw new NotFoundException('Pedido não encontrado');
         }
 
-        return this.mapOrderToResponse(order);
+        const orderResponse = this.mapOrderToResponse(order);
+        const value = uuidv4();
+        const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
+        const checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&orderId=${orderResponse.id}&orderNumber=${orderResponse.orderNumber}`;
+        return { ...orderResponse, checkoutUrl };
     }
 
     async cancelOrder(userId: string, orderId: number): Promise<OrderResponseDto> {
@@ -435,6 +489,27 @@ export class CheckoutService {
         await this.invalidateOrderCache(userId);
 
         return this.mapOrderToResponse(updatedOrder);
+    }
+
+    /**
+     * Remove do carrinho todos os livros de um pedido específico para o usuário.
+     */
+    async removeOrderBooksFromCart(userId: string, orderId: number): Promise<void> {
+        // Buscar todos os itens do pedido
+        const orderItems = await this.prisma.orderItem.findMany({
+            where: { orderId },
+        });
+        if (!orderItems.length) return;
+        // Remover cada bookId do carrinho do usuário
+        for (const item of orderItems) {
+            await this.prisma.cart.deleteMany({
+                where: {
+                    userId,
+                    bookId: item.bookId
+                }
+            });
+        }
+        await this.invalidateCartCache(userId);
     }
 
     // Métodos auxiliares
@@ -567,4 +642,4 @@ export class CheckoutService {
 
         return this.mapOrderToResponse(updatedOrder);
     }
-} 
+}

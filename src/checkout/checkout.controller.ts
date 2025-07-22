@@ -26,7 +26,8 @@ import {
     OrderQueryDto,
     CartItem,
     CheckoutItem,
-    CheckoutState
+    CheckoutState,
+    CreateOrderFromBookDto
 } from './dto/checkout.dto';
 
 @ApiTags('Checkout')
@@ -106,6 +107,13 @@ export class CheckoutController {
     @ApiResponse({ status: 400, description: 'Dados inválidos' })
     async createOrder(@Request() req, @Body() data: CreateOrderDto): Promise<OrderResponseDto> {
         return this.checkoutService.createOrder(req.user.id, data);
+    }
+
+    @Post('orders/book')
+    @ApiOperation({ summary: 'Criar pedido direto de um livro (sem carrinho)' })
+    @ApiResponse({ status: 201, description: 'Pedido criado com sucesso', type: OrderResponseDto })
+    async createOrderFromBook(@Request() req, @Body() data: CreateOrderFromBookDto): Promise<OrderResponseDto> {
+        return this.checkoutService.createOrderFromBook(req.user.id, data);
     }
 
     @Get('orders')
