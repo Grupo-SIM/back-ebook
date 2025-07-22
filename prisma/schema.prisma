@@ -84,7 +84,7 @@ model Book {
   cover         String
   isbn          String?
   language      String?
-  pageCount     Int?
+  printLength   Int?
   publisher     String?
   publishedDate String?
   rating        Float    @default(0)
@@ -94,7 +94,6 @@ model Book {
   isFeatured    Boolean  @default(false)
   isFree        Boolean  @default(false)
   fileSize      String?
-  format        String?  // 'PDF', 'EPUB', 'MOBI'
   downloadUrl   String?
   downloadCount Int      @default(0)
   createdAt     DateTime @default(now())

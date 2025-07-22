@@ -145,6 +145,37 @@ export class CreateBookDto {
     @IsNumber()
     @Min(0)
     sales: number;
+
+    // Novos campos
+    @ApiProperty({ example: 'pt-BR', required: false })
+    @IsOptional()
+    @IsString()
+    language?: string;
+
+    @ApiProperty({ example: '978-3-16-148410-0', required: false })
+    @IsOptional()
+    @IsString()
+    isbn?: string;
+
+    @ApiProperty({ example: 'HarperCollins', required: false })
+    @IsOptional()
+    @IsString()
+    publisher?: string;
+
+    @ApiProperty({ example: '1954-07-29', required: false })
+    @IsOptional()
+    @IsString()
+    publishedDate?: string;
+
+    @ApiProperty({ example: 576, required: false })
+    @IsOptional()
+    @IsNumber()
+    printLength?: number;
+
+    @ApiProperty({ example: '/uploads/books/livro.pdf', required: false })
+    @IsOptional()
+    @IsString()
+    downloadUrl?: string;
 }
 
 export class UpdateBookDto {
@@ -204,6 +235,37 @@ export class UpdateBookDto {
     @IsNumber()
     @Min(0)
     sales?: number;
+
+    // Novos campos
+    @ApiProperty({ example: 'pt-BR', required: false })
+    @IsOptional()
+    @IsString()
+    language?: string;
+
+    @ApiProperty({ example: '978-3-16-148410-0', required: false })
+    @IsOptional()
+    @IsString()
+    isbn?: string;
+
+    @ApiProperty({ example: 'HarperCollins', required: false })
+    @IsOptional()
+    @IsString()
+    publisher?: string;
+
+    @ApiProperty({ example: '1954-07-29', required: false })
+    @IsOptional()
+    @IsString()
+    publishedDate?: string;
+
+    @ApiProperty({ example: 576, required: false })
+    @IsOptional()
+    @IsNumber()
+    printLength?: number;
+
+    @ApiProperty({ example: '/uploads/books/livro.pdf', required: false })
+    @IsOptional()
+    @IsString()
+    downloadUrl?: string;
 }
 
 export class ReviewResponseDto {
@@ -271,6 +333,27 @@ export class BookResponseDto {
     cartQuantity?: number;
     @ApiProperty({ type: [ReviewResponseDto], required: false, description: 'Lista de reviews do livro' })
     reviews?: ReviewResponseDto[];
+    // Novos campos
+    @ApiProperty({ example: 'pt-BR', required: false })
+    language?: string;
+    @ApiProperty({ example: '978-3-16-148410-0', required: false })
+    isbn?: string;
+    @ApiProperty({ example: 'HarperCollins', required: false })
+    publisher?: string;
+    @ApiProperty({ example: '1954-07-29', required: false })
+    publishedDate?: string;
+    @ApiProperty({ example: 576, required: false })
+    printLength?: number;
+    @ApiProperty({ example: false, required: true })
+    isFree: boolean;
+
+    @ApiProperty({ example: '/uploads/books/livro.pdf', required: false })
+    @IsOptional()
+    @IsString()
+    downloadUrl?: string;
+
+    @ApiProperty({ example: 'https://checkout.jbmidia.com/?value=49.9&description=O Senhor dos Anéis', required: false, description: 'URL de checkout para compra do livro' })
+    checkoutUrl?: string;
 }
 
 export class PaginatedBookResponseDto {

@@ -9,6 +9,10 @@ import {
     Query,
     UseGuards,
     ParseIntPipe,
+    UseInterceptors,
+    UploadedFile,
+    Res,
+    HttpStatus,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -17,12 +21,18 @@ import {
     ApiParam,
     ApiQuery,
     ApiBearerAuth,
+    ApiConsumes,
+    ApiBody,
 } from '@nestjs/swagger';
 import { BookService } from './book.service';
 import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedBookResponseDto, CreateReviewDto, ReviewResponseDto, PaginatedReviewsResponseDto } from './dto/book.dto';
 import { JwtAuthGuardAll, JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/user.decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as path from 'path';
+import { Response } from 'express';
 
 @Controller('books')
 @ApiTags('Books')
@@ -32,16 +42,59 @@ export class BookController {
     @Post()
     @UseGuards(JwtAuthGuardAdmin)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Create a new book' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                author: { type: 'string' },
+                price: { type: 'number' },
+                originalPrice: { type: 'number' },
+                rating: { type: 'number' },
+                reviewCount: { type: 'number' },
+                categoryId: { type: 'number' },
+                cover: { type: 'string' },
+                description: { type: 'string' },
+                sales: { type: 'number' },
+                language: { type: 'string' },
+                isbn: { type: 'string' },
+                publisher: { type: 'string' },
+                publishedDate: { type: 'string' },
+                printLength: { type: 'number' },
+                file: { type: 'string', format: 'binary' }
+            }
+        }
+    })
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads/books',
+            filename: (req, file, cb) => {
+                const ext = path.extname(file.originalname);
+                const name = path.basename(file.originalname, ext).replace(/\s/g, '_');
+                cb(null, `${name}_${Date.now()}${ext}`);
+            }
+        }),
+        fileFilter: (req, file, cb) => {
+            const allowed = ['.pdf', '.epub', '.mobi'];
+            const ext = path.extname(file.originalname).toLowerCase();
+            if (allowed.includes(ext)) cb(null, true);
+            else cb(new Error('Only PDF, EPUB, MOBI allowed'), false);
+        }
+    }))
     async createBook(
         @Body() createBookDto: CreateBookDto,
         @GetUser() user: RequestWithUser['user'],
+        @UploadedFile() file?: Express.Multer.File
     ): Promise<BookResponseDto> {
-        return this.bookService.createBook(createBookDto, user.id);
+        let downloadUrl: string | undefined = undefined;
+        if (file) {
+            downloadUrl = `/uploads/books/${file.filename}`;
+        }
+        return this.bookService.createBook({ ...createBookDto, downloadUrl }, user.id);
     }
 
     @Get()
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get all books with pagination and filters' })
     @ApiResponse({
@@ -57,7 +110,6 @@ export class BookController {
     }
 
     @Get('search')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Search books by query with pagination' })
     @ApiQuery({ name: 'q', description: 'Search query', type: String })
@@ -75,7 +127,6 @@ export class BookController {
     }
 
     @Get('category/:categoryId')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get books by category ID with pagination and filters' })
     @ApiParam({ name: 'categoryId', description: 'Category ID' })
@@ -93,7 +144,6 @@ export class BookController {
     }
 
     @Get('on-sale')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get books on sale (with discount) with pagination' })
     @ApiResponse({
@@ -130,7 +180,6 @@ export class BookController {
     }
 
     @Get('debug/all')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar todos os livros sem filtros (debug)' })
     async getAllBooksDebug() {
@@ -138,7 +187,6 @@ export class BookController {
     }
 
     @Get('debug/all-without-filters')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar todos os livros sem filtros (incluindo inativos)' })
     async getAllBooksWithoutFilters() {
@@ -146,7 +194,6 @@ export class BookController {
     }
 
     @Get('top-selling')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get top selling books' })
     @ApiQuery({ name: 'limit', description: 'Number of books to return', required: false, type: Number })
@@ -160,7 +207,6 @@ export class BookController {
     }
 
     @Get('free')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar livros gratuitos' })
     async getFreeBooks(
@@ -171,7 +217,6 @@ export class BookController {
     }
 
     @Get('paid')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Listar livros pagos' })
     async getPaidBooks(
@@ -198,7 +243,6 @@ export class BookController {
     }
 
     @Get(':id')
-    @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Obter livro por ID' })
     @ApiResponse({ status: 200, description: 'Livro encontrado', type: BookResponseDto })
@@ -213,15 +257,56 @@ export class BookController {
     @Put(':id')
     @UseGuards(JwtAuthGuardAdmin)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Atualizar livro por ID (apenas ADMIN)' })
-    @ApiParam({ name: 'id', description: 'ID do livro' })
-    @ApiResponse({ status: 200, description: 'Livro atualizado com sucesso', type: BookResponseDto })
-    @ApiResponse({ status: 404, description: 'Book not found' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                author: { type: 'string' },
+                price: { type: 'number' },
+                originalPrice: { type: 'number' },
+                rating: { type: 'number' },
+                reviewCount: { type: 'number' },
+                categoryId: { type: 'number' },
+                cover: { type: 'string' },
+                description: { type: 'string' },
+                sales: { type: 'number' },
+                language: { type: 'string' },
+                isbn: { type: 'string' },
+                publisher: { type: 'string' },
+                publishedDate: { type: 'string' },
+                printLength: { type: 'number' },
+                file: { type: 'string', format: 'binary' }
+            }
+        }
+    })
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads/books',
+            filename: (req, file, cb) => {
+                const ext = path.extname(file.originalname);
+                const name = path.basename(file.originalname, ext).replace(/\s/g, '_');
+                cb(null, `${name}_${Date.now()}${ext}`);
+            }
+        }),
+        fileFilter: (req, file, cb) => {
+            const allowed = ['.pdf', '.epub', '.mobi'];
+            const ext = path.extname(file.originalname).toLowerCase();
+            if (allowed.includes(ext)) cb(null, true);
+            else cb(new Error('Only PDF, EPUB, MOBI allowed'), false);
+        }
+    }))
     async updateBook(
         @Param('id') id: string,
         @Body() updateBookDto: UpdateBookDto,
+        @UploadedFile() file?: Express.Multer.File
     ): Promise<BookResponseDto> {
-        return this.bookService.updateBook(Number(id), updateBookDto);
+        let downloadUrl: string | undefined = undefined;
+        if (file) {
+            downloadUrl = `/uploads/books/${file.filename}`;
+        }
+        return this.bookService.updateBook(Number(id), { ...updateBookDto, ...(downloadUrl ? { downloadUrl } : {}) });
     }
 
     @Delete(':id')
@@ -260,5 +345,30 @@ export class BookController {
         @Query('limit') limit = 10,
     ): Promise<PaginatedReviewsResponseDto> {
         return this.bookService.getReviews(bookId, Number(page), Number(limit));
+    }
+
+    @Get(':id/download')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Download do arquivo do livro (protegido)' })
+    async downloadBookFile(
+        @Param('id') id: string,
+        @GetUser() user: RequestWithUser['user'],
+        @Res() res: Response
+    ) {
+        const book = await this.bookService.getBookById(Number(id), user?.id);
+        if (!book.downloadUrl) {
+            return res.status(HttpStatus.NOT_FOUND).json({ message: 'Arquivo não encontrado' });
+        }
+        // Se for pago, só quem comprou pode baixar
+        if (!book.isFree) {
+            const purchased = await this.bookService.userHasPurchasedBook(Number(id), user.id);
+            if (!purchased) {
+                return res.status(HttpStatus.FORBIDDEN).json({ message: 'Você não tem permissão para baixar este livro.' });
+            }
+        }
+        // Se for gratuito, qualquer um autenticado pode baixar
+        const filePath = path.join(process.cwd(), book.downloadUrl);
+        return res.download(filePath);
     }
 } 

@@ -86,6 +86,13 @@ export class BookService {
                 sales: data.sales,
                 isFree: isFree, // Definir corretamente se é gratuito
                 createdById: createdById,
+                // Novos campos
+                language: data.language,
+                isbn: data.isbn,
+                publisher: data.publisher,
+                publishedDate: data.publishedDate,
+                printLength: data.printLength,
+                downloadUrl: data.downloadUrl,
             },
             include: {
                 categoryRef: true,
@@ -122,6 +129,15 @@ export class BookService {
             cartCount: 0,
             isFavorite: undefined,
             cartQuantity: undefined,
+            // Novos campos
+            language: book.language ?? undefined,
+            isbn: book.isbn ?? undefined,
+            publisher: book.publisher ?? undefined,
+            publishedDate: book.publishedDate ?? undefined,
+            printLength: book.printLength ?? undefined,
+            downloadUrl: book.downloadUrl ?? undefined,
+            isFree: book.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         };
     }
 
@@ -252,6 +268,15 @@ export class BookService {
                 userId: r.userId,
                 userName: r.user?.name || '',
             })),
+            // Novos campos
+            language: book.language ?? undefined,
+            isbn: book.isbn ?? undefined,
+            publisher: book.publisher ?? undefined,
+            publishedDate: book.publishedDate ?? undefined,
+            printLength: book.printLength ?? undefined,
+            downloadUrl: book.downloadUrl ?? undefined,
+            isFree: book.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
         return {
@@ -324,6 +349,15 @@ export class BookService {
             isFavorite: userId ? !!isFavorite : undefined,
             cartQuantity: userId && cartQuantity ? cartQuantity.quantity : undefined,
             reviews: mappedReviews,
+            // Novos campos
+            language: book.language ?? undefined,
+            isbn: book.isbn ?? undefined,
+            publisher: book.publisher ?? undefined,
+            publishedDate: book.publishedDate ?? undefined,
+            printLength: book.printLength ?? undefined,
+            downloadUrl: book.downloadUrl ?? undefined,
+            isFree: book.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         };
 
         return response;
@@ -436,6 +470,15 @@ export class BookService {
             cartCount: cartCountMap[book.id] || 0,
             isFavorite: userId ? userFavSet.has(book.id) : undefined,
             cartQuantity: userId ? (userCartMap[book.id] || 0) : undefined,
+            // Novos campos
+            language: book.language ?? undefined,
+            isbn: book.isbn ?? undefined,
+            publisher: book.publisher ?? undefined,
+            publishedDate: book.publishedDate ?? undefined,
+            printLength: book.printLength ?? undefined,
+            downloadUrl: book.downloadUrl ?? undefined,
+            isFree: book.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
         return {
@@ -537,6 +580,15 @@ export class BookService {
             cartCount: cartCountMap[book.id] || 0,
             isFavorite: userId ? userFavSet.has(book.id) : undefined,
             cartQuantity: userId ? (userCartMap[book.id] || 0) : undefined,
+            // Novos campos
+            language: book.language ?? undefined,
+            isbn: book.isbn ?? undefined,
+            publisher: book.publisher ?? undefined,
+            publishedDate: book.publishedDate ?? undefined,
+            printLength: book.printLength ?? undefined,
+            downloadUrl: book.downloadUrl ?? undefined,
+            isFree: book.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
         return {
@@ -593,6 +645,13 @@ export class BookService {
         if (data.cover !== undefined) updateData.cover = data.cover;
         if (data.description !== undefined) updateData.description = data.description;
         if (data.sales !== undefined) updateData.sales = data.sales;
+        // Novos campos
+        if (data.language !== undefined) updateData.language = data.language;
+        if (data.isbn !== undefined) updateData.isbn = data.isbn;
+        if (data.publisher !== undefined) updateData.publisher = data.publisher;
+        if (data.publishedDate !== undefined) updateData.publishedDate = data.publishedDate;
+        if (data.printLength !== undefined) updateData.printLength = data.printLength;
+        if (data.downloadUrl !== undefined) updateData.downloadUrl = data.downloadUrl;
 
         const updatedBook = await this.prisma.book.update({
             where: { id },
@@ -637,6 +696,15 @@ export class BookService {
             cartCount: 0,
             isFavorite: undefined,
             cartQuantity: undefined,
+            // Novos campos
+            language: updatedBook.language ?? undefined,
+            isbn: updatedBook.isbn ?? undefined,
+            publisher: updatedBook.publisher ?? undefined,
+            publishedDate: updatedBook.publishedDate ?? undefined,
+            printLength: updatedBook.printLength ?? undefined,
+            downloadUrl: updatedBook.downloadUrl ?? undefined,
+            isFree: updatedBook.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${updatedBook.price}&description=${encodeURIComponent(updatedBook.title)}`,
         };
     }
 
@@ -676,6 +744,8 @@ export class BookService {
             updatedAt: deleted.updatedAt,
             favoritesCount: 0,
             cartCount: 0,
+            isFree: deleted.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${deleted.price}&description=${encodeURIComponent(deleted.title)}`,
         };
     }
 
@@ -719,6 +789,8 @@ export class BookService {
             cartCount: 0,
             isFavorite: undefined,
             cartQuantity: undefined,
+            isFree: book.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
@@ -751,6 +823,14 @@ export class BookService {
             cartCount: 0,
             isFavorite: undefined,
             cartQuantity: undefined,
+            // Novos campos
+            language: book.language ?? undefined,
+            isbn: book.isbn ?? undefined,
+            publisher: book.publisher ?? undefined,
+            publishedDate: book.publishedDate ?? undefined,
+            printLength: book.printLength ?? undefined,
+            isFree: book.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
     }
 
@@ -970,6 +1050,15 @@ export class BookService {
             cartCount: cartCountMap[book.id] || 0,
             isFavorite: userFavSet.has(book.id),
             cartQuantity: userCartMap[book.id] || 0,
+            // Novos campos
+            language: book.language ?? undefined,
+            isbn: book.isbn ?? undefined,
+            publisher: book.publisher ?? undefined,
+            publishedDate: book.publishedDate ?? undefined,
+            printLength: book.printLength ?? undefined,
+            downloadUrl: book.downloadUrl ?? undefined,
+            isFree: book.isFree ?? false,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
         return {
@@ -981,6 +1070,19 @@ export class BookService {
             hasNext,
             hasPrev,
         };
+    }
+
+    async userHasPurchasedBook(bookId: number, userId: string): Promise<boolean> {
+        const orderItem = await this.prisma.orderItem.findFirst({
+            where: {
+                bookId,
+                order: {
+                    userId,
+                    status: 'paid',
+                },
+            },
+        });
+        return !!orderItem;
     }
 
     private async invalidateCache(cacheKey: string) {
@@ -1046,7 +1148,13 @@ export class BookService {
                 isActive: book.isActive,
                 categoryId: book.categoryId,
                 categoryName: book.category,
-                createdAt: book.createdAt
+                createdAt: book.createdAt,
+                // Novos campos
+                language: book.language ?? undefined,
+                isbn: book.isbn ?? undefined,
+                publisher: book.publisher ?? undefined,
+                publishedDate: book.publishedDate ?? undefined,
+                printLength: book.printLength ?? undefined,
             }))
         };
     }
@@ -1081,6 +1189,12 @@ export class BookService {
                 cartCount: 0,
                 isFavorite: undefined,
                 cartQuantity: undefined,
+                // Novos campos
+                language: book.language ?? undefined,
+                isbn: book.isbn ?? undefined,
+                publisher: book.publisher ?? undefined,
+                publishedDate: book.publishedDate ?? undefined,
+                printLength: book.printLength ?? undefined,
             })),
             total: books.length,
             page: 1,
