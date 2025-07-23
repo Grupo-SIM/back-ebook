@@ -182,9 +182,10 @@ export class CreateUserInputDTO {
     enum: ['ADMIN', 'USER', 'CUSTOMER'],
     default: 'USER',
     type: () => String,
+    description: 'Role do usuário (ADMIN, USER ou CUSTOMER)'
   })
-  @IsOptional() // ✅ Campo opcional
-  @IsString()   // ✅ Validação de string
-  @IsIn(['ADMIN', 'USER', 'CUSTOMER']) // ✅ Validação do enum
+  @IsOptional()
+  @IsString()
+  @IsIn(['ADMIN', 'USER', 'CUSTOMER'])
   role?: 'ADMIN' | 'USER' | 'CUSTOMER' = 'USER';
 }
