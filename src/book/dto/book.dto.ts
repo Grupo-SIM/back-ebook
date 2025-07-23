@@ -195,6 +195,10 @@ export class CreateBookDto {
     @ApiProperty({ example: '12-16' })
     @IsString()
     readingAge: string;
+
+    @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)', default: true })
+    @IsOptional()
+    isActive?: boolean = true;
 }
 
 export class UpdateBookDto {
@@ -210,14 +214,14 @@ export class UpdateBookDto {
 
     @ApiProperty({ example: 49.90, required: false })
     @IsOptional()
-    @Type(() => Number)
+    @Type(() => Number) // Garante a conversão de string para número
     @IsNumber()
     @Min(0)
     price?: number;
 
     @ApiProperty({ example: 59.90, required: false })
     @IsOptional()
-    @Type(() => Number)
+    @Type(() => Number) // Garante a conversão de string para número
     @IsNumber()
     @Min(0)
     @Validate((o: UpdateBookDto) => o.originalPrice === undefined || o.originalPrice === 0 || (o.price !== undefined ? o.originalPrice > o.price : true), {
@@ -227,6 +231,7 @@ export class UpdateBookDto {
 
     @ApiProperty({ example: 4.5, minimum: 0, maximum: 5, required: false })
     @IsOptional()
+    @Type(() => Number) // ✅ CORRIGIDO: Adicionado para conversão
     @IsNumber()
     @Min(0)
     @Max(5)
@@ -234,12 +239,14 @@ export class UpdateBookDto {
 
     @ApiProperty({ example: 1250, required: false })
     @IsOptional()
+    @Type(() => Number) // ✅ CORRIGIDO: Adicionado para conversão
     @IsNumber()
     @Min(0)
     reviewCount?: number;
 
     @ApiProperty({ example: 1, description: 'ID da categoria', required: false })
     @IsOptional()
+    @Type(() => Number) // ✅ CORRIGIDO: Adicionado para conversão
     @IsNumber()
     @Min(1)
     categoryId?: number;
@@ -256,11 +263,11 @@ export class UpdateBookDto {
 
     @ApiProperty({ example: 5000, required: false })
     @IsOptional()
+    @Type(() => Number) // ✅ CORRIGIDO: Adicionado para conversão
     @IsNumber()
     @Min(0)
     sales?: number;
 
-    // Novos campos
     @ApiProperty({ example: 'pt-BR', required: false })
     @IsOptional()
     @IsString()
@@ -281,8 +288,11 @@ export class UpdateBookDto {
     @IsString()
     publishedDate?: string;
 
+
+
     @ApiProperty({ example: 576, required: false })
     @IsOptional()
+    @Type(() => Number) // ✅ CORRIGIDO: Adicionado para conversão
     @IsNumber()
     printLength?: number;
 
@@ -295,6 +305,11 @@ export class UpdateBookDto {
     @IsOptional()
     @IsString()
     readingAge?: string;
+
+    @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)', required: false })
+    @IsOptional()
+    @Type(() => Boolean) // ✅ CORRIGIDO: Adicionado para converter 'true'/'false' (strings) para booleano
+    isActive?: boolean;
 }
 
 export class ReviewResponseDto {
@@ -386,6 +401,9 @@ export class BookResponseDto {
 
     @ApiProperty({ example: '12-16', required: false })
     readingAge?: string;
+
+    @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)' })
+    isActive: boolean;
 }
 
 export class PaginatedBookResponseDto {

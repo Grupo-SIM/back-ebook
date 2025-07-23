@@ -105,6 +105,7 @@ export class BookService {
                 printLength: data.printLength,
                 downloadUrl: data.downloadUrl,
                 readingAge: data.readingAge,
+                isActive: data.isActive ?? true,
                 ...(coverImageId ? { coverImageId } : {}),
             },
             include: {
@@ -151,6 +152,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            isActive: book.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         };
     }
@@ -296,6 +298,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            isActive: book.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
@@ -315,7 +318,10 @@ export class BookService {
         const cached = await this.redisService.get(cacheKey);
 
         const book = await this.prisma.book.findUnique({
-            where: { id },
+            where: { 
+                id,
+                ...(onlyAdminBooks ? {} : { isActive: true }) // Se não for admin, só mostrar livros ativos
+            },
             include: {
                 categoryRef: true,
             },
@@ -382,6 +388,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            isActive: book.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         };
 
@@ -407,7 +414,10 @@ export class BookService {
         const skip = (page - 1) * limit;
 
         // Construir condições de filtro
-        const where: any = { categoryId: categoryId };
+        const where: any = { 
+            categoryId: categoryId,
+            isActive: true // Mostrar apenas livros ativos
+        };
 
         if (author) {
             where.author = { contains: author, mode: 'insensitive' };
@@ -504,6 +514,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            isActive: book.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
@@ -539,6 +550,7 @@ export class BookService {
                 { description: { contains: query, mode: 'insensitive' } },
                 { category: { contains: query, mode: 'insensitive' } },
             ],
+            isActive: true, // Mostrar apenas livros ativos
         };
 
         if (type === 'free') {
@@ -615,6 +627,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            isActive: book.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
@@ -683,6 +696,7 @@ export class BookService {
         if (data.printLength !== undefined) updateData.printLength = data.printLength;
         if (data.downloadUrl !== undefined) updateData.downloadUrl = data.downloadUrl;
         if (data.readingAge !== undefined) updateData.readingAge = data.readingAge;
+        if (data.isActive !== undefined) updateData.isActive = data.isActive;
 
         // Se cover for enviado, buscar ou criar imagem e associar coverImageId
         if (data.cover) {
@@ -745,6 +759,7 @@ export class BookService {
             downloadUrl: updatedBook.downloadUrl ?? undefined,
             isFree: updatedBook.isFree ?? false,
             readingAge: updatedBook.readingAge ?? undefined,
+            isActive: updatedBook.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${updatedBook.price}&description=${encodeURIComponent(updatedBook.title)}`,
         };
     }
@@ -790,6 +805,7 @@ export class BookService {
             cartCount: 0,
             isFree: deleted.isFree ?? false,
             readingAge: deleted.readingAge ?? undefined,
+            isActive: deleted.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${deleted.price}&description=${encodeURIComponent(deleted.title)}`,
         };
     }
@@ -803,6 +819,7 @@ export class BookService {
         const where = {
             originalPrice: { not: null },
             price: { lt: undefined }, // Corrija conforme sua lógica de preço promocional
+            isActive: true, // Mostrar apenas livros ativos
         };
         const sortConfig = this.getSortConfig(sortOption, sortBy, sortOrder);
         const [books, total] = await Promise.all([
@@ -836,6 +853,7 @@ export class BookService {
             cartQuantity: undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            isActive: book.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
         const totalPages = Math.ceil(total / limit);
@@ -846,6 +864,7 @@ export class BookService {
 
     async getTopSellingBooks(limit: number = 10): Promise<BookResponseDto[]> {
         const books = await this.prisma.book.findMany({
+            where: { isActive: true }, // Mostrar apenas livros ativos
             orderBy: { sales: 'desc' },
             take: limit,
             include: { categoryRef: true },
@@ -877,6 +896,7 @@ export class BookService {
             printLength: book.printLength ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            isActive: book.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
     }
@@ -1044,13 +1064,19 @@ export class BookService {
         // Buscar livros comprados
         const [books, total] = await Promise.all([
             this.prisma.book.findMany({
-                where: { id: { in: bookIds } },
+                where: { 
+                    id: { in: bookIds },
+                    isActive: true // Mostrar apenas livros ativos
+                },
                 include: { categoryRef: true },
                 skip,
                 take: limit,
                 orderBy: { [sortConfig.field]: sortConfig.order },
             }),
-            this.prisma.book.count({ where: { id: { in: bookIds } } }),
+            this.prisma.book.count({ where: { 
+                id: { in: bookIds },
+                isActive: true // Mostrar apenas livros ativos
+            } }),
         ]);
 
         // Buscar favoritos e carrinho em lote
@@ -1106,6 +1132,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            isActive: book.isActive ?? true,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
         }));
 
@@ -1246,6 +1273,7 @@ export class BookService {
                 publishedDate: book.publishedDate ?? undefined,
                 printLength: book.printLength ?? undefined,
                 readingAge: book.readingAge ?? undefined,
+                checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
             })),
             total: books.length,
             page: 1,

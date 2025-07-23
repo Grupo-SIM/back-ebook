@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { UserService } from '../user/user.service';
-import { CreateAdminDto, UpdateAdminDto, AdminResponseDto } from './admin.dto';
+import { CreateAdminDto, UpdateAdminDto, AdminResponseDto, AdminRevenueDto, AdminRevenueDetailedDto } from './admin.dto';
 import { CreateUserDto } from '../user/user.dto';
 import { JwtAuthGuardPanel } from '../auth/guard/jwt-auth.guard';
 import { JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
@@ -38,6 +38,7 @@ export class AdminController {
     private readonly userService: UserService,
   ) { }
 
+  // ========== POST ROUTES ==========
   @Post()
   @ApiOperation({ summary: 'Create a new admin' })
   @ApiResponse({
@@ -92,6 +93,31 @@ export class AdminController {
     }
   }
 
+  // ========== GET ROUTES (SPECIFIC PATHS FIRST) ==========
+  @Get()
+  @ApiOperation({ summary: 'Get all admins' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all admins.',
+    type: [AdminResponseDto],
+  })
+  async getAllAdmins(): Promise<AdminResponseDto[]> {
+    console.log('🔥 getAllAdmins endpoint chamado');
+    return await this.adminService.getAllAdmins();
+  }
+
+  @Get('names')
+  @ApiOperation({ summary: 'Obter todos os nomes dos administradores' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna uma lista com os nomes dos administradores.',
+    type: [String],
+  })
+  async getAllAdminNames(): Promise<string[]> {
+    console.log('🔥 getAllAdminNames endpoint chamado');
+    return this.adminService.getAllAdminNames();
+  }
+
   @Get('users')
   @ApiOperation({ summary: 'Get all users within admin context' })
   @ApiResponse({
@@ -102,6 +128,7 @@ export class AdminController {
     @GetUser() admin: RequestWithUser['user'],
   ) {
     try {
+      console.log('🔥 getUsersInAdminContext endpoint chamado para admin:', admin.id);
       // Busca usuários criados por este admin
       const creatorId = admin.createdById || admin.id;
       return await this.userService.getAllUsers(creatorId);
@@ -114,6 +141,142 @@ export class AdminController {
     }
   }
 
+  @Get('activities')
+  @UseGuards(JwtAuthGuardAdmin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Listar atividades recentes do admin (dashboard)' })
+  @ApiResponse({ status: 200, description: 'Atividades recentes do admin' })
+  async getRecentActivities(
+    @GetUser() admin: RequestWithUser['user'],
+    @Query('page') page: number | string = 1,
+    @Query('limit') limit: number | string = 10
+  ) {
+    console.log('🔥 getRecentActivities endpoint chamado para admin:', admin.id);
+    // Garantir que page e limit são números
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    return this.adminService.getRecentActivities(admin.id, pageNum, limitNum);
+  }
+
+  // ========== REVENUE ROUTES (BEFORE :id ROUTES) ==========
+  @Get('revenue')
+  @ApiOperation({ summary: 'Obter receita total de todos os admins (ranking)' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Receita total de todos os admins ordenada por receita',
+    type: [AdminRevenueDto]
+  })
+  async getAllAdminsRevenue(): Promise<AdminRevenueDto[]> {
+    console.log('🔥 getAllAdminsRevenue endpoint chamado');
+    return this.adminService.getAllAdminsRevenue();
+  }
+
+  @Get('revenue/my')
+  @ApiOperation({ summary: 'Obter receita total do admin autenticado' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Receita total do admin autenticado',
+    type: AdminRevenueDto
+  })
+  async getMyRevenue(@GetUser() admin: RequestWithUser['user']): Promise<AdminRevenueDto> {
+    console.log('🔥 getMyRevenue - Dados do admin recebido:', {
+      id: admin.id, // ← Este é o userId
+      role: admin.role,
+      email: admin.email,
+      name: admin.name
+    });
+    
+    // 🔥 CORREÇÃO: Buscar admin pelo userId, não pelo adminId
+    return this.adminService.getAdminRevenueByUserId(admin.id);
+  }
+
+  @Get('revenue/my/detailed')
+  @ApiOperation({ summary: 'Obter receita detalhada do admin autenticado' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Receita detalhada do admin autenticado com histórico dos últimos 12 meses',
+    type: AdminRevenueDetailedDto
+  })
+  async getMyRevenueDetailed(@GetUser() admin: RequestWithUser['user']): Promise<AdminRevenueDetailedDto> {
+    console.log('🔥 getMyRevenueDetailed - Dados do admin recebido:', {
+      id: admin.id, // ← Este é o userId
+      role: admin.role,
+      email: admin.email,
+      name: admin.name
+    });
+    
+    // 🔥 CORREÇÃO: Buscar admin pelo userId, não pelo adminId
+    return this.adminService.getAdminRevenueDetailedByUserId(admin.id);
+  }
+
+  // ========== GET ROUTES WITH PARAMETERS (LAST) ==========
+  @Get(':id')
+  @ApiOperation({ summary: 'Get an admin by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return the admin.',
+    type: AdminResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Admin not found.' })
+  async getAdminById(@Param('id') id: string): Promise<AdminResponseDto> {
+    console.log('🔥 getAdminById endpoint chamado para id:', id);
+    const admin = await this.adminService.getAdminById(id);
+    if (!admin) {
+      throw new NotFoundException('Admin not found.');
+    }
+    return admin;
+  }
+
+  @Get(':id/revenue')
+  @ApiOperation({ summary: 'Obter receita total de um admin específico' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Receita total do admin especificado',
+    type: AdminRevenueDto
+  })
+  @ApiResponse({ status: 404, description: 'Admin not found' })
+  async getAdminRevenue(
+    @Param('id') adminId: string
+  ): Promise<AdminRevenueDto> {
+    console.log('🔥 getAdminRevenue endpoint chamado para adminId:', adminId);
+    return this.adminService.getAdminRevenue(adminId);
+  }
+
+  @Get(':id/revenue/detailed')
+  @ApiOperation({ summary: 'Obter receita detalhada de um admin específico (com histórico mensal)' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Receita detalhada do admin especificado com histórico dos últimos 12 meses',
+    type: AdminRevenueDetailedDto
+  })
+  @ApiResponse({ status: 404, description: 'Admin not found' })
+  async getAdminRevenueDetailed(
+    @Param('id') adminId: string
+  ): Promise<AdminRevenueDetailedDto> {
+    console.log('🔥 getAdminRevenueDetailed endpoint chamado para adminId:', adminId);
+    return this.adminService.getAdminRevenueDetailed(adminId);
+  }
+
+  @Get('user/:userId')
+  @ApiOperation({ summary: 'Get admin by user ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return the admin for the given user ID.',
+    type: AdminResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Admin not found for the given user ID.' })
+  async getAdminByUserId(
+    @Param('userId') userId: string,
+  ): Promise<AdminResponseDto> {
+    console.log('🔥 getAdminByUserId endpoint chamado para userId:', userId);
+    const admin = await this.adminService.getAdminByUserId(userId);
+    if (!admin) {
+      throw new NotFoundException('Admin not found for the given user ID.');
+    }
+    return admin;
+  }
+
+  // ========== PUT ROUTES ==========
   @Put('users/:userId')
   @ApiOperation({ summary: 'Update a user within admin context' })
   @ApiResponse({
@@ -127,6 +290,7 @@ export class AdminController {
     @GetUser() admin: RequestWithUser['user'],
   ) {
     try {
+      console.log('🔥 updateUserInAdminContext endpoint chamado para userId:', userId);
       const updaterUserId = admin.createdById || admin.id;
       return await this.userService.updateUser(userId, updateData, updaterUserId);
     } catch (error) {
@@ -139,86 +303,6 @@ export class AdminController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-
-  @Delete('users/:userId')
-  @ApiOperation({ summary: 'Delete a user within admin context' })
-  @ApiResponse({
-    status: 200,
-    description: 'User deleted successfully.',
-  })
-  @ApiResponse({ status: 404, description: 'User not found or not accessible.' })
-  async deleteUserInAdminContext(
-    @Param('userId') userId: string,
-    @GetUser() admin: RequestWithUser['user'],
-  ) {
-    try {
-      const deleterUserId = admin.createdById || admin.id;
-      return await this.userService.deleteUser(userId, deleterUserId);
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      console.error('Erro inesperado ao deletar usuário:', error);
-      throw new HttpException(
-        'Erro interno do servidor ao deletar usuário.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Get all admins' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return all admins.',
-    type: [AdminResponseDto],
-  })
-  async getAllAdmins(): Promise<AdminResponseDto[]> {
-    return await this.adminService.getAllAdmins();
-  }
-
-  @Get('names')
-  @ApiOperation({ summary: 'Obter todos os nomes dos administradores' })
-  @ApiResponse({
-    status: 200,
-    description: 'Retorna uma lista com os nomes dos administradores.',
-    type: [String],
-  })
-  async getAllAdminNames(): Promise<string[]> {
-    return this.adminService.getAllAdminNames();
-  }
-
-  @Get('activities')
-  @UseGuards(JwtAuthGuardAdmin)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Listar atividades recentes do admin (dashboard)' })
-  @ApiResponse({ status: 200, description: 'Atividades recentes do admin' })
-  async getRecentActivities(
-    @GetUser() admin: RequestWithUser['user'],
-    @Query('page') page: number | string = 1,
-    @Query('limit') limit: number | string = 10
-  ) {
-    // Garantir que page e limit são números
-    const pageNum = Number(page) || 1;
-    const limitNum = Number(limit) || 10;
-    return this.adminService.getRecentActivities(admin.id, pageNum, limitNum);
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Get an admin by id' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return the admin.',
-    type: AdminResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Admin not found.' })
-  async getAdminById(@Param('id') id: string): Promise<AdminResponseDto> {
-    const admin = await this.adminService.getAdminById(id);
-    if (!admin) {
-      throw new NotFoundException('Admin not found.');
-    }
-    return admin;
   }
 
   @Put(':id')
@@ -234,6 +318,7 @@ export class AdminController {
     @Body() updateAdminDto: UpdateAdminDto,
   ): Promise<AdminResponseDto> {
     try {
+      console.log('🔥 updateAdmin endpoint chamado para id:', id);
       return await this.adminService.updateAdmin(id, updateAdminDto);
     } catch (error) {
       if (error instanceof HttpException) {
@@ -242,6 +327,34 @@ export class AdminController {
       console.error('Erro inesperado ao atualizar admin:', error);
       throw new HttpException(
         'Erro interno do servidor ao atualizar admin.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // ========== DELETE ROUTES ==========
+  @Delete('users/:userId')
+  @ApiOperation({ summary: 'Delete a user within admin context' })
+  @ApiResponse({
+    status: 200,
+    description: 'User deleted successfully.',
+  })
+  @ApiResponse({ status: 404, description: 'User not found or not accessible.' })
+  async deleteUserInAdminContext(
+    @Param('userId') userId: string,
+    @GetUser() admin: RequestWithUser['user'],
+  ) {
+    try {
+      console.log('🔥 deleteUserInAdminContext endpoint chamado para userId:', userId);
+      const deleterUserId = admin.createdById || admin.id;
+      return await this.userService.deleteUser(userId, deleterUserId);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      console.error('Erro inesperado ao deletar usuário:', error);
+      throw new HttpException(
+        'Erro interno do servidor ao deletar usuário.',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -257,6 +370,7 @@ export class AdminController {
   @ApiResponse({ status: 404, description: 'Admin not found.' })
   async deleteAdmin(@Param('id') id: string): Promise<AdminResponseDto> {
     try {
+      console.log('🔥 deleteAdmin endpoint chamado para id:', id);
       return await this.adminService.deleteAdmin(id);
     } catch (error) {
       if (error instanceof HttpException) {
@@ -268,23 +382,5 @@ export class AdminController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-  }
-
-  @Get('user/:userId')
-  @ApiOperation({ summary: 'Get admin by user ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return the admin for the given user ID.',
-    type: AdminResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Admin not found for the given user ID.' })
-  async getAdminByUserId(
-    @Param('userId') userId: string,
-  ): Promise<AdminResponseDto> {
-    const admin = await this.adminService.getAdminByUserId(userId);
-    if (!admin) {
-      throw new NotFoundException('Admin not found for the given user ID.');
-    }
-    return admin;
   }
 }

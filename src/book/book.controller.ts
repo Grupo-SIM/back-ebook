@@ -63,6 +63,7 @@ export class BookController {
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
                 readingAge: { type: 'string' },
+                isActive: { type: 'boolean' },
                 file: { type: 'string', format: 'binary' }
             }
         }
@@ -296,6 +297,7 @@ export class BookController {
                 publisher: { type: 'string' },
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
+                isActive: { type: 'boolean' },
                 file: { type: 'string', format: 'binary' }
             }
         }
