@@ -177,9 +177,10 @@ export class BookService {
         const skip = (page - 1) * limit;
 
         // Construir condições de filtro
-        const where: any = {
-            isActive: true // Mostrar apenas livros ativos
-        };
+        const where: any = {};
+        if (!onlyAdminBooks) {
+            where.isActive = true; // Mostrar apenas livros ativos para público
+        }
 
         if (categoryId) {
             where.categoryId = categoryId;

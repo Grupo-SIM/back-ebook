@@ -186,7 +186,26 @@ export class AdminBookController {
             }
         }
     })
-    @UseInterceptors(FileInterceptor('file', { /* ... suas configurações de storage/filter ... */ }))
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './uploads/books',
+            filename: (req, file, cb) => {
+                const name = file.originalname.split('.')[0];
+                const ext = path.extname(file.originalname);
+                cb(null, `${name}_${Date.now()}${ext}`);
+            }
+        }),
+        fileFilter: (req, file, cb) => {
+            if (!file) {
+                cb(null, true); // Permite sem arquivo
+                return;
+            }
+            const allowed = ['.pdf', '.epub', '.mobi'];
+            const ext = path.extname(file.originalname).toLowerCase();
+            if (allowed.includes(ext)) cb(null, true);
+            else cb(new Error('Only PDF, EPUB, MOBI allowed'), false);
+        }
+    }))
     async updateBook(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateBookDto: UpdateBookDto,
