@@ -9,6 +9,7 @@ import {
   Post,
   Req,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -103,6 +104,230 @@ export class AuthController {
       return data;
     } catch (error) {
       throw new HttpException(error.message, error.status);
+    }
+  }
+
+  @ApiOperation({ summary: 'Login universal - permite acesso a múltiplas plataformas com o mesmo email' })
+  @ApiResponse({
+    status: 200,
+    type: AuthOutputDTO,
+    description: 'Returns the access token and user roles',
+  })
+  @ApiBody({ type: LoginInputDTO })
+  @Post('/universal/login')
+  async universalLogin(
+    @Body() body: LoginInputDTO,
+    @ClientIp() ip: string,
+    @Req() req: any,
+  ) {
+    try {
+      const userAgent = req.headers['user-agent'];
+      
+      // Buscar usuário por email
+      const user = await this.authService.findUserByEmail(body.email);
+
+      if (!user) {
+        throw new HttpException('User not found', 404);
+      }
+
+      // Verificar senha usando bcrypt (mesmo método dos outros endpoints)
+      const validPassword = await this.authService.validatePassword(user.id, body.password);
+
+      if (!validPassword) {
+        throw new HttpException('Invalid password', 409);
+      }
+
+      if (!user.isActive) {
+        throw new HttpException('User is inactive', 409);
+      }
+
+      // Obter todas as roles do usuário
+      const roles = await this.authService.getUserRoles(user.id);
+
+      // Gerar token com a role principal
+      const payload = {
+        id: user.id,
+        name: user.name || '',
+        role: user.role.toString(),
+        email: user.email,
+        createdById: user.createdById,
+      };
+
+      const access_token = await this.authService.login(payload);
+
+      const userResponse = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role.toString(),
+        roles: roles, // Incluir todas as roles disponíveis
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        isActive: user.isActive,
+        createdById: user.createdById,
+        admin: user.admin
+      };
+
+      return {
+        token: access_token,
+        user: userResponse,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @ApiOperation({ summary: 'Obter todas as roles de um usuário' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all roles for the authenticated user',
+    schema: {
+      type: 'object',
+      properties: {
+        roles: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ['USER', 'ADMIN']
+        }
+      }
+    }
+  })
+  @UseGuards(JwtAuthGuardUser)
+  @ApiBearerAuth()
+  @Get('/my-roles')
+  async getMyRoles(@Req() req: any) {
+    try {
+      const roles = await this.authService.getUserRoles(req.user.id);
+      return { roles };
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @ApiOperation({ summary: 'Adicionar role ADMIN a um usuário existente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Role ADMIN adicionada com sucesso',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Role ADMIN adicionada com sucesso'
+        },
+        user: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            email: { type: 'string' },
+            roles: {
+              type: 'array',
+              items: { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: {
+          type: 'string',
+          description: 'Email do usuário que receberá a role ADMIN'
+        }
+      },
+      required: ['email']
+    }
+  })
+  @Post('/add-admin-role')
+  async addAdminRole(@Body() body: { email: string }) {
+    try {
+      const user = await this.authService.findUserByEmail(body.email);
+      
+      if (!user) {
+        throw new HttpException('User not found', 404);
+      }
+
+      // Adicionar role ADMIN
+      await this.authService.addAdminRole(user.id);
+
+      // Buscar usuário atualizado
+      const updatedUser = await this.authService.findUserByEmail(body.email);
+      const roles = await this.authService.getUserRoles(updatedUser.id);
+
+      return {
+        message: 'Role ADMIN adicionada com sucesso',
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          roles: roles
+        }
+      };
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
+  @ApiOperation({ summary: 'Verificar se um usuário pode acessar o painel admin' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna se o usuário pode acessar o painel admin',
+    schema: {
+      type: 'object',
+      properties: {
+        canAccessAdmin: {
+          type: 'boolean',
+          example: true
+        },
+        message: {
+          type: 'string',
+          example: 'Usuário pode acessar o painel admin'
+        }
+      }
+    }
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: {
+          type: 'string',
+          description: 'Email do usuário para verificar'
+        }
+      },
+      required: ['email']
+    }
+  })
+  @Post('/check-admin-access')
+  async checkAdminAccess(@Body() body: { email: string }) {
+    try {
+      const user = await this.authService.findUserByEmail(body.email);
+      
+      if (!user) {
+        return {
+          canAccessAdmin: false,
+          message: 'Usuário não encontrado'
+        };
+      }
+
+      const hasAdminRole = user.role.toString() === 'ADMIN';
+      const hasAdminAccount = !!user.admin;
+
+      if (hasAdminRole || hasAdminAccount) {
+        return {
+          canAccessAdmin: true,
+          message: 'Usuário pode acessar o painel admin'
+        };
+      } else {
+        return {
+          canAccessAdmin: false,
+          message: 'Usuário precisa criar uma conta admin para acessar o painel'
+        };
+      }
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
     }
   }
 

@@ -53,10 +53,7 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.role.toString() !== expectedRole) {
-      throw new ConflictException(`User is not a ${expectedRole}`);
-    }
-
+    // Verificar se a senha está correta
     const validPassword = bcrypt.compareSync(data.password, user.password);
 
     if (!validPassword) {
@@ -65,6 +62,25 @@ export class AuthService {
 
     if (!user.isActive) {
       throw new ConflictException('User is inactive.');
+    }
+
+    // Lógica específica para cada role esperada
+    if (expectedRole === 'USER') {
+      // USER pode ser acessado por qualquer usuário (USER, ADMIN, CUSTOMER)
+      // Não há restrição de role para login como USER
+    } else if (expectedRole === 'ADMIN') {
+      // ADMIN só pode ser acessado se o usuário tem role ADMIN OU tem conta admin
+      const hasAdminRole = user.role.toString() === 'ADMIN';
+      const hasAdminAccount = !!user.admin;
+      
+      if (!hasAdminRole && !hasAdminAccount) {
+        throw new ConflictException('User is not an ADMIN');
+      }
+    } else if (expectedRole === 'CUSTOMER') {
+      // CUSTOMER só pode ser acessado se o usuário tem role CUSTOMER
+      if (user.role.toString() !== 'CUSTOMER') {
+        throw new ConflictException('User is not a CUSTOMER');
+      }
     }
 
     const payload: PayloadAuth = {
@@ -93,6 +109,99 @@ export class AuthService {
       token: access_token,
       user: userResponse,
     };
+  }
+
+  // Novo método para verificar se um usuário tem múltiplas roles
+  async userHasMultipleRoles(userId: string): Promise<boolean> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { admin: true }
+    });
+
+    if (!user) {
+      return false;
+    }
+
+    // Se tem role ADMIN, automaticamente pode acessar como USER
+    if (user.role.toString() === 'ADMIN') {
+      return true;
+    }
+
+    // Se tem conta admin, pode acessar como ADMIN
+    if (user.admin) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Novo método para obter todas as roles de um usuário
+  async getUserRoles(userId: string): Promise<string[]> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { admin: true }
+    });
+
+    if (!user) {
+      return [];
+    }
+
+    const roles = [user.role.toString()];
+    
+    // Se tem role ADMIN, automaticamente pode acessar como USER também
+    if (user.role.toString() === 'ADMIN') {
+      roles.push('USER');
+    }
+    
+    // Se tem conta admin (mesmo que role não seja ADMIN), pode acessar como ADMIN
+    if (user.admin) {
+      roles.push('ADMIN');
+    }
+
+    return [...new Set(roles)]; // Remove duplicatas
+  }
+
+  // Método público para buscar usuário por email
+  async findUserByEmail(email: string) {
+    return this.prismaService.user.findUnique({
+      where: {
+        email: String(email).toLowerCase().trim(),
+      },
+      include: {
+        admin: true,
+        createdBy: true,
+      }
+    });
+  }
+
+  // Método público para validar senha
+  async validatePassword(userId: string, password: string): Promise<boolean> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return false;
+    }
+
+    return bcrypt.compareSync(password, user.password);
+  }
+
+  // Método público para adicionar role ADMIN
+  async addAdminRole(userId: string): Promise<void> {
+    const existingAdmin = await this.prismaService.admin.findUnique({
+      where: { userId }
+    });
+
+    if (existingAdmin) {
+      throw new ConflictException('User already has ADMIN role');
+    }
+
+    await this.prismaService.admin.create({
+      data: {
+        userId: userId,
+      },
+    });
   }
 
   async login(payload: PayloadAuth): Promise<string> {
@@ -453,322 +562,386 @@ export class AuthService {
       where: {
         email: data.email,
       },
-    });
-
-    if (existingUserByEmail) {
-      throw new ConflictException('User with this email already exists');
-    }
-
-    const hashedPassword = this.generateHashPassword(data.password);
-
-    const newUser = await this.prismaService.user.create({
-      data: {
-        email: data.email,
-        name: data.name,
-        password: hashedPassword,
-        role: data.role as Role,
-        isActive: true,
-        createdById: creatorUserId,
-      },
       include: {
         admin: true,
-        createdBy: true,
       }
     });
 
-    if (newUser.role === Role.ADMIN) {
-      await this.prismaService.admin.create({
+    let newUser;
+
+    if (existingUserByEmail) {
+      // Usuário já existe
+      if (data.role === 'ADMIN') {
+        // Se está tentando criar como ADMIN, verificar se já tem role ADMIN
+        if (existingUserByEmail.role.toString() === 'ADMIN' || existingUserByEmail.admin) {
+          // Já tem role ADMIN, usar o usuário existente
+          newUser = existingUserByEmail;
+        } else {
+          // Não tem role ADMIN, criar nova conta ADMIN
+          const hashedPassword = this.generateHashPassword(data.password);
+          
+          newUser = await this.prismaService.user.create({
+            data: {
+              email: data.email,
+              name: data.name,
+              password: hashedPassword,
+              role: Role.ADMIN,
+              isActive: true,
+              createdById: creatorUserId,
+            },
+            include: {
+              admin: true,
+              createdBy: true,
+            }
+          });
+
+          // Criar conta admin
+          await this.prismaService.admin.create({
+            data: {
+              userId: newUser.id,
+            },
+          });
+        }
+      } else {
+        // Se está tentando criar como USER/CUSTOMER, verificar se já existe
+        if (existingUserByEmail.role.toString() === data.role) {
+          // Já tem a role, usar o usuário existente
+          newUser = existingUserByEmail;
+        } else {
+          // Role diferente, criar nova conta
+          const hashedPassword = this.generateHashPassword(data.password);
+          
+          newUser = await this.prismaService.user.create({
+            data: {
+              email: data.email,
+              name: data.name,
+              password: hashedPassword,
+              role: data.role as Role,
+              isActive: true,
+              createdById: creatorUserId,
+            },
+            include: {
+              admin: true,
+              createdBy: true,
+            }
+          });
+        }
+      }
+    } else {
+      // Usuário não existe - criar novo usuário
+      const hashedPassword = this.generateHashPassword(data.password);
+
+      newUser = await this.prismaService.user.create({
         data: {
-          userId: newUser.id,
+          email: data.email,
+          name: data.name,
+          password: hashedPassword,
+          role: data.role as Role,
+          isActive: true,
+          createdById: creatorUserId,
         },
+        include: {
+          admin: true,
+          createdBy: true,
+        }
       });
+
+      if (newUser.role === Role.ADMIN) {
+        await this.prismaService.admin.create({
+          data: {
+            userId: newUser.id,
+          },
+        });
+      }
     }
 
-    // Enviar email de boas-vindas
-    try {
-      await this.appService.sendMail({
-        to: newUser.email,
-        subject: 'Bem-vindo ao EbookSIM! 🎉',
-        html: `
-          <!DOCTYPE html>
-          <html lang="pt-BR">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Bem-vindo ao EbookSIM</title>
-            <style>
-              * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-              }
-              
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-                color: #ffffff;
-                line-height: 1.6;
-              }
-              
-              .container {
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 40px 20px;
-              }
-              
-              .header {
-                text-align: center;
-                margin-bottom: 40px;
-              }
-              
-              .logo {
-                font-size: 32px;
-                font-weight: 700;
-                color: #ffffff;
-                margin-bottom: 8px;
-                letter-spacing: -0.5px;
-              }
-              
-              .subtitle {
-                color: #a1a1aa;
-                font-size: 16px;
-                font-weight: 400;
-              }
-              
-              .card {
-                background: #1f1f1f;
-                border: 1px solid #2a2a2a;
-                border-radius: 12px;
-                padding: 32px;
-                margin-bottom: 24px;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-              }
-              
-              .welcome-title {
-                font-size: 28px;
-                font-weight: 700;
-                color: #ffffff;
-                margin-bottom: 16px;
-                text-align: center;
-              }
-              
-              .welcome-text {
-                color: #d4d4d8;
-                font-size: 16px;
-                margin-bottom: 24px;
-                text-align: center;
-              }
-              
-              .user-info {
-                background: #2a2a2a;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 24px 0;
-              }
-              
-              .info-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 16px;
-                margin-top: 16px;
-              }
-              
-              .info-item {
-                display: flex;
-                flex-direction: column;
-              }
-              
-              .info-label {
-                color: #a1a1aa;
-                font-size: 12px;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin-bottom: 4px;
-              }
-              
-              .info-value {
-                color: #ffffff;
-                font-size: 14px;
-                font-weight: 600;
-                margin-left: 6px;
-              }
-              
-              .features {
-                margin: 32px 0;
-              }
-              
-              .features-title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #ffffff;
-                margin-bottom: 16px;
-              }
-              
-              .feature-list {
-                list-style: none;
-              }
-              
-              .feature-item {
-                display: flex;
-                align-items: center;
-                margin-bottom: 12px;
-                color: #d4d4d8;
-                font-size: 14px;
-              }
-              
-              .feature-icon {
-                width: 16px;
-                height: 16px;
-                margin-right: 12px;
-                color: #22c55e;
-              }
-              
-              .cta-button {
-                display: inline-block;
-                background: #22c55e;
-                color: #000000;
-                text-decoration: none;
-                padding: 12px 24px;
-                border-radius: 8px;
-                font-weight: 600;
-                font-size: 14px;
-                text-align: center;
-                margin: 24px 0;
-                transition: all 0.2s ease;
-              }
-              
-              .cta-button:hover {
-                background: #16a34a;
-                transform: translateY(-1px);
-              }
-              
-              .footer {
-                text-align: center;
-                margin-top: 40px;
-                padding-top: 24px;
-                border-top: 1px solid #2a2a2a;
-              }
-              
-              .footer-text {
-                color: #71717a;
-                font-size: 12px;
-                line-height: 1.5;
-              }
-              
-              .badge {
-                display: inline-block;
-                background: #22c55e;
-                color: #000000;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 11px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-              }
-              
-              @media (max-width: 600px) {
+    // Enviar email de boas-vindas apenas para novos usuários
+    if (!existingUserByEmail) {
+      try {
+        await this.appService.sendMail({
+          to: newUser.email,
+          subject: 'Bem-vindo ao EbookSIM! 🎉',
+          html: `
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Bem-vindo ao EbookSIM</title>
+              <style>
+                * {
+                  margin: 0;
+                  padding: 0;
+                  box-sizing: border-box;
+                }
+                
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+                  color: #ffffff;
+                  line-height: 1.6;
+                }
+                
                 .container {
-                  padding: 20px 16px;
+                  max-width: 600px;
+                  margin: 0 auto;
+                  padding: 40px 20px;
+                }
+                
+                .header {
+                  text-align: center;
+                  margin-bottom: 40px;
+                }
+                
+                .logo {
+                  font-size: 32px;
+                  font-weight: 700;
+                  color: #ffffff;
+                  margin-bottom: 8px;
+                  letter-spacing: -0.5px;
+                }
+                
+                .subtitle {
+                  color: #a1a1aa;
+                  font-size: 16px;
+                  font-weight: 400;
                 }
                 
                 .card {
-                  padding: 24px;
-                }
-                
-                .info-grid {
-                  grid-template-columns: 1fr;
+                  background: #1f1f1f;
+                  border: 1px solid #2a2a2a;
+                  border-radius: 12px;
+                  padding: 32px;
+                  margin-bottom: 24px;
+                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
                 }
                 
                 .welcome-title {
-                  font-size: 24px;
+                  font-size: 28px;
+                  font-weight: 700;
+                  color: #ffffff;
+                  margin-bottom: 16px;
+                  text-align: center;
                 }
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <div class="logo">EbookSIM</div>
-                <div class="subtitle">Sua biblioteca digital</div>
-              </div>
-              
-              <div class="card">
-                <h1 class="welcome-title">🎉 Bem-vindo ao EbookSIM!</h1>
-                <p class="welcome-text">
-                  Olá <strong>${newUser.name}</strong>, estamos muito felizes em tê-lo conosco! 
-                  Sua conta foi criada com sucesso e você já pode começar a explorar nossa biblioteca.
-                </p>
                 
-                <div class="user-info">
-                  <div class="badge">Conta Criada</div>
-                  <div class="info-grid">
-                    <div class="info-item">
-                      <span class="info-label">Nome</span>
-                      <span class="info-value">${newUser.name}</span>
+                .welcome-text {
+                  color: #d4d4d8;
+                  font-size: 16px;
+                  margin-bottom: 24px;
+                  text-align: center;
+                }
+                
+                .user-info {
+                  background: #2a2a2a;
+                  border-radius: 8px;
+                  padding: 20px;
+                  margin: 24px 0;
+                }
+                
+                .info-grid {
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 16px;
+                  margin-top: 16px;
+                }
+                
+                .info-item {
+                  display: flex;
+                  flex-direction: column;
+                }
+                
+                .info-label {
+                  color: #a1a1aa;
+                  font-size: 12px;
+                  font-weight: 500;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                  margin-bottom: 4px;
+                }
+                
+                .info-value {
+                  color: #ffffff;
+                  font-size: 14px;
+                  font-weight: 600;
+                  margin-left: 6px;
+                }
+                
+                .features {
+                  margin: 32px 0;
+                }
+                
+                .features-title {
+                  font-size: 18px;
+                  font-weight: 600;
+                  color: #ffffff;
+                  margin-bottom: 16px;
+                }
+                
+                .feature-list {
+                  list-style: none;
+                }
+                
+                .feature-item {
+                  display: flex;
+                  align-items: center;
+                  margin-bottom: 12px;
+                  color: #d4d4d8;
+                  font-size: 14px;
+                }
+                
+                .feature-icon {
+                  width: 16px;
+                  height: 16px;
+                  margin-right: 12px;
+                  color: #22c55e;
+                }
+                
+                .cta-button {
+                  display: inline-block;
+                  background: #22c55e;
+                  color: #000000;
+                  text-decoration: none;
+                  padding: 12px 24px;
+                  border-radius: 8px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  text-align: center;
+                  margin: 24px 0;
+                  transition: all 0.2s ease;
+                }
+                
+                .cta-button:hover {
+                  background: #16a34a;
+                  transform: translateY(-1px);
+                }
+                
+                .footer {
+                  text-align: center;
+                  margin-top: 40px;
+                  padding-top: 24px;
+                  border-top: 1px solid #2a2a2a;
+                }
+                
+                .footer-text {
+                  color: #71717a;
+                  font-size: 12px;
+                  line-height: 1.5;
+                }
+                
+                .badge {
+                  display: inline-block;
+                  background: #22c55e;
+                  color: #000000;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+                  font-size: 11px;
+                  font-weight: 600;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                }
+                
+                @media (max-width: 600px) {
+                  .container {
+                    padding: 20px 16px;
+                  }
+                  
+                  .card {
+                    padding: 24px;
+                  }
+                  
+                  .info-grid {
+                    grid-template-columns: 1fr;
+                  }
+                  
+                  .welcome-title {
+                    font-size: 24px;
+                  }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <div class="logo">EbookSIM</div>
+                  <div class="subtitle">Sua biblioteca digital</div>
+                </div>
+                
+                <div class="card">
+                  <h1 class="welcome-title">🎉 Bem-vindo ao EbookSIM!</h1>
+                  <p class="welcome-text">
+                    Olá <strong>${newUser.name}</strong>, estamos muito felizes em tê-lo conosco! 
+                    Sua conta foi criada com sucesso e você já pode começar a explorar nossa biblioteca.
+                  </p>
+                  
+                  <div class="user-info">
+                    <div class="badge">Conta Criada</div>
+                    <div class="info-grid">
+                      <div class="info-item">
+                        <span class="info-label">Nome</span>
+                        <span class="info-value">${newUser.name}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">${newUser.email}</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="info-label">Data de Criação</span>
+                        <span class="info-value">${new Date(newUser.createdAt).toLocaleDateString('pt-BR')}</span>
+                      </div>
                     </div>
-                    <div class="info-item">
-                      <span class="info-label">Email</span>
-                      <span class="info-value">${newUser.email}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="info-label">Data de Criação</span>
-                      <span class="info-value">${new Date(newUser.createdAt).toLocaleDateString('pt-BR')}</span>
-                    </div>
+                  </div>
+                  
+                  <div class="features">
+                    <h3 class="features-title">✨ O que você pode fazer agora:</h3>
+                    <ul class="feature-list">
+                      <li class="feature-item">
+                        <span class="feature-icon">📚</span>
+                        Explorar nossa biblioteca de ebooks
+                      </li>
+                      <li class="feature-item">
+                        <span class="feature-icon">💚</span>
+                        Adicionar livros aos favoritos
+                      </li>
+                      <li class="feature-item">
+                        <span class="feature-icon">🛒</span>
+                        Fazer compras seguras
+                      </li>
+                      <li class="feature-item">
+                        <span class="feature-icon">🔔</span>
+                        Receber notificações sobre promoções
+                      </li>
+                      <li class="feature-item">
+                        <span class="feature-icon">⭐</span>
+                        Avaliar e comentar sobre os livros
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div style="text-align: center;">
+                    <a href="${process.env.FRONTEND_URL || 'https://ebooksim.com'}" class="cta-button">
+                      🚀 Acessar Plataforma
+                    </a>
                   </div>
                 </div>
                 
-                <div class="features">
-                  <h3 class="features-title">✨ O que você pode fazer agora:</h3>
-                  <ul class="feature-list">
-                    <li class="feature-item">
-                      <span class="feature-icon">📚</span>
-                      Explorar nossa biblioteca de ebooks
-                    </li>
-                    <li class="feature-item">
-                      <span class="feature-icon">💚</span>
-                      Adicionar livros aos favoritos
-                    </li>
-                    <li class="feature-item">
-                      <span class="feature-icon">🛒</span>
-                      Fazer compras seguras
-                    </li>
-                    <li class="feature-item">
-                      <span class="feature-icon">🔔</span>
-                      Receber notificações sobre promoções
-                    </li>
-                    <li class="feature-item">
-                      <span class="feature-icon">⭐</span>
-                      Avaliar e comentar sobre os livros
-                    </li>
-                  </ul>
-                </div>
-                
-                <div style="text-align: center;">
-                  <a href="${process.env.FRONTEND_URL || 'https://ebooksim.com'}" class="cta-button">
-                    🚀 Acessar Plataforma
-                  </a>
+                <div class="footer">
+                  <p class="footer-text">
+                    Se você tiver alguma dúvida, não hesite em entrar em contato conosco.<br>
+                    Agradecemos por escolher o EbookSIM!
+                  </p>
+                  <p class="footer-text" style="margin-top: 16px;">
+                    Este email foi enviado automaticamente. Por favor, não responda a este email.
+                  </p>
                 </div>
               </div>
-              
-              <div class="footer">
-                <p class="footer-text">
-                  Se você tiver alguma dúvida, não hesite em entrar em contato conosco.<br>
-                  Agradecemos por escolher o EbookSIM!
-                </p>
-                <p class="footer-text" style="margin-top: 16px;">
-                  Este email foi enviado automaticamente. Por favor, não responda a este email.
-                </p>
-              </div>
-            </div>
-          </body>
-          </html>
-        `,
-      });
-    } catch (error) {
-      console.error('Erro ao enviar email de boas-vindas:', error);
-      // Não interrompe o fluxo se o email falhar
+            </body>
+            </html>
+          `,
+        });
+      } catch (error) {
+        console.error('Erro ao enviar email de boas-vindas:', error);
+        // Não interrompe o fluxo se o email falhar
+      }
     }
 
     const payload: PayloadAuth = {

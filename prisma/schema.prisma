@@ -90,7 +90,6 @@ model Book {
   cover         String
   coverImageId String?
   coverImage   Image? @relation("BookCoverImage", fields: [coverImageId], references: [id])
-  isbn          String?
   language      String?
   printLength   Int?
   publisher     String?

@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
@@ -32,9 +33,17 @@ export class RegisterInputDTO {
   @IsString()
   name: string;
 
-  @ApiProperty({ nullable: false, name: 'password', type: () => String })
+  @ApiProperty({ 
+    nullable: false, 
+    name: 'password', 
+    type: () => String,
+    description: 'Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   @IsString()
   @IsNotEmpty()
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: 'A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   password: string;
 
   @ApiProperty({ nullable: false, name: 'confirmPassword', type: () => String })
@@ -58,9 +67,17 @@ export class UpdatePasswordInputDTO {
   @IsNotEmpty()
   oldPassword: string;
 
-  @ApiProperty({ nullable: false, name: 'password', type: () => String })
+  @ApiProperty({ 
+    nullable: false, 
+    name: 'password', 
+    type: () => String,
+    description: 'Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   @IsString()
   @IsNotEmpty()
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: 'A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   password: string;
 
   @ApiProperty({ nullable: false, name: 'confirmPassword', type: () => String })
@@ -70,9 +87,17 @@ export class UpdatePasswordInputDTO {
 }
 
 export class UpdateRecoveryPasswordInputDTO {
-  @ApiProperty({ nullable: false, name: 'password', type: () => String })
+  @ApiProperty({ 
+    nullable: false, 
+    name: 'password', 
+    type: () => String,
+    description: 'Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   @IsString()
   @IsNotEmpty()
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: 'A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   password: string;
 
   @ApiProperty({ nullable: false, name: 'confirmPassword', type: () => String })
@@ -82,9 +107,17 @@ export class UpdateRecoveryPasswordInputDTO {
 }
 
 export class UpdatePassInputDTO {
-  @ApiProperty({ nullable: false, name: 'password', type: () => String })
+  @ApiProperty({ 
+    nullable: false, 
+    name: 'password', 
+    type: () => String,
+    description: 'Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   @IsString()
   @IsNotEmpty()
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: 'A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   password: string;
 
   @ApiProperty({ nullable: false, name: 'confirmPassword', type: () => String })
@@ -130,6 +163,7 @@ export class AuthOutputDTO {
     email: string;
     name: string | null;
     role: string;
+    roles?: string[]; // Campo opcional para múltiplas roles
     createdAt: Date;
     updatedAt: Date;
     isActive: boolean;
@@ -148,7 +182,15 @@ export class PasswordRecoveryLinkDTO {
 export class NewPasswordDTO {
   @IsString()
   @IsNotEmpty()
-  @ApiProperty({ name: 'password', type: () => String, nullable: false })
+  @ApiProperty({ 
+    name: 'password', 
+    type: () => String, 
+    nullable: false,
+    description: 'Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: 'A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   password: string;
 
   @ApiProperty({ name: 'confirmPassword', type: () => String, nullable: false })
@@ -168,9 +210,17 @@ export class CreateUserInputDTO {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ nullable: false, name: 'password', type: () => String })
+  @ApiProperty({ 
+    nullable: false, 
+    name: 'password', 
+    type: () => String,
+    description: 'Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   @IsString()
   @IsNotEmpty()
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
+    message: 'A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial'
+  })
   password: string;
 
   @ApiProperty({ nullable: false, name: 'confirmPassword', type: () => String })

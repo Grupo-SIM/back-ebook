@@ -106,7 +106,6 @@ export class AdminBookController {
                 description: { type: 'string' },
                 sales: { type: 'number' },
                 language: { type: 'string' },
-                isbn: { type: 'string' },
                 publisher: { type: 'string' },
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
@@ -176,7 +175,6 @@ export class AdminBookController {
                 description: { type: 'string' },
                 sales: { type: 'number' },
                 language: { type: 'string' },
-                isbn: { type: 'string' },
                 publisher: { type: 'string' },
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
@@ -231,6 +229,7 @@ export class AdminBookController {
         // Filtrar campos vazios do DTO
         const filteredDto: any = {};
         Object.entries(updateBookDto).forEach(([key, value]) => {
+            if (key === 'isbn') return; // ignora isbn
             if (value !== undefined && value !== null && value !== '') {
                 filteredDto[key] = value;
             }
@@ -249,7 +248,6 @@ export class AdminBookController {
             description: filteredDto.description ?? currentBook.description,
             sales: filteredDto.sales ?? currentBook.sales,
             language: filteredDto.language ?? currentBook.language,
-            isbn: filteredDto.isbn ?? currentBook.isbn,
             publisher: filteredDto.publisher ?? currentBook.publisher,
             publishedDate: filteredDto.publishedDate ?? currentBook.publishedDate,
             printLength: filteredDto.printLength ?? currentBook.printLength,
