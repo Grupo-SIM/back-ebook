@@ -33,6 +33,7 @@ model User {
   isActive  Boolean  @default(true)
 
   admin Admin? @relation("AdminToUser")
+  adminToken AdminToken? @relation("AdminTokenToUser")
   Image        Image[]       @relation("UserAvatars")
   favorites    Favorite[]
   cart         Cart[]
@@ -230,4 +231,18 @@ model ActivityLog {
   timestamp DateTime @default(now())
   bookId    Int?
   bookTitle String?
+}
+
+model AdminToken {
+  id        String   @id @default(uuid())
+  adminId   String   @unique
+  token     String   // Token da API DOM
+  title     String?  // Título/descrição do token
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  admin User @relation("AdminTokenToUser", fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("admin_tokens")
 }

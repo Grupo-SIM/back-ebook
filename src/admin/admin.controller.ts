@@ -161,8 +161,8 @@ export class AdminController {
   // ========== REVENUE ROUTES (BEFORE :id ROUTES) ==========
   @Get('revenue')
   @ApiOperation({ summary: 'Obter receita total de todos os admins (ranking)' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Receita total de todos os admins ordenada por receita',
     type: [AdminRevenueDto]
   })
@@ -173,8 +173,8 @@ export class AdminController {
 
   @Get('revenue/my')
   @ApiOperation({ summary: 'Obter receita total do admin autenticado' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Receita total do admin autenticado',
     type: AdminRevenueDto
   })
@@ -185,15 +185,15 @@ export class AdminController {
       email: admin.email,
       name: admin.name
     });
-    
+
     // 🔥 CORREÇÃO: Buscar admin pelo userId, não pelo adminId
     return this.adminService.getAdminRevenueByUserId(admin.id);
   }
 
   @Get('revenue/my/detailed')
   @ApiOperation({ summary: 'Obter receita detalhada do admin autenticado' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Receita detalhada do admin autenticado com histórico dos últimos 12 meses',
     type: AdminRevenueDetailedDto
   })
@@ -204,9 +204,62 @@ export class AdminController {
       email: admin.email,
       name: admin.name
     });
-    
+
     // 🔥 CORREÇÃO: Buscar admin pelo userId, não pelo adminId
     return this.adminService.getAdminRevenueDetailedByUserId(admin.id);
+  }
+
+  // Endpoints para gerenciar tokens dos admins
+  @Get('tokens')
+  @UseGuards(JwtAuthGuardAdmin)
+  @ApiOperation({ summary: 'Get all admin tokens' })
+  @ApiResponse({ status: 200, description: 'Admin tokens retrieved successfully.' })
+  async getAllAdminTokens() {
+    return this.adminService.getAllAdminTokens();
+  }
+
+  @Get('tokens/:adminId')
+  @UseGuards(JwtAuthGuardAdmin)
+  @ApiOperation({ summary: 'Get admin token by admin ID' })
+  @ApiResponse({ status: 200, description: 'Admin token retrieved successfully.' })
+  @ApiResponse({ status: 404, description: 'Admin token not found.' })
+  async getAdminToken(@Param('adminId') adminId: string) {
+    const token = await this.adminService.getAdminToken(adminId);
+    if (!token) {
+      throw new NotFoundException('Token do admin não encontrado');
+    }
+    return token;
+  }
+
+  @Post('tokens')
+  @UseGuards(JwtAuthGuardAdmin)
+  @ApiOperation({ summary: 'Create admin token' })
+  @ApiResponse({ status: 201, description: 'Admin token created successfully.' })
+  @ApiResponse({ status: 409, description: 'Admin already has a token.' })
+  async createAdminToken(@Body() data: { adminId: string; token: string; title?: string }) {
+    return this.adminService.createAdminToken(data);
+  }
+
+  @Put('tokens/:adminId')
+  @UseGuards(JwtAuthGuardAdmin)
+  @ApiOperation({ summary: 'Update admin token' })
+  @ApiResponse({ status: 200, description: 'Admin token updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Admin token not found.' })
+  async updateAdminToken(
+    @Param('adminId') adminId: string,
+    @Body() data: { token?: string; title?: string; isActive?: boolean }
+  ) {
+    return this.adminService.updateAdminToken(adminId, data);
+  }
+
+  @Delete('tokens/:adminId')
+  @UseGuards(JwtAuthGuardAdmin)
+  @ApiOperation({ summary: 'Delete admin token' })
+  @ApiResponse({ status: 200, description: 'Admin token deleted successfully.' })
+  @ApiResponse({ status: 404, description: 'Admin token not found.' })
+  async deleteAdminToken(@Param('adminId') adminId: string) {
+    await this.adminService.deleteAdminToken(adminId);
+    return { message: 'Token do admin deletado com sucesso' };
   }
 
   // ========== GET ROUTES WITH PARAMETERS (LAST) ==========
@@ -229,8 +282,8 @@ export class AdminController {
 
   @Get(':id/revenue')
   @ApiOperation({ summary: 'Obter receita total de um admin específico' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Receita total do admin especificado',
     type: AdminRevenueDto
   })
@@ -244,8 +297,8 @@ export class AdminController {
 
   @Get(':id/revenue/detailed')
   @ApiOperation({ summary: 'Obter receita detalhada de um admin específico (com histórico mensal)' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Receita detalhada do admin especificado com histórico dos últimos 12 meses',
     type: AdminRevenueDetailedDto
   })

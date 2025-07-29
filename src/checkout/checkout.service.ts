@@ -261,7 +261,11 @@ export class CheckoutService {
                 selected: true
             },
             include: {
-                book: true
+                book: {
+                    include: {
+                        createdBy: true
+                    }
+                }
             }
         });
 
@@ -329,19 +333,45 @@ export class CheckoutService {
             include: { orderItems: { include: { book: true } } },
         });
         const orderResponse = this.mapOrderToResponse(orderWithItems);
-        // Gerar link de checkout
+
+        // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
+        let adminToken = null;
+        if (cartItems.length > 0 && cartItems[0].book.createdById) {
+            // Buscar o token do admin que criou o primeiro livro
+            const adminTokenRecord = await this.prisma.$queryRaw`
+                SELECT token FROM admin_tokens 
+                WHERE "adminId" = ${cartItems[0].book.createdById} 
+                AND "isActive" = true
+            `;
+
+            if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
+                adminToken = adminTokenRecord[0].token;
+            }
+        }
+
+        // Gerar link de checkout com o token do admin se disponível
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
         const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
-        const checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+
+        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+
+        // Se temos o token do admin, adicionar ao URL
+        if (adminToken) {
+            checkoutUrl += `&adminToken=${encodeURIComponent(adminToken)}`;
+        }
+
         return {
             ...orderResponse,
             checkoutUrl,
         };
     }
 
-    async createOrderFromBook(userId: string, data: { bookId: number; quantity?: number }): Promise<OrderResponseDto> {
+    async createOrderFromBook(userId: string, data: { bookId: number; quantity?: number }): Promise<OrderResponseDto & { checkoutUrl: string }> {
         // Buscar o livro
-        const book = await this.prisma.book.findUnique({ where: { id: data.bookId } });
+        const book = await this.prisma.book.findUnique({
+            where: { id: data.bookId },
+            include: { createdBy: true }
+        });
         if (!book) {
             throw new NotFoundException('Livro não encontrado');
         }
@@ -381,7 +411,39 @@ export class CheckoutService {
             where: { id: order.id },
             include: { orderItems: { include: { book: true } } },
         });
-        return this.mapOrderToResponse(orderWithItems);
+
+        // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
+        let adminToken = null;
+        if (book.createdById) {
+            // Buscar o token do admin que criou o livro
+            const adminTokenRecord = await this.prisma.$queryRaw`
+                SELECT token FROM admin_tokens 
+                WHERE "adminId" = ${book.createdById} 
+                AND "isActive" = true
+            `;
+
+            if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
+                adminToken = adminTokenRecord[0].token;
+            }
+        }
+
+        const orderResponse = this.mapOrderToResponse(orderWithItems);
+
+        // Gerar link de checkout com o token do admin se disponível
+        const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
+        const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
+
+        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+
+        // Se temos o token do admin, adicionar ao URL
+        if (adminToken) {
+            checkoutUrl += `&adminToken=${encodeURIComponent(adminToken)}`;
+        }
+
+        return {
+            ...orderResponse,
+            checkoutUrl,
+        };
     }
 
     async getOrders(userId: string, query: OrderQueryDto): Promise<{ orders: (OrderResponseDto & { checkoutUrl: string })[], total: number, page: number, limit: number }> {
@@ -403,7 +465,11 @@ export class CheckoutService {
                     include: {
                         orderItems: {
                             include: {
-                                book: true
+                                book: {
+                                    include: {
+                                        createdBy: true
+                                    }
+                                }
                             }
                         }
                     },
@@ -415,14 +481,37 @@ export class CheckoutService {
             ]);
 
             return {
-                orders: orders.map(order => {
+                orders: await Promise.all(orders.map(async order => {
                     const orderResponse = this.mapOrderToResponse(order);
+
+                    // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
+                    let adminToken = null;
+                    if (order.orderItems.length > 0 && order.orderItems[0].book.createdById) {
+                        // Buscar o token do admin que criou o primeiro livro
+                        const adminTokenRecord = await this.prisma.$queryRaw`
+                            SELECT token FROM admin_tokens 
+                            WHERE "adminId" = ${order.orderItems[0].book.createdById} 
+                            AND "isActive" = true
+                        `;
+
+                        if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
+                            adminToken = adminTokenRecord[0].token;
+                        }
+                    }
+
                     // Gerar checkoutUrl baseado no primeiro item do pedido
                     const value = Math.round(orderResponse.totalAmount * 100);
                     const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
-                    const checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+
+                    let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+
+                    // Se temos o token do admin, adicionar ao URL
+                    if (adminToken) {
+                        checkoutUrl += `&adminToken=${encodeURIComponent(adminToken)}`;
+                    }
+
                     return { ...orderResponse, checkoutUrl };
-                }),
+                })),
                 total,
                 page,
                 limit
@@ -444,7 +533,11 @@ export class CheckoutService {
             include: {
                 orderItems: {
                     include: {
-                        book: true
+                        book: {
+                            include: {
+                                createdBy: true
+                            }
+                        }
                     }
                 }
             }
@@ -457,7 +550,29 @@ export class CheckoutService {
         const orderResponse = this.mapOrderToResponse(order);
         const value = uuidv4();
         const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
-        const checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&orderId=${orderResponse.id}&orderNumber=${orderResponse.orderNumber}`;
+
+        // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
+        let adminToken = null;
+        if (order.orderItems.length > 0 && order.orderItems[0].book.createdById) {
+            // Buscar o token do admin que criou o primeiro livro
+            const adminTokenRecord = await this.prisma.$queryRaw`
+                SELECT token FROM admin_tokens 
+                WHERE "adminId" = ${order.orderItems[0].book.createdById} 
+                AND "isActive" = true
+            `;
+
+            if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
+                adminToken = adminTokenRecord[0].token;
+            }
+        }
+
+        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&orderId=${orderResponse.id}&orderNumber=${orderResponse.orderNumber}`;
+
+        // Se temos o token do admin, adicionar ao URL
+        if (adminToken) {
+            checkoutUrl += `&adminToken=${encodeURIComponent(adminToken)}`;
+        }
+
         return { ...orderResponse, checkoutUrl };
     }
 

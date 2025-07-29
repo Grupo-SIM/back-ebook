@@ -76,17 +76,62 @@ export class AdminRevenueDto {
 }
 
 export class AdminRevenuePeriodDto {
-  @ApiProperty({ example: '2024-01', description: 'Período no formato YYYY-MM' })
+  @ApiProperty()
   period: string;
 
-  @ApiProperty({ example: 5000.25, description: 'Receita do período' })
+  @ApiProperty()
   revenue: number;
 
-  @ApiProperty({ example: 50, description: 'Vendas do período' })
+  @ApiProperty()
   sales: number;
 
-  @ApiProperty({ example: 8, description: 'Livros vendidos no período' })
+  @ApiProperty()
   booksSold: number;
+}
+
+export class AdminTokenDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  adminId: string;
+
+  @ApiProperty()
+  token: string;
+
+  @ApiProperty({ required: false })
+  title?: string;
+
+  @ApiProperty()
+  isActive: boolean;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  updatedAt: Date;
+}
+
+export class CreateAdminTokenDto {
+  @ApiProperty()
+  adminId: string;
+
+  @ApiProperty()
+  token: string;
+
+  @ApiProperty({ required: false })
+  title?: string;
+}
+
+export class UpdateAdminTokenDto {
+  @ApiProperty({ required: false })
+  token?: string;
+
+  @ApiProperty({ required: false })
+  title?: string;
+
+  @ApiProperty({ required: false })
+  isActive?: boolean;
 }
 
 export class AdminRevenueDetailedDto extends AdminRevenueDto {

@@ -29,13 +29,16 @@ import {
     CheckoutState,
     CreateOrderFromBookDto
 } from './dto/checkout.dto';
+import { JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
+import { PrismaService } from 'prisma/prisma.service';
+import { NotFoundException } from '@nestjs/common';
 
 @ApiTags('Checkout')
 @Controller('checkout')
 @UseGuards(JwtAuthGuardAll)
 @ApiBearerAuth()
 export class CheckoutController {
-    constructor(private readonly checkoutService: CheckoutService) { }
+    constructor(private readonly checkoutService: CheckoutService, private readonly prisma: PrismaService) { }
 
     // Carrinho
     @Post('cart')
@@ -172,5 +175,67 @@ export class CheckoutController {
         @Body() data: { status: 'pending' | 'paid' | 'cancelled' | 'delivered' }
     ): Promise<OrderResponseDto> {
         return this.checkoutService.updateOrderStatus(orderId, data.status);
+    }
+
+    // Endpoint para testar a funcionalidade de identificação de tokens dos admins
+    @Get('test/admin-token/:bookId')
+    @UseGuards(JwtAuthGuardAdmin)
+    @ApiOperation({ summary: 'Test admin token identification for a book' })
+    @ApiResponse({ status: 200, description: 'Admin token identified successfully.' })
+    async testAdminTokenIdentification(@Param('bookId', ParseIntPipe) bookId: number) {
+        // Buscar o livro com informações do criador
+        const book = await this.prisma.book.findUnique({
+            where: { id: bookId },
+            include: { createdBy: true }
+        });
+
+        if (!book) {
+            throw new NotFoundException('Livro não encontrado');
+        }
+
+        // Buscar o token do admin que criou o livro
+        let adminToken = null;
+        let adminInfo = null;
+
+        if (book.createdById) {
+            const adminTokenRecord = await this.prisma.$queryRaw`
+                SELECT at.token, at.title, u.name, u.email 
+                FROM admin_tokens at 
+                JOIN users u ON at."adminId" = u.id 
+                WHERE at."adminId" = ${book.createdById} 
+                AND at."isActive" = true
+            `;
+
+            if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
+                const record = adminTokenRecord[0];
+                adminToken = record.token;
+                adminInfo = {
+                    id: book.createdById,
+                    name: record.name,
+                    email: record.email,
+                    tokenTitle: record.title
+                };
+            }
+        }
+
+        return {
+            book: {
+                id: book.id,
+                title: book.title,
+                author: book.author,
+                createdById: book.createdById,
+                createdBy: book.createdBy ? {
+                    id: book.createdBy.id,
+                    name: book.createdBy.name,
+                    email: book.createdBy.email
+                } : null
+            },
+            adminToken: adminToken,
+            adminInfo: adminInfo,
+            hasToken: !!adminToken,
+            message: adminToken
+                ? 'Token do admin identificado com sucesso'
+                : 'Nenhum token ativo encontrado para o admin que criou este livro'
+        };
     }
 } 
