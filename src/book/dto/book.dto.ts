@@ -166,11 +166,6 @@ export class CreateBookDto {
     @IsString()
     language?: string;
 
-    @ApiProperty({ example: '978-3-16-148410-0', required: false })
-    @IsOptional()
-    @IsString()
-    isbn?: string;
-
     @ApiProperty({ example: 'HarperCollins', required: false })
     @IsOptional()
     @IsString()
@@ -272,11 +267,6 @@ export class UpdateBookDto {
     @IsOptional()
     @IsString()
     language?: string;
-
-    @ApiProperty({ example: '978-3-16-148410-0', required: false })
-    @IsOptional()
-    @IsString()
-    isbn?: string;
 
     @ApiProperty({ example: 'HarperCollins', required: false })
     @IsOptional()
@@ -380,8 +370,6 @@ export class BookResponseDto {
     // Novos campos
     @ApiProperty({ example: 'pt-BR', required: false })
     language?: string;
-    @ApiProperty({ example: '978-3-16-148410-0', required: false })
-    isbn?: string;
     @ApiProperty({ example: 'HarperCollins', required: false })
     publisher?: string;
     @ApiProperty({ example: '1954-07-29', required: false })

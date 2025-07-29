@@ -12,7 +12,6 @@ export class CategoryService {
     ) { }
 
     async createCategory(data: CreateCategoryDto): Promise<CategoryResponseDto> {
-        // Verificar se já existe uma categoria com o mesmo nome
         const existingCategory = await this.prisma.category.findUnique({
             where: { name: data.name }
         });
@@ -21,17 +20,14 @@ export class CategoryService {
             throw new ConflictException('Categoria com este nome já existe');
         }
 
-        // Se não foi fornecido cor ou ícone, usar os predefinidos
         const categoryConfig = categoryColors[data.name];
         const color = data.color || categoryConfig?.color;
-        const icon = data.icon || categoryConfig?.icon;
 
         const category = await this.prisma.category.create({
             data: {
                 name: data.name,
                 description: data.description,
                 color,
-                icon,
                 isActive: data.isActive ?? true,
             },
         });
@@ -180,7 +176,6 @@ export class CategoryService {
             throw new NotFoundException('Categoria não encontrada');
         }
 
-        // Se o nome está sendo alterado, verificar se já existe outra categoria com o mesmo nome
         if (data.name && data.name !== existingCategory.name) {
             const categoryWithSameName = await this.prisma.category.findUnique({
                 where: { name: data.name }
@@ -191,10 +186,8 @@ export class CategoryService {
             }
         }
 
-        // Se não foi fornecido cor ou ícone, usar os predefinidos
         const categoryConfig = categoryColors[data.name || existingCategory.name];
         const color = data.color || categoryConfig?.color || existingCategory.color;
-        const icon = data.icon || categoryConfig?.icon || existingCategory.icon;
 
         const updatedCategory = await this.prisma.category.update({
             where: { id },
@@ -202,7 +195,6 @@ export class CategoryService {
                 name: data.name,
                 description: data.description,
                 color,
-                icon,
                 isActive: data.isActive,
             },
             include: {
@@ -246,7 +238,6 @@ export class CategoryService {
             throw new NotFoundException('Categoria não encontrada');
         }
 
-        // Verificar se há livros associados a esta categoria
         if (category._count.books > 0) {
             throw new ConflictException('Não é possível excluir uma categoria que possui livros associados');
         }
@@ -352,7 +343,6 @@ export class CategoryService {
                         name,
                         description: `Categoria ${name}`,
                         color: config.color,
-                        icon: config.icon,
                         isActive: true,
                     },
                 });

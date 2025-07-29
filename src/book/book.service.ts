@@ -99,7 +99,6 @@ export class BookService {
                 createdById: createdById,
                 // Novos campos
                 language: data.language,
-                isbn: data.isbn,
                 publisher: data.publisher,
                 publishedDate: data.publishedDate,
                 printLength: data.printLength,
@@ -145,7 +144,6 @@ export class BookService {
             cartQuantity: undefined,
             // Novos campos
             language: book.language ?? undefined,
-            isbn: book.isbn ?? undefined,
             publisher: book.publisher ?? undefined,
             publishedDate: book.publishedDate ?? undefined,
             printLength: book.printLength ?? undefined,
@@ -292,7 +290,6 @@ export class BookService {
             })),
             // Novos campos
             language: book.language ?? undefined,
-            isbn: book.isbn ?? undefined,
             publisher: book.publisher ?? undefined,
             publishedDate: book.publishedDate ?? undefined,
             printLength: book.printLength ?? undefined,
@@ -382,7 +379,6 @@ export class BookService {
             reviews: mappedReviews,
             // Novos campos
             language: book.language ?? undefined,
-            isbn: book.isbn ?? undefined,
             publisher: book.publisher ?? undefined,
             publishedDate: book.publishedDate ?? undefined,
             printLength: book.printLength ?? undefined,
@@ -508,7 +504,6 @@ export class BookService {
             cartQuantity: userId ? (userCartMap[book.id] || 0) : undefined,
             // Novos campos
             language: book.language ?? undefined,
-            isbn: book.isbn ?? undefined,
             publisher: book.publisher ?? undefined,
             publishedDate: book.publishedDate ?? undefined,
             printLength: book.printLength ?? undefined,
@@ -621,7 +616,6 @@ export class BookService {
             cartQuantity: userId ? (userCartMap[book.id] || 0) : undefined,
             // Novos campos
             language: book.language ?? undefined,
-            isbn: book.isbn ?? undefined,
             publisher: book.publisher ?? undefined,
             publishedDate: book.publishedDate ?? undefined,
             printLength: book.printLength ?? undefined,
@@ -691,7 +685,6 @@ export class BookService {
         if (data.sales !== undefined) updateData.sales = data.sales;
         // Novos campos
         if (data.language !== undefined) updateData.language = data.language;
-        if (data.isbn !== undefined) updateData.isbn = data.isbn;
         if (data.publisher !== undefined) updateData.publisher = data.publisher;
         if (data.publishedDate !== undefined) updateData.publishedDate = data.publishedDate;
         if (data.printLength !== undefined) updateData.printLength = data.printLength;
@@ -753,7 +746,6 @@ export class BookService {
             cartQuantity: undefined,
             // Novos campos
             language: updatedBook.language ?? undefined,
-            isbn: updatedBook.isbn ?? undefined,
             publisher: updatedBook.publisher ?? undefined,
             publishedDate: updatedBook.publishedDate ?? undefined,
             printLength: updatedBook.printLength ?? undefined,
@@ -891,7 +883,6 @@ export class BookService {
             cartQuantity: undefined,
             // Novos campos
             language: book.language ?? undefined,
-            isbn: book.isbn ?? undefined,
             publisher: book.publisher ?? undefined,
             publishedDate: book.publishedDate ?? undefined,
             printLength: book.printLength ?? undefined,
@@ -1126,7 +1117,6 @@ export class BookService {
             cartQuantity: userCartMap[book.id] || 0,
             // Novos campos
             language: book.language ?? undefined,
-            isbn: book.isbn ?? undefined,
             publisher: book.publisher ?? undefined,
             publishedDate: book.publishedDate ?? undefined,
             printLength: book.printLength ?? undefined,
@@ -1228,7 +1218,6 @@ export class BookService {
                 createdAt: book.createdAt,
                 // Novos campos
                 language: book.language ?? undefined,
-                isbn: book.isbn ?? undefined,
                 publisher: book.publisher ?? undefined,
                 publishedDate: book.publishedDate ?? undefined,
                 printLength: book.printLength ?? undefined,
@@ -1269,7 +1258,6 @@ export class BookService {
                 cartQuantity: undefined,
                 // Novos campos
                 language: book.language ?? undefined,
-                isbn: book.isbn ?? undefined,
                 publisher: book.publisher ?? undefined,
                 publishedDate: book.publishedDate ?? undefined,
                 printLength: book.printLength ?? undefined,

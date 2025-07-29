@@ -130,6 +130,7 @@ export class AuthOutputDTO {
     email: string;
     name: string | null;
     role: string;
+    roles?: string[]; // Campo opcional para múltiplas roles
     createdAt: Date;
     updatedAt: Date;
     isActive: boolean;

@@ -58,12 +58,11 @@ export class BookController {
                 description: { type: 'string' },
                 sales: { type: 'number' },
                 language: { type: 'string' },
-                isbn: { type: 'string' },
                 publisher: { type: 'string' },
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
-                readingAge: { type: 'string' },
                 isActive: { type: 'boolean' },
+                readingAge: { type: 'string' },
                 file: { type: 'string', format: 'binary' }
             }
         }
@@ -293,7 +292,6 @@ export class BookController {
                 description: { type: 'string' },
                 sales: { type: 'number' },
                 language: { type: 'string' },
-                isbn: { type: 'string' },
                 publisher: { type: 'string' },
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
