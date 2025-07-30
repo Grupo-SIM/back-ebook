@@ -125,7 +125,7 @@ export class AuthController {
   ) {
     try {
       const userAgent = req.headers['user-agent'];
-      
+
       // Buscar usuário por email
       const user = await this.authService.findUserByEmail(body.email);
 
@@ -248,7 +248,7 @@ export class AuthController {
   async addAdminRole(@Body() body: { email: string }) {
     try {
       const user = await this.authService.findUserByEmail(body.email);
-      
+
       if (!user) {
         throw new HttpException('User not found', 404);
       }
@@ -307,7 +307,7 @@ export class AuthController {
   async checkAdminAccess(@Body() body: { email: string }) {
     try {
       const user = await this.authService.findUserByEmail(body.email);
-      
+
       if (!user) {
         return {
           canAccessAdmin: false,
@@ -349,7 +349,7 @@ export class AuthController {
     description: 'Dados inválidos fornecidos',
   })
   @ApiBody({ type: CreateUserInputDTO })
-    @Post('register')
+  @Post('register')
   @ApiOperation({ summary: 'Registrar novo usuário' })
   @ApiResponse({ status: 201, description: 'Usuário registrado com sucesso.' })
   @ApiResponse({ status: 409, description: 'E-mail já registrado.' })
@@ -562,6 +562,70 @@ export class AuthController {
     } catch (error) {
       console.error('Erro na conexão:', error);
       throw new ConflictException(`Erro de conexão: ${error.message}`);
+    }
+  }
+
+  @Post('test-custom-fees')
+  @ApiOperation({ summary: 'Testar criação de taxas customizadas' })
+  @ApiResponse({ status: 200, description: 'Teste de taxas customizadas executado' })
+  async testCustomFees(@Body() body: { userId: string; adminToken: string; userName: string }) {
+    try {
+      console.log('🧪 Testando criação de taxas customizadas...');
+
+      const customFeeData = {
+        userId: body.userId,
+        percentage: 14.99,
+        fixedFee: 4.00,
+        type: 'BOTH',
+        description: `Taxa especial: PIX 12,99% + R$ 3,00 | Cartão 14,99% + R$ 4,00 - ${body.userName}`,
+        isActive: true,
+      };
+
+      console.log('Payload de teste:', customFeeData);
+
+      const response = await fetch('https://api-dom.jbmidia.com/custom-fees', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'EbookBackend/1.0',
+          'x-access-token': body.adminToken,
+        },
+        body: JSON.stringify(customFeeData),
+      });
+
+      const status = response.status;
+      const responseText = await response.text();
+
+      console.log(`📡 Status da criação: ${status}`);
+      console.log(`📄 Resposta: ${responseText}`);
+
+      if (response.ok) {
+        const result = JSON.parse(responseText);
+        return {
+          success: true,
+          message: 'Taxas customizadas criadas com sucesso',
+          status,
+          result,
+          details: 'Teste de criação de taxas customizadas passou'
+        };
+      } else {
+        return {
+          success: false,
+          message: 'Erro ao criar taxas customizadas',
+          status,
+          error: responseText,
+          details: 'Verifique o token e os dados enviados'
+        };
+      }
+
+    } catch (error) {
+      console.error('❌ Erro ao testar taxas customizadas:', error);
+      return {
+        success: false,
+        message: 'Erro ao testar taxas customizadas',
+        error: error.message,
+        details: 'Verifique a conexão com API DOM'
+      };
     }
   }
 

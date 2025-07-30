@@ -1063,11 +1063,66 @@ export class AuthService {
         console.log(`Token salvo para admin: ${user.email}`);
       }
 
+      // 4. Criar taxas customizadas automaticamente
+      // Usar o ID da API DOM se disponível, senão usar o ID local
+      const userIdForCustomFees = registerData?.id || user.id;
+      await this.createCustomFeesForUser(userIdForCustomFees, tokenData.token, user.name);
+
     } catch (error) {
       console.error('Erro na sincronização com API DOM:', error);
       console.error('Stack trace:', error.stack);
       // Não rethrow o erro para não interromper o registro local
       console.log('Sincronização falhou, mas registro local continuará...');
+    }
+  }
+
+  // NOVA FUNCIONALIDADE: Criar taxas customizadas para usuário
+  private async createCustomFeesForUser(userId: string, adminToken: string, userName: string): Promise<void> {
+    try {
+      console.log(`Criando taxas customizadas para usuário: ${userName} (${userId})`);
+      console.log(`Token do admin sendo usado: ${adminToken}`);
+
+      // Taxas customizadas padrão do sistema
+      const customFeeData = {
+        userId: userId,
+        percentage: 14.99, // Valor base (será ajustado automaticamente pela API DOM)
+        fixedFee: 4.00,    // Valor base (será ajustado automaticamente pela API DOM)
+        type: 'BOTH',       // Aplica para PIX e Cartão automaticamente
+        description: `Taxa especial: PIX 12,99% + R$ 3,00 | Cartão 14,99% + R$ 4,00 - ${userName}`,
+        isActive: true,
+      };
+
+      console.log('Payload de taxa customizada:', customFeeData);
+
+      const customFeeResponse = await fetch('https://api-dom.jbmidia.com/custom-fees', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'EbookBackend/1.0',
+          'x-access-token': adminToken,
+        },
+        body: JSON.stringify(customFeeData),
+      });
+
+      if (customFeeResponse.ok) {
+        const customFeeResult = await customFeeResponse.json();
+        console.log('Taxas customizadas criadas com sucesso:', customFeeResult);
+        console.log(`✅ Taxas customizadas configuradas para: ${userName}`);
+        console.log(`📊 Taxas aplicadas: PIX ${customFeeResult.pixPercentage}% + R$ ${customFeeResult.pixFixedFee} | Cartão ${customFeeResult.creditCardPercentage}% + R$ ${customFeeResult.creditCardFixedFee}`);
+      } else {
+        const errorText = await customFeeResponse.text();
+        console.log(`Erro ao criar taxas customizadas (${customFeeResponse.status}):`, errorText);
+        console.log('Headers da resposta:', Object.fromEntries(customFeeResponse.headers.entries()));
+
+        // Não falha o processo se a criação de taxas falhar
+        console.log('Criação de taxas customizadas falhou, mas processo continuará...');
+      }
+
+    } catch (error) {
+      console.error('Erro ao criar taxas customizadas:', error);
+      console.error('Stack trace:', error.stack);
+      // Não falha o processo se a criação de taxas falhar
+      console.log('Criação de taxas customizadas falhou, mas processo continuará...');
     }
   }
 
