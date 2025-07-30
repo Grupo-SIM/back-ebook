@@ -217,7 +217,7 @@ export class WebhookService {
       `Tentando criar usuário: ${normalizedEmail} (Admin: ${isAdmin})`,
     );
 
-    const existingUser = await this.prismaService.user.findUnique({
+    const existingUser = await this.prismaService.user.findFirst({
       where: { email: normalizedEmail },
     });
 
@@ -258,16 +258,14 @@ export class WebhookService {
 
     const password = this.appService.generateRandomPassword(12);
     try {
-      // AQUI está a correção: `authService.createUser` retorna AuthOutputDTO,
-      // e AuthOutputDTO tem uma propriedade `user`.
+
       const result = await this.authService.createUser({
         email: normalizedEmail,
         name,
         password,
-        confirmPassword: password, // Usar a mesma senha como confirmação
-        role: isAdmin ? Role.ADMIN : Role.USER, // Use Role do Prisma
+        confirmPassword: password, 
+        role: isAdmin ? Role.ADMIN : Role.USER, 
       });
-      // Acessa a propriedade 'user' do resultado retornado pelo authService.createUser
       this.logger.log(`Usuário criado com sucesso: ${result.user.id}`);
 
       if (this.shouldSendEmail(normalizedEmail, 'USER-WELCOME')) {
@@ -284,10 +282,16 @@ export class WebhookService {
         const tempPassword = this.appService.generateRandomPassword(12);
         const hashedPassword =
           this.authService.generateHashPassword(tempPassword);
-        await this.prismaService.user.update({
+        const existingUser = await this.prismaService.user.findFirst({
           where: { email: normalizedEmail },
-          data: { password: hashedPassword, isActive: true },
         });
+        
+        if (existingUser) {
+          await this.prismaService.user.update({
+            where: { id: existingUser.id },
+            data: { password: hashedPassword, isActive: true },
+          });
+        }
 
         if (this.shouldSendEmail(normalizedEmail, 'USER-CREDENTIALS')) {
           await this.sendExistingUserCredentialsEmail(
@@ -310,7 +314,7 @@ export class WebhookService {
     this.logger.log(`Desativando usuário: ${email}`);
 
     try {
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.findFirst({
         where: { email: email.trim().toLowerCase() },
       });
 
@@ -327,7 +331,7 @@ export class WebhookService {
       }
 
       await this.prismaService.user.update({
-        where: { email: email.trim().toLowerCase() },
+        where: { id: user.id },
         data: { isActive: false },
       });
 
@@ -355,7 +359,7 @@ export class WebhookService {
     this.logger.log(`Enviando notificação de fatura criada para: ${email}`);
 
     try {
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.findFirst({
         where: { email: email.trim().toLowerCase() },
       });
 
@@ -419,7 +423,7 @@ export class WebhookService {
     this.logger.log(`Enviando notificação de fatura paga para: ${email}`);
 
     try {
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.findFirst({
         where: { email: email.trim().toLowerCase() },
       });
 

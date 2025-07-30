@@ -193,7 +193,7 @@ export class UserService extends GenericService {
       throw new ConflictException('As senhas não coincidem');
     }
 
-    const existingUser = await this.prisma.user.findUnique({
+    const existingUser = await this.prisma.user.findFirst({
       where: { email: data.email }
     });
 
@@ -296,7 +296,7 @@ export class UserService extends GenericService {
     }
 
     if (data.email && data.email !== oldUser.email) {
-      const existingUser = await this.prisma.user.findUnique({
+      const existingUser = await this.prisma.user.findFirst({
         where: { email: data.email }
       });
       if (existingUser) {

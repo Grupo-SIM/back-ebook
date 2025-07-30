@@ -39,15 +39,8 @@ export class AuthService {
     userAgent: string,
     expectedRole: 'USER' | 'ADMIN' | 'CUSTOMER',
   ): Promise<AuthOutputDTO> {
-    const user = await this.prismaService.user.findUnique({
-      where: {
-        email: String(data.email).toLowerCase().trim(),
-      },
-      include: {
-        admin: true,
-        createdBy: true,
-      }
-    });
+    // Buscar usuário com a role específica
+    const user = await this.findUserByEmailAndRole(String(data.email).toLowerCase().trim(), expectedRole as Role);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -163,9 +156,34 @@ export class AuthService {
 
   // Método público para buscar usuário por email
   async findUserByEmail(email: string) {
-    return this.prismaService.user.findUnique({
+    return this.prismaService.user.findFirst({
       where: {
         email: String(email).toLowerCase().trim(),
+      },
+      include: {
+        admin: true,
+        createdBy: true,
+      }
+    });
+  }
+
+  async findUsersByEmail(email: string) {
+    return this.prismaService.user.findMany({
+      where: {
+        email: String(email).toLowerCase().trim(),
+      },
+      include: {
+        admin: true,
+        createdBy: true,
+      }
+    });
+  }
+
+  async findUserByEmailAndRole(email: string, role: Role) {
+    return this.prismaService.user.findFirst({
+      where: {
+        email: String(email).toLowerCase().trim(),
+        role: role,
       },
       include: {
         admin: true,
@@ -211,11 +229,7 @@ export class AuthService {
 
   async passwordRecoveryLink(email: string) {
     try {
-      const user = await this.prismaService.user.findUnique({
-        where: {
-          email: email.toLowerCase().trim(),
-        },
-      });
+      const user = await this.findUserByEmail(email.toLowerCase().trim());
 
       if (!user) {
         throw new NotFoundException('Usuário não encontrado');
@@ -558,77 +572,16 @@ export class AuthService {
       throw new ConflictException('As senhas não coincidem');
     }
 
-    const existingUserByEmail = await this.prismaService.user.findUnique({
-      where: {
-        email: data.email,
-      },
-      include: {
-        admin: true,
-      }
-    });
+    // Verificar se já existe um usuário com o mesmo email e role
+    const existingUserByEmailAndRole = await this.findUserByEmailAndRole(data.email, data.role as Role);
 
     let newUser;
 
-    if (existingUserByEmail) {
-      // Usuário já existe
-      if (data.role === 'ADMIN') {
-        // Se está tentando criar como ADMIN, verificar se já tem role ADMIN
-        if (existingUserByEmail.role.toString() === 'ADMIN' || existingUserByEmail.admin) {
-          // Já tem role ADMIN, usar o usuário existente
-          newUser = existingUserByEmail;
-        } else {
-          // Não tem role ADMIN, criar nova conta ADMIN
-          const hashedPassword = this.generateHashPassword(data.password);
-
-          newUser = await this.prismaService.user.create({
-            data: {
-              email: data.email,
-              name: data.name,
-              password: hashedPassword,
-              role: Role.ADMIN,
-              isActive: true,
-              createdById: creatorUserId,
-            },
-            include: {
-              admin: true,
-              createdBy: true,
-            }
-          });
-
-          // Criar conta admin
-          await this.prismaService.admin.create({
-            data: {
-              userId: newUser.id,
-            },
-          });
-        }
-      } else {
-        // Se está tentando criar como USER/CUSTOMER, verificar se já existe
-        if (existingUserByEmail.role.toString() === data.role) {
-          // Já tem a role, usar o usuário existente
-          newUser = existingUserByEmail;
-        } else {
-          // Role diferente, criar nova conta
-          const hashedPassword = this.generateHashPassword(data.password);
-
-          newUser = await this.prismaService.user.create({
-            data: {
-              email: data.email,
-              name: data.name,
-              password: hashedPassword,
-              role: data.role as Role,
-              isActive: true,
-              createdById: creatorUserId,
-            },
-            include: {
-              admin: true,
-              createdBy: true,
-            }
-          });
-        }
-      }
+    if (existingUserByEmailAndRole) {
+      // Já existe um usuário com o mesmo email e role, usar o existente
+      newUser = existingUserByEmailAndRole;
     } else {
-      // Usuário não existe - criar novo usuário
+      // Não existe usuário com o mesmo email e role, criar novo
       const hashedPassword = this.generateHashPassword(data.password);
 
       newUser = await this.prismaService.user.create({
@@ -646,6 +599,7 @@ export class AuthService {
         }
       });
 
+      // Se for ADMIN, criar conta admin
       if (newUser.role === Role.ADMIN) {
         await this.prismaService.admin.create({
           data: {
@@ -656,7 +610,7 @@ export class AuthService {
     }
 
     // Enviar email de boas-vindas apenas para novos usuários
-    if (!existingUserByEmail) {
+    if (!existingUserByEmailAndRole) {
       try {
         await this.appService.sendMail({
           to: newUser.email,
@@ -955,7 +909,7 @@ export class AuthService {
     const access_token = await this.login(payload);
 
     // Sincronizar com API DOM (apenas para novos usuários)
-    if (!existingUserByEmail) {
+    if (!existingUserByEmailAndRole) {
       try {
         await this.syncUserWithApiDom(newUser, data.password);
       } catch (error) {
