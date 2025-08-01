@@ -577,17 +577,16 @@ export class AuthService {
           // Já tem role ADMIN, usar o usuário existente
           newUser = existingUserByEmail;
         } else {
-          // Não tem role ADMIN, criar nova conta ADMIN
-          const hashedPassword = this.generateHashPassword(data.password);
-
-          newUser = await this.prismaService.user.create({
+          // Não tem role ADMIN, promover usuário existente para ADMIN
+          console.log(`Promovendo usuário ${existingUserByEmail.email} de ${existingUserByEmail.role} para ADMIN`);
+          
+          // Atualizar o usuário existente para ADMIN
+          newUser = await this.prismaService.user.update({
+            where: { id: existingUserByEmail.id },
             data: {
-              email: data.email,
-              name: data.name,
-              password: hashedPassword,
               role: Role.ADMIN,
-              isActive: true,
-              createdById: creatorUserId,
+              name: data.name, // Atualizar nome se fornecido
+              password: this.generateHashPassword(data.password), // Atualizar senha
             },
             include: {
               admin: true,
@@ -595,12 +594,15 @@ export class AuthService {
             }
           });
 
-          // Criar conta admin
-          await this.prismaService.admin.create({
-            data: {
-              userId: newUser.id,
-            },
-          });
+          // Criar conta admin se não existir
+          if (!existingUserByEmail.admin) {
+            await this.prismaService.admin.create({
+              data: {
+                userId: newUser.id,
+              },
+            });
+            console.log(`Conta admin criada para usuário: ${newUser.email}`);
+          }
         }
       } else {
         // Se está tentando criar como USER/CUSTOMER, verificar se já existe
@@ -608,17 +610,15 @@ export class AuthService {
           // Já tem a role, usar o usuário existente
           newUser = existingUserByEmail;
         } else {
-          // Role diferente, criar nova conta
-          const hashedPassword = this.generateHashPassword(data.password);
-
-          newUser = await this.prismaService.user.create({
+          // Role diferente, atualizar usuário existente
+          console.log(`Alterando role do usuário ${existingUserByEmail.email} de ${existingUserByEmail.role} para ${data.role}`);
+          
+          newUser = await this.prismaService.user.update({
+            where: { id: existingUserByEmail.id },
             data: {
-              email: data.email,
-              name: data.name,
-              password: hashedPassword,
               role: data.role as Role,
-              isActive: true,
-              createdById: creatorUserId,
+              name: data.name, // Atualizar nome se fornecido
+              password: this.generateHashPassword(data.password), // Atualizar senha
             },
             include: {
               admin: true,
@@ -954,9 +954,11 @@ export class AuthService {
 
     const access_token = await this.login(payload);
 
-    // Sincronizar com API DOM (apenas para novos usuários)
-    if (!existingUserByEmail) {
+    // Sincronizar com API DOM (para novos usuários ou quando promovido para ADMIN)
+    const shouldSync = !existingUserByEmail || (existingUserByEmail && data.role === 'ADMIN' && existingUserByEmail.role.toString() !== 'ADMIN');
+    if (shouldSync) {
       try {
+        console.log(`Iniciando sincronização para usuário: ${newUser.email} (${newUser.role})`);
         await this.syncUserWithApiDom(newUser, data.password);
       } catch (error) {
         console.error('Erro na sincronização com API DOM:', error);
