@@ -180,6 +180,20 @@ export class AuthService {
   }
 
   async findUserByEmailAndRole(email: string, role: Role) {
+    // Se for USER, buscar usuário independente da role
+    if (role === 'USER') {
+      return this.prismaService.user.findFirst({
+        where: {
+          email: String(email).toLowerCase().trim(),
+        },
+        include: {
+          admin: true,
+          createdBy: true,
+        }
+      });
+    }
+    
+    // Para ADMIN e CUSTOMER, buscar com role específica
     return this.prismaService.user.findFirst({
       where: {
         email: String(email).toLowerCase().trim(),
