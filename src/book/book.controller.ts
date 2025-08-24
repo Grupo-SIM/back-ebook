@@ -405,11 +405,15 @@ export class BookController {
         // Se for gratuito, qualquer um autenticado pode baixar
         let filePath: string;
         
-        // Se downloadUrl já começa com 'uploads/', remover o prefixo
-        if (book.downloadUrl.startsWith('uploads/')) {
+        // Corrigir a lógica de construção do caminho
+        if (book.downloadUrl.startsWith('/uploads/')) {
+            // Se começa com /uploads/, remover a barra inicial e usar process.cwd()
+            filePath = path.join(process.cwd(), book.downloadUrl.substring(1));
+        } else if (book.downloadUrl.startsWith('uploads/')) {
+            // Se começa com uploads/ (sem barra), usar process.cwd() diretamente
             filePath = path.join(process.cwd(), book.downloadUrl);
         } else {
-            // Se não, adicionar o caminho completo
+            // Se não tem prefixo, adicionar uploads/
             filePath = path.join(process.cwd(), 'uploads', book.downloadUrl);
         }
         
@@ -420,6 +424,19 @@ export class BookController {
         // Verificar se o arquivo existe
         if (!fs.existsSync(filePath)) {
             console.log(`❌ Arquivo não encontrado no caminho: ${filePath}`);
+            
+            // Tentar caminhos alternativos para debug
+            const alternativePaths = [
+                path.join(process.cwd(), 'uploads', 'books', path.basename(book.downloadUrl)),
+                path.join(process.cwd(), book.downloadUrl),
+                path.join(process.cwd(), 'uploads', path.basename(book.downloadUrl))
+            ];
+            
+            console.log(`🔍 Tentando caminhos alternativos:`);
+            alternativePaths.forEach(altPath => {
+                console.log(`  - ${altPath}: ${fs.existsSync(altPath) ? '✅ Existe' : '❌ Não existe'}`);
+            });
+            
             return res.status(HttpStatus.NOT_FOUND).json({ message: 'Arquivo físico não encontrado no servidor' });
         }
         
@@ -467,5 +484,73 @@ export class BookController {
         
         console.log(`📋 Resposta do purchase status:`, response);
         return response;
+    }
+
+    @Get('debug/files/:bookId')
+    @UseGuards(JwtAuthGuardAdmin)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Debug: Verificar arquivos de um livro (apenas ADMIN)' })
+    async debugBookFiles(@Param('bookId') bookId: string) {
+        const book = await this.bookService.getBookById(Number(bookId));
+        if (!book) {
+            throw new NotFoundException('Livro não encontrado');
+        }
+
+        const uploadsDir = path.join(process.cwd(), 'uploads');
+        const booksDir = path.join(uploadsDir, 'books');
+        
+        // Verificar estrutura de diretórios
+        const dirsExist = {
+            uploads: fs.existsSync(uploadsDir),
+            books: fs.existsSync(booksDir)
+        };
+        
+        // Listar arquivos no diretório books
+        let filesInBooks = [];
+        if (dirsExist.books) {
+            try {
+                filesInBooks = fs.readdirSync(booksDir);
+            } catch (error) {
+                filesInBooks = [`Erro ao ler diretório: ${error.message}`];
+            }
+        }
+        
+        // Verificar caminhos específicos do livro
+        const possiblePaths = [
+            path.join(process.cwd(), book.downloadUrl || ''),
+            path.join(process.cwd(), 'uploads', book.downloadUrl || ''),
+            path.join(process.cwd(), 'uploads', 'books', path.basename(book.downloadUrl || '')),
+            path.join(process.cwd(), 'uploads', path.basename(book.downloadUrl || ''))
+        ];
+        
+        const pathChecks = possiblePaths.map(p => ({
+            path: p,
+            exists: fs.existsSync(p),
+            isFile: fs.existsSync(p) ? fs.statSync(p).isFile() : false,
+            size: fs.existsSync(p) ? fs.statSync(p).size : 0
+        }));
+        
+        return {
+            book: {
+                id: book.id,
+                title: book.title,
+                downloadUrl: book.downloadUrl
+            },
+            directories: {
+                currentWorkingDir: process.cwd(),
+                uploadsDir,
+                booksDir,
+                ...dirsExist
+            },
+            filesInBooksDir: filesInBooks,
+            pathChecks,
+            recommendations: {
+                correctPath: book.downloadUrl?.startsWith('/uploads/') 
+                    ? path.join(process.cwd(), book.downloadUrl.substring(1))
+                    : book.downloadUrl?.startsWith('uploads/')
+                    ? path.join(process.cwd(), book.downloadUrl)
+                    : path.join(process.cwd(), 'uploads', book.downloadUrl || '')
+            }
+        };
     }
 } 

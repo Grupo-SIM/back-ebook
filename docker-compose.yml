@@ -23,6 +23,8 @@ services:
       - SMTP_PASSWORD="p4nkZXkQ5yeiZPM"
       - SMTP_FROM_EMAIL="noreply@simintermediacoes.com"
       - URL_APP=https://back.ebooksim.com
+    volumes:
+      - ebook_uploads:/usr/src/app/uploads
     networks:
       - externa
       - interna
@@ -47,6 +49,10 @@ services:
         - "traefik.http.routers.api_ebook.tls.certresolver=le"
         - "traefik.http.routers.api_ebook.entrypoints=websecure"
         - "traefik.http.routers.api_ebook.tls=true"
+
+volumes:
+  ebook_uploads:
+    driver: local
 
 networks:
   externa:
