@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, ConflictException }
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { AppService } from 'src/app.service';
 import {
     CartItemDto,
     CheckoutItemDto,
@@ -27,6 +28,7 @@ export class CheckoutService {
         private readonly prisma: PrismaService,
         private readonly redisService: RedisService,
         private readonly notificationService: NotificationService,
+        private readonly appService: AppService,
     ) { }
 
     // Carrinho
@@ -772,5 +774,661 @@ export class CheckoutService {
         }
 
         return this.mapOrderToResponse(updatedOrder);
+    }
+
+    /**
+     * Envia email de confirmação de compra para o usuário
+     */
+    async sendPurchaseConfirmationEmail(orderId: number): Promise<void> {
+        try {
+            // Buscar o pedido com todos os dados necessários
+            const order = await this.prisma.order.findUnique({
+                where: { id: orderId },
+                include: {
+                    orderItems: {
+                        include: {
+                            book: true
+                        }
+                    },
+                    user: true
+                }
+            });
+
+            if (!order || !order.user) {
+                throw new Error(`Pedido ${orderId} não encontrado ou usuário inválido`);
+            }
+
+            // Preparar dados para o email
+            const userName = order.user.name;
+            const userEmail = order.user.email;
+            const orderNumber = order.orderNumber;
+            const totalAmount = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(order.totalAmount);
+            const purchaseDate = new Date().toLocaleDateString('pt-BR');
+
+            // Listar os livros comprados
+            const booksList = order.orderItems.map(item => 
+                `• ${item.book.title} - ${item.book.author} (Qtd: ${item.quantity})`
+            ).join('\n');
+
+            // Enviar email
+            await this.appService.sendMail({
+                to: userEmail,
+                subject: `🎉 Compra Confirmada - ${orderNumber}`,
+                html: `
+                    <!DOCTYPE html>
+                    <html lang="pt-BR">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Compra Confirmada</title>
+                        <style>
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+                            
+                            body {
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                                background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+                                color: #ffffff;
+                                line-height: 1.6;
+                            }
+                            
+                            .container {
+                                max-width: 600px;
+                                margin: 0 auto;
+                                padding: 40px 20px;
+                            }
+                            
+                            .header {
+                                text-align: center;
+                                margin-bottom: 40px;
+                            }
+                            
+                            .logo {
+                                font-size: 32px;
+                                font-weight: 700;
+                                color: #ffffff;
+                                margin-bottom: 8px;
+                                letter-spacing: -0.5px;
+                            }
+                            
+                            .subtitle {
+                                color: #a1a1aa;
+                                font-size: 16px;
+                                font-weight: 400;
+                            }
+                            
+                            .card {
+                                background: #1f1f1f;
+                                border: 1px solid #2a2a2a;
+                                border-radius: 12px;
+                                padding: 32px;
+                                margin-bottom: 24px;
+                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                            }
+                            
+                            .success-title {
+                                font-size: 28px;
+                                font-weight: 700;
+                                color: #22c55e;
+                                margin-bottom: 16px;
+                                text-align: center;
+                            }
+                            
+                            .success-text {
+                                color: #d4d4d8;
+                                font-size: 16px;
+                                margin-bottom: 24px;
+                                text-align: center;
+                            }
+                            
+                            .order-info {
+                                background: #2a2a2a;
+                                border-radius: 8px;
+                                padding: 20px;
+                                margin: 24px 0;
+                            }
+                            
+                            .info-grid {
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 16px;
+                                margin-top: 16px;
+                            }
+                            
+                            .info-item {
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            
+                            .info-label {
+                                color: #a1a1aa;
+                                font-size: 12px;
+                                font-weight: 500;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                margin-bottom: 4px;
+                            }
+                            
+                            .info-value {
+                                color: #ffffff;
+                                font-size: 14px;
+                                font-weight: 600;
+                                margin-left: 6px;
+                            }
+                            
+                            .books-section {
+                                margin: 24px 0;
+                            }
+                            
+                            .books-title {
+                                font-size: 18px;
+                                font-weight: 600;
+                                color: #ffffff;
+                                margin-bottom: 16px;
+                            }
+                            
+                            .book-item {
+                                background: #2a2a2a;
+                                border-radius: 6px;
+                                padding: 12px;
+                                margin-bottom: 8px;
+                                color: #d4d4d8;
+                                font-size: 14px;
+                            }
+                            
+                            .cta-button {
+                                display: inline-block;
+                                background: #22c55e;
+                                color: #000000;
+                                text-decoration: none;
+                                padding: 12px 24px;
+                                border-radius: 8px;
+                                font-weight: 600;
+                                font-size: 14px;
+                                text-align: center;
+                                margin: 24px 0;
+                                transition: all 0.2s ease;
+                            }
+                            
+                            .cta-button:hover {
+                                background: #16a34a;
+                                transform: translateY(-1px);
+                            }
+                            
+                            .footer {
+                                text-align: center;
+                                margin-top: 40px;
+                                padding-top: 24px;
+                                border-top: 1px solid #2a2a2a;
+                            }
+                            
+                            .footer-text {
+                                color: #71717a;
+                                font-size: 12px;
+                                line-height: 1.5;
+                            }
+                            
+                            .badge {
+                                display: inline-block;
+                                background: #22c55e;
+                                color: #000000;
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                            }
+                            
+                            @media (max-width: 600px) {
+                                .container {
+                                    padding: 20px 16px;
+                                }
+                                
+                                .card {
+                                    padding: 24px;
+                                }
+                                
+                                .info-grid {
+                                    grid-template-columns: 1fr;
+                                }
+                                
+                                .success-title {
+                                    font-size: 24px;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <div class="logo">EbookSIM</div>
+                                <div class="subtitle">Sua biblioteca digital</div>
+                            </div>
+                            
+                            <div class="card">
+                                <h1 class="success-title">🎉 Compra Confirmada!</h1>
+                                <p class="success-text">
+                                    Olá <strong>${userName}</strong>, sua compra foi realizada com sucesso! 
+                                    Os livros já estão disponíveis na sua biblioteca.
+                                </p>
+                                
+                                <div class="order-info">
+                                    <div class="badge">Pedido Confirmado</div>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <span class="info-label">Número do Pedido</span>
+                                            <span class="info-value">${orderNumber}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Data da Compra</span>
+                                            <span class="info-value">${purchaseDate}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Total Pago</span>
+                                            <span class="info-value">${totalAmount}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Status</span>
+                                            <span class="info-value">Pago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="books-section">
+                                    <h3 class="books-title">📚 Livros Adquiridos:</h3>
+                                    ${order.orderItems.map(item => `
+                                        <div class="book-item">
+                                            <strong>${item.book.title}</strong><br>
+                                            <small>Autor: ${item.book.author}</small><br>
+                                            <small>Quantidade: ${item.quantity}</small>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                
+                                <a href="${process.env.FRONTEND_URL || 'https://ebooksim.com'}/library" class="cta-button">
+                                    📚 Acessar Minha Biblioteca
+                                </a>
+                                
+                                <p style="text-align: center; color: #a1a1aa; font-size: 14px; margin-top: 24px;">
+                                    Os livros já estão disponíveis para download na sua conta. 
+                                    Acesse sua biblioteca para começar a ler!
+                                </p>
+                            </div>
+                            
+                            <div class="footer">
+                                <p class="footer-text">
+                                    Este é um email automático. Se você tiver alguma dúvida, 
+                                    entre em contato conosco através do suporte.
+                                </p>
+                                <p class="footer-text">
+                                    Data e hora do envio: ${new Date().toLocaleString('pt-BR')}
+                                </p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `
+            });
+
+            console.log(`✅ Email de confirmação de compra enviado com sucesso para ${userEmail} - Pedido: ${orderNumber}`);
+        } catch (error) {
+            console.error(`❌ Erro ao enviar email de confirmação de compra para pedido ${orderId}:`, error);
+            // Não vamos lançar o erro para não interromper o fluxo principal
+        }
+    }
+
+    /**
+     * Método de teste para enviar email de confirmação de compra
+     */
+    async sendTestPurchaseConfirmationEmail(): Promise<void> {
+        try {
+            // Dados de teste
+            const testOrder = {
+                user: {
+                    name: 'Breno Teste',
+                    email: 'brenohslima@gmail.com'
+                },
+                orderNumber: 'TEST-2025-999999',
+                totalAmount: 49.90,
+                orderItems: [
+                    {
+                        book: {
+                            title: 'Livro de Teste - Confirmação de Compra',
+                            author: 'Autor Teste'
+                        },
+                        quantity: 1
+                    },
+                    {
+                        book: {
+                            title: 'Outro Livro de Teste',
+                            author: 'Outro Autor'
+                        },
+                        quantity: 2
+                    }
+                ]
+            };
+
+            // Preparar dados para o email
+            const userName = testOrder.user.name;
+            const userEmail = testOrder.user.email;
+            const orderNumber = testOrder.orderNumber;
+            const totalAmount = new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(testOrder.totalAmount);
+            const purchaseDate = new Date().toLocaleDateString('pt-BR');
+
+            // Enviar email
+            await this.appService.sendMail({
+                to: userEmail,
+                subject: `🎉 Compra Confirmada - ${orderNumber}`,
+                html: `
+                    <!DOCTYPE html>
+                    <html lang="pt-BR">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Compra Confirmada</title>
+                        <style>
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+                            
+                            body {
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                                background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+                                color: #ffffff;
+                                line-height: 1.6;
+                            }
+                            
+                            .container {
+                                max-width: 600px;
+                                margin: 0 auto;
+                                padding: 40px 20px;
+                            }
+                            
+                            .header {
+                                text-align: center;
+                                margin-bottom: 40px;
+                            }
+                            
+                            .logo {
+                                font-size: 32px;
+                                font-weight: 700;
+                                color: #ffffff;
+                                margin-bottom: 8px;
+                                letter-spacing: -0.5px;
+                            }
+                            
+                            .subtitle {
+                                color: #a1a1aa;
+                                font-size: 16px;
+                                font-weight: 400;
+                            }
+                            
+                            .card {
+                                background: #1f1f1f;
+                                border: 1px solid #2a2a2a;
+                                border-radius: 12px;
+                                padding: 32px;
+                                margin-bottom: 24px;
+                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                            }
+                            
+                            .success-title {
+                                font-size: 28px;
+                                font-weight: 700;
+                                color: #22c55e;
+                                margin-bottom: 16px;
+                                text-align: center;
+                            }
+                            
+                            .success-text {
+                                color: #d4d4d8;
+                                font-size: 16px;
+                                margin-bottom: 24px;
+                                text-align: center;
+                            }
+                            
+                            .order-info {
+                                background: #2a2a2a;
+                                border-radius: 8px;
+                                padding: 20px;
+                                margin: 24px 0;
+                            }
+                            
+                            .info-grid {
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 16px;
+                                margin-top: 16px;
+                            }
+                            
+                            .info-item {
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            
+                            .info-label {
+                                color: #a1a1aa;
+                                font-size: 12px;
+                                font-weight: 500;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                margin-bottom: 4px;
+                            }
+                            
+                            .info-value {
+                                color: #ffffff;
+                                font-size: 14px;
+                                font-weight: 600;
+                                margin-left: 6px;
+                            }
+                            
+                            .books-section {
+                                margin: 24px 0;
+                            }
+                            
+                            .books-title {
+                                font-size: 18px;
+                                font-weight: 600;
+                                color: #ffffff;
+                                margin-bottom: 16px;
+                            }
+                            
+                            .book-item {
+                                background: #2a2a2a;
+                                border-radius: 6px;
+                                padding: 12px;
+                                margin-bottom: 8px;
+                                color: #d4d4d8;
+                                font-size: 14px;
+                            }
+                            
+                            .cta-button {
+                                display: inline-block;
+                                background: #22c55e;
+                                color: #000000;
+                                text-decoration: none;
+                                padding: 12px 24px;
+                                border-radius: 8px;
+                                font-weight: 600;
+                                font-size: 14px;
+                                text-align: center;
+                                margin: 24px 0;
+                                transition: all 0.2s ease;
+                            }
+                            
+                            .cta-button:hover {
+                                background: #16a34a;
+                                transform: translateY(-1px);
+                            }
+                            
+                            .footer {
+                                text-align: center;
+                                margin-top: 40px;
+                                padding-top: 24px;
+                                border-top: 1px solid #2a2a2a;
+                            }
+                            
+                            .footer-text {
+                                color: #71717a;
+                                font-size: 12px;
+                                line-height: 1.5;
+                            }
+                            
+                            .badge {
+                                display: inline-block;
+                                background: #22c55e;
+                                color: #000000;
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                            }
+                            
+                            .test-badge {
+                                display: inline-block;
+                                background: #f59e0b;
+                                color: #000000;
+                                padding: 4px 8px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                margin-bottom: 16px;
+                            }
+                            
+                            .info-grid {
+                                display: grid;
+                                grid-template-columns: 1fr 1fr;
+                                gap: 32px;
+                                margin-top: 24px;
+                            }
+                            
+                            .info-item {
+                                display: flex;
+                                flex-direction: column;
+                                margin-bottom: 16px;
+                            }
+                            
+                            .info-label {
+                                color: #a1a1aa;
+                                font-size: 12px;
+                                font-weight: 500;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                margin-bottom: 8px;
+                            }
+                            
+                            @media (max-width: 600px) {
+                                .container {
+                                    padding: 20px 16px;
+                                }
+                                
+                                .card {
+                                    padding: 24px;
+                                }
+                                
+                                .info-grid {
+                                    grid-template-columns: 1fr;
+                                }
+                                
+                                .success-title {
+                                    font-size: 24px;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="header">
+                                <div class="logo">EbookSIM</div>
+                                <div class="subtitle">Sua biblioteca digital</div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="test-badge">🧪 EMAIL DE TESTE</div>
+                                <h1 class="success-title">🎉 Compra Confirmada!</h1>
+                                <p class="success-text">
+                                    Olá <strong>${userName}</strong>, sua compra foi realizada com sucesso! 
+                                    Os livros já estão disponíveis na sua biblioteca.
+                                </p>
+                                
+                                <div class="order-info">
+                                    <div class="badge">Pedido Confirmado</div>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <span class="badge">Número do Pedido</span>
+                                            <span class="info-value">${orderNumber}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="badge">Data da Compra</span>
+                                            <span class="info-value">${purchaseDate}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="badge">Total Pago</span>
+                                            <span class="info-value">${totalAmount}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="badge">Status</span>
+                                            <span class="info-value">Pago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="books-section">
+                                    <h3 class="books-title">📚 Livros Adquiridos:</h3>
+                                    ${testOrder.orderItems.map(item => `
+                                        <div class="book-item">
+                                            <strong>${item.book.title}</strong><br>
+                                            <small>Autor: ${item.book.author}</small><br>
+                                            <small>Quantidade: ${item.quantity}</small>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                
+                                <a href="${process.env.FRONTEND_URL || 'https://ebooksim.com'}/library" class="cta-button">
+                                    📚 Acessar Minha Biblioteca
+                                </a>
+                                
+                                <p style="text-align: center; color: #a1a1aa; font-size: 14px; margin-top: 24px;">
+                                    Os livros já estão disponíveis para download na sua conta. 
+                                    Acesse sua biblioteca para começar a ler!
+                                </p>
+                            </div>
+                            
+                            <div class="footer">
+                                <p class="footer-text">
+                                    <strong>🧪 Este é um email de teste para visualizar o design.</strong><br>
+                                    Em produção, este email será enviado automaticamente após confirmação de pagamento.
+                                </p>
+                                <p class="footer-text">
+                                    Data e hora do envio: ${new Date().toLocaleString('pt-BR')}
+                                </p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `
+            });
+
+            console.log(`✅ Email de teste de confirmação de compra enviado com sucesso para ${userEmail}`);
+        } catch (error) {
+            console.error(`❌ Erro ao enviar email de teste de confirmação de compra:`, error);
+            throw error;
+        }
     }
 }

@@ -238,4 +238,62 @@ export class CheckoutController {
                 : 'Nenhum token ativo encontrado para o admin que criou este livro'
         };
     }
+
+    // Endpoint de teste para visualizar o email de confirmação de compra
+    @Post('test/email-purchase-confirmation')
+    @UseGuards(JwtAuthGuardAdmin)
+    @ApiOperation({ 
+        summary: 'Testar email de confirmação de compra (Admin)', 
+        description: 'Envia um email de teste para brenohslima@gmail.com simulando uma compra confirmada'
+    })
+    @ApiResponse({ status: 200, description: 'Email de teste enviado com sucesso' })
+    @ApiResponse({ status: 500, description: 'Erro ao enviar email de teste' })
+    async testPurchaseConfirmationEmail() {
+        try {
+            // Criar um pedido de teste fictício para simular o email
+            const testOrder = {
+                id: 999,
+                user: {
+                    name: 'Breno Teste',
+                    email: 'brenohslima@gmail.com'
+                },
+                orderNumber: 'TEST-2025-999999',
+                totalAmount: 49.90,
+                orderItems: [
+                    {
+                        book: {
+                            title: 'Livro de Teste - Confirmação de Compra',
+                            author: 'Autor Teste'
+                        },
+                        quantity: 1
+                    },
+                    {
+                        book: {
+                            title: 'Outro Livro de Teste',
+                            author: 'Outro Autor'
+                        },
+                        quantity: 2
+                    }
+                ]
+            };
+
+            // Enviar o email de teste
+            await this.checkoutService.sendTestPurchaseConfirmationEmail();
+
+            return {
+                success: true,
+                message: 'Email de teste enviado com sucesso para brenohslima@gmail.com',
+                testOrder: {
+                    orderNumber: testOrder.orderNumber,
+                    userEmail: testOrder.user.email,
+                    totalAmount: testOrder.totalAmount,
+                    itemsCount: testOrder.orderItems.length
+                },
+                timestamp: new Date().toISOString()
+            };
+        } catch (error) {
+            console.error('❌ Erro ao enviar email de teste:', error);
+            throw new Error(`Falha ao enviar email de teste: ${error.message}`);
+        }
+    }
 } 

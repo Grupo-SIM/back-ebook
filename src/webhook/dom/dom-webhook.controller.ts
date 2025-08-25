@@ -774,6 +774,9 @@ export class WebhookController {
           // Remover livros do carrinho após pagamento
           await this.checkoutService.removeOrderBooksFromCart(existingOrder.userId, existingOrder.id);
 
+          // Enviar email de confirmação de compra
+          await this.checkoutService.sendPurchaseConfirmationEmail(existingOrder.id);
+
           return {
             ok: true,
             message: `Pedido ${existingOrder.orderNumber} atualizado com sucesso`,
@@ -818,6 +821,9 @@ export class WebhookController {
 
             // Remover livros do carrinho após pagamento
             await this.checkoutService.removeOrderBooksFromCart(mostRecentOrder.userId, mostRecentOrder.id);
+
+            // Enviar email de confirmação de compra
+            await this.checkoutService.sendPurchaseConfirmationEmail(mostRecentOrder.id);
 
             return {
               ok: true,
@@ -876,6 +882,9 @@ export class WebhookController {
                   orderWithBook.orderNumber,
                   'paid'
                 );
+
+                // Enviar email de confirmação de compra
+                await this.checkoutService.sendPurchaseConfirmationEmail(orderWithBook.id);
 
                 return {
                   ok: true,
@@ -940,6 +949,9 @@ export class WebhookController {
                 latestOrder.orderNumber,
                 'paid'
               );
+
+              // Enviar email de confirmação de compra
+              await this.checkoutService.sendPurchaseConfirmationEmail(latestOrder.id);
 
               return {
                 ok: true,
