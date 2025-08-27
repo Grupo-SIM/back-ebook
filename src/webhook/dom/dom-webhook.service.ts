@@ -484,6 +484,9 @@ export class WebhookService {
             include: { orderItems: true },
           });
           this.logger.log(`Order criada e ebook liberado para o usuário: ${user.email} - Livro: ${book.title}`);
+          
+          // ✅ NOVO: Atualizar contador de vendas do livro
+          await this.updateBookSalesCount(book.id, 1);
         } else {
           this.logger.log(`Order já existente para este usuário e livro: ${user.email} - ${book.title}`);
         }
@@ -529,6 +532,38 @@ export class WebhookService {
         error.stack,
       );
       throw error;
+    }
+  }
+
+  /**
+   * Atualiza o contador de vendas de um livro
+   */
+  private async updateBookSalesCount(bookId: number, quantity: number): Promise<void> {
+    try {
+      // Buscar o livro atual
+      const book = await this.prismaService.book.findUnique({
+        where: { id: bookId },
+        select: { sales: true }
+      });
+
+      if (!book) {
+        this.logger.warn(`⚠️ Livro ${bookId} não encontrado para atualizar vendas`);
+        return;
+      }
+
+      // Calcular novo total de vendas
+      const newSalesCount = (book.sales || 0) + quantity;
+
+      // Atualizar o campo sales do livro
+      await this.prismaService.book.update({
+        where: { id: bookId },
+        data: { sales: newSalesCount }
+      });
+
+      this.logger.log(`✅ Vendas do livro ${bookId} atualizadas: ${book.sales || 0} → ${newSalesCount} (+${quantity})`);
+    } catch (error) {
+      this.logger.error(`❌ Erro ao atualizar vendas do livro ${bookId}:`, error);
+      // Não vamos lançar o erro para não interromper o fluxo principal
     }
   }
 

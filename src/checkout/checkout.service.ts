@@ -760,6 +760,7 @@ export class CheckoutService {
             for (const item of updatedOrder.orderItems) {
                 const book = item.book;
                 if (book && book.createdById) {
+                    // Criar log de atividade
                     await this.prisma['activityLog'].create({
                         data: {
                             adminId: book.createdById,
@@ -769,6 +770,9 @@ export class CheckoutService {
                             bookTitle: book.title,
                         }
                     });
+
+                    // ✅ NOVO: Atualizar contador de vendas do livro
+                    await this.updateBookSalesCount(book.id, item.quantity);
                 }
             }
         }
@@ -1429,6 +1433,38 @@ export class CheckoutService {
         } catch (error) {
             console.error(`❌ Erro ao enviar email de teste de confirmação de compra:`, error);
             throw error;
+        }
+    }
+
+    /**
+     * Atualiza o contador de vendas de um livro
+     */
+    private async updateBookSalesCount(bookId: number, quantity: number): Promise<void> {
+        try {
+            // Buscar o livro atual
+            const book = await this.prisma.book.findUnique({
+                where: { id: bookId },
+                select: { sales: true }
+            });
+
+            if (!book) {
+                console.warn(`⚠️ Livro ${bookId} não encontrado para atualizar vendas`);
+                return;
+            }
+
+            // Calcular novo total de vendas
+            const newSalesCount = (book.sales || 0) + quantity;
+
+            // Atualizar o campo sales do livro
+            await this.prisma.book.update({
+                where: { id: bookId },
+                data: { sales: newSalesCount }
+            });
+
+            console.log(`✅ Vendas do livro ${bookId} atualizadas: ${book.sales || 0} → ${newSalesCount} (+${quantity})`);
+        } catch (error) {
+            console.error(`❌ Erro ao atualizar vendas do livro ${bookId}:`, error);
+            // Não vamos lançar o erro para não interromper o fluxo principal
         }
     }
 }
