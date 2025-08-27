@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { GenericService } from 'src/generic.service';
 import { AdminResponseDto, AdminRevenueDto, AdminRevenueDetailedDto, AdminRevenuePeriodDto } from './admin.dto';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { PrismaService } from 'prisma/prisma.service';
+import { Logger } from '@nestjs/common';
 
 dayjs.extend(isBetween);
 
@@ -661,5 +662,120 @@ export class AdminService extends GenericService {
       adminName: token.name,
       adminEmail: token.email,
     }));
+  }
+
+  /**
+   * 🚀 ADMIN: Contabiliza vendas passadas dos livros que JÁ FORAM VENDIDOS
+   * Executar APENAS UMA VEZ para migrar dados históricos
+   */
+  async recalculateAllSales() {
+    const logger = new Logger('AdminService');
+    logger.log('🚀 Iniciando contabilização de vendas passadas...');
+
+    try {
+      // 1. Usar a mesma lógica do comando: groupBy por bookId
+      const salesByBook = await this.prisma.orderItem.groupBy({
+        by: ['bookId'],
+        where: {
+          order: {
+            paymentStatus: 'paid'
+          }
+        },
+        _count: {
+          bookId: true
+        },
+        orderBy: {
+          _count: {
+            bookId: 'desc'
+          }
+        }
+      });
+
+      logger.log(`📊 Encontrados ${salesByBook.length} livros com vendas para processar`);
+
+      if (salesByBook.length === 0) {
+        return {
+          success: true,
+          message: 'Nenhum livro com vendas encontrado para contabilizar',
+          summary: {
+            totalBooks: 0,
+            updatedBooks: 0,
+            totalSalesCounted: 0
+          },
+          books: []
+        };
+      }
+
+      // 2. Buscar detalhes dos livros e atualizar
+      const booksWithSales = await Promise.all(
+        salesByBook.map(async sale => {
+          const book = await this.prisma.book.findUnique({
+            where: { id: sale.bookId },
+            select: { id: true, title: true, author: true, price: true, sales: true }
+          });
+          
+          if (!book) {
+            logger.warn(`⚠️ Livro ${sale.bookId} não encontrado`);
+            return null;
+          }
+
+          return {
+            ...book,
+            vendasReais: sale._count.bookId
+          };
+        })
+      );
+
+      // 3. Filtrar livros válidos
+      const validBooks = booksWithSales.filter(book => book !== null);
+
+      logger.log(`📚 Processando ${validBooks.length} livros válidos`);
+
+      // 4. Atualizar cada livro
+      let updatedCount = 0;
+      let totalSalesCounted = 0;
+
+      for (const book of validBooks) {
+        try {
+          await this.prisma.book.update({
+            where: { id: book.id },
+            data: { sales: book.vendasReais }
+          });
+
+          logger.log(`✅ Livro "${book.title}" (ID: ${book.id}): ${book.sales || 0} → ${book.vendasReais} vendas`);
+          updatedCount++;
+          totalSalesCounted += book.vendasReais;
+
+        } catch (error) {
+          logger.error(`❌ Erro ao atualizar livro ${book.id}:`, error);
+        }
+      }
+
+      logger.log(`🎉 Contabilização concluída!`);
+      logger.log(`📊 Livros atualizados: ${updatedCount}/${validBooks.length}`);
+      logger.log(`💰 Total de vendas contabilizadas: ${totalSalesCounted}`);
+
+      return {
+        success: true,
+        message: 'Contabilização de vendas passadas concluída com sucesso',
+        summary: {
+          totalBooks: validBooks.length,
+          updatedBooks: updatedCount,
+          totalSalesCounted
+        },
+        books: validBooks.map(book => ({
+          bookId: book.id,
+          title: book.title,
+          author: book.author,
+          price: book.price,
+          previousSales: book.sales || 0,
+          newSales: book.vendasReais
+        }))
+      };
+
+    } catch (error) {
+      logger.error(`❌ Erro na contabilização de vendas:`, error);
+      throw new BadRequestException(`Falha na contabilização: ${error.message}`);
+    }
   }
 }
