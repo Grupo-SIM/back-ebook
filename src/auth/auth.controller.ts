@@ -334,6 +334,41 @@ export class AuthController {
     }
   }
 
+  @ApiOperation({ summary: 'Create admin account for existing user with same email' })
+  @ApiResponse({
+    status: 200,
+    type: AuthOutputDTO,
+    description: 'Creates admin account for existing user with same email',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string' },
+        password: { type: 'string' },
+        name: { type: 'string' }
+      },
+      required: ['email', 'password', 'name']
+    }
+  })
+  @Post('/create-admin-account')
+  async createAdminAccount(@Body() body: { email: string; password: string; name: string }) {
+    try {
+      const createUserData: CreateUserInputDTO = {
+        email: body.email,
+        password: body.password,
+        confirmPassword: body.password,
+        name: body.name,
+        role: 'ADMIN'
+      };
+
+      const result = await this.authService.createUser(createUserData);
+      return result;
+    } catch (error) {
+      throw new HttpException(error.message, error.status || 500);
+    }
+  }
+
   @ApiOperation({ summary: 'Registrar uma nova conta (ADMIN, USER ou CUSTOMER)' })
   @ApiResponse({
     status: 201,

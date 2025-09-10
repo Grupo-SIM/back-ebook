@@ -93,6 +93,19 @@ export class AdminController {
     }
   }
 
+  @Post('recalculate-all-sales')
+  @ApiOperation({
+    summary: 'Recalcula contadores de vendas de TODOS os livros',
+    description: 'Executa uma migração para contabilizar vendas passadas baseado no histórico de pedidos pagos'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Contabilização de vendas passadas concluída com sucesso'
+  })
+  async recalculateAllSales() {
+    return this.adminService.recalculateAllSales();
+  }
+
   // ========== GET ROUTES (SPECIFIC PATHS FIRST) ==========
   @Get()
   @ApiOperation({ summary: 'Get all admins' })

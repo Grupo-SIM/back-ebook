@@ -217,7 +217,7 @@ export class WebhookService {
       `Tentando criar usuário: ${normalizedEmail} (Admin: ${isAdmin})`,
     );
 
-    const existingUser = await this.prismaService.user.findUnique({
+    const existingUser = await this.prismaService.user.findFirst({
       where: { email: normalizedEmail },
     });
 
@@ -258,16 +258,14 @@ export class WebhookService {
 
     const password = this.appService.generateRandomPassword(12);
     try {
-      // AQUI está a correção: `authService.createUser` retorna AuthOutputDTO,
-      // e AuthOutputDTO tem uma propriedade `user`.
+
       const result = await this.authService.createUser({
         email: normalizedEmail,
         name,
         password,
-        confirmPassword: password, // Usar a mesma senha como confirmação
-        role: isAdmin ? Role.ADMIN : Role.USER, // Use Role do Prisma
+        confirmPassword: password, 
+        role: isAdmin ? Role.ADMIN : Role.USER, 
       });
-      // Acessa a propriedade 'user' do resultado retornado pelo authService.createUser
       this.logger.log(`Usuário criado com sucesso: ${result.user.id}`);
 
       if (this.shouldSendEmail(normalizedEmail, 'USER-WELCOME')) {
@@ -284,10 +282,16 @@ export class WebhookService {
         const tempPassword = this.appService.generateRandomPassword(12);
         const hashedPassword =
           this.authService.generateHashPassword(tempPassword);
-        await this.prismaService.user.update({
+        const existingUser = await this.prismaService.user.findFirst({
           where: { email: normalizedEmail },
-          data: { password: hashedPassword, isActive: true },
         });
+        
+        if (existingUser) {
+          await this.prismaService.user.update({
+            where: { id: existingUser.id },
+            data: { password: hashedPassword, isActive: true },
+          });
+        }
 
         if (this.shouldSendEmail(normalizedEmail, 'USER-CREDENTIALS')) {
           await this.sendExistingUserCredentialsEmail(
@@ -310,7 +314,7 @@ export class WebhookService {
     this.logger.log(`Desativando usuário: ${email}`);
 
     try {
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.findFirst({
         where: { email: email.trim().toLowerCase() },
       });
 
@@ -327,7 +331,7 @@ export class WebhookService {
       }
 
       await this.prismaService.user.update({
-        where: { email: email.trim().toLowerCase() },
+        where: { id: user.id },
         data: { isActive: false },
       });
 
@@ -355,7 +359,7 @@ export class WebhookService {
     this.logger.log(`Enviando notificação de fatura criada para: ${email}`);
 
     try {
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.findFirst({
         where: { email: email.trim().toLowerCase() },
       });
 
@@ -419,7 +423,7 @@ export class WebhookService {
     this.logger.log(`Enviando notificação de fatura paga para: ${email}`);
 
     try {
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.findFirst({
         where: { email: email.trim().toLowerCase() },
       });
 
@@ -480,6 +484,9 @@ export class WebhookService {
             include: { orderItems: true },
           });
           this.logger.log(`Order criada e ebook liberado para o usuário: ${user.email} - Livro: ${book.title}`);
+          
+          // ✅ NOVO: Atualizar contador de vendas do livro
+          await this.updateBookSalesCount(book.id, 1);
         } else {
           this.logger.log(`Order já existente para este usuário e livro: ${user.email} - ${book.title}`);
         }
@@ -525,6 +532,38 @@ export class WebhookService {
         error.stack,
       );
       throw error;
+    }
+  }
+
+  /**
+   * Atualiza o contador de vendas de um livro
+   */
+  private async updateBookSalesCount(bookId: number, quantity: number): Promise<void> {
+    try {
+      // Buscar o livro atual
+      const book = await this.prismaService.book.findUnique({
+        where: { id: bookId },
+        select: { sales: true }
+      });
+
+      if (!book) {
+        this.logger.warn(`⚠️ Livro ${bookId} não encontrado para atualizar vendas`);
+        return;
+      }
+
+      // Calcular novo total de vendas
+      const newSalesCount = (book.sales || 0) + quantity;
+
+      // Atualizar o campo sales do livro
+      await this.prismaService.book.update({
+        where: { id: bookId },
+        data: { sales: newSalesCount }
+      });
+
+      this.logger.log(`✅ Vendas do livro ${bookId} atualizadas: ${book.sales || 0} → ${newSalesCount} (+${quantity})`);
+    } catch (error) {
+      this.logger.error(`❌ Erro ao atualizar vendas do livro ${bookId}:`, error);
+      // Não vamos lançar o erro para não interromper o fluxo principal
     }
   }
 

@@ -771,8 +771,13 @@ export class WebhookController {
             'paid'
           );
 
-          // Remover livros do carrinho após pagamento
           await this.checkoutService.removeOrderBooksFromCart(existingOrder.userId, existingOrder.id);
+
+
+          await this.checkoutService.sendPurchaseConfirmationEmail(existingOrder.id);
+
+
+          await this.updateBooksSalesCount(existingOrder.orderItems);
 
           return {
             ok: true,
@@ -782,7 +787,6 @@ export class WebhookController {
           };
         }
 
-        // ESTRATÉGIA 2: Se não encontrou e tem email, buscar pedidos pendentes por email
         if (data.email) {
           logger.log(`Tentativa 2: Buscando pedidos pendentes para email: ${data.email}`);
 
@@ -816,8 +820,11 @@ export class WebhookController {
               'paid'
             );
 
-            // Remover livros do carrinho após pagamento
             await this.checkoutService.removeOrderBooksFromCart(mostRecentOrder.userId, mostRecentOrder.id);
+
+            await this.checkoutService.sendPurchaseConfirmationEmail(mostRecentOrder.id);
+
+            await this.updateBooksSalesCount(mostRecentOrder.orderItems);
 
             return {
               ok: true,
@@ -830,7 +837,6 @@ export class WebhookController {
           }
         }
 
-        // ESTRATÉGIA 3: Buscar por título do livro (caso DOM envie título)
         if (data.email) {
           logger.log(`Tentativa 3: Buscando por título do livro: ${data.orderNumber}`);
 
@@ -852,7 +858,7 @@ export class WebhookController {
                 orderItems: {
                   some: { bookId: book.id }
                 },
-                status: { in: ['pending', 'paid'] } // Incluir também pagos recentes
+                status: { in: ['pending', 'paid'] } 
               },
               include: {
                 orderItems: { include: { book: true } },
@@ -864,7 +870,6 @@ export class WebhookController {
             if (orderWithBook) {
               logger.log(`✅ Pedido encontrado por livro: ${orderWithBook.orderNumber}`);
 
-              // Só atualizar se ainda estiver pendente
               if (orderWithBook.status === 'pending') {
                 const updated = await prisma.order.update({
                   where: { id: orderWithBook.id },
@@ -876,6 +881,10 @@ export class WebhookController {
                   orderWithBook.orderNumber,
                   'paid'
                 );
+
+                await this.checkoutService.sendPurchaseConfirmationEmail(orderWithBook.id);
+
+                await this.updateBooksSalesCount(orderWithBook.orderItems);
 
                 return {
                   ok: true,
@@ -899,7 +908,6 @@ export class WebhookController {
           }
         }
 
-        // ESTRATÉGIA 4: Debug - Listar todos os pedidos do usuário
         if (data.email) {
           logger.log(`Tentativa 4: Buscando TODOS os pedidos para debug: ${data.email}`);
 
@@ -923,12 +931,10 @@ export class WebhookController {
             });
           });
 
-          // Se tem pelo menos um pedido, usar o mais recente independente do status
           if (allOrders.length > 0) {
             const latestOrder = allOrders[0];
             logger.log(`✅ Usando último pedido como fallback: ${latestOrder.orderNumber}`);
 
-            // Só atualizar se não estiver pago
             if (latestOrder.status !== 'paid') {
               const updated = await prisma.order.update({
                 where: { id: latestOrder.id },
@@ -940,6 +946,10 @@ export class WebhookController {
                 latestOrder.orderNumber,
                 'paid'
               );
+
+              await this.checkoutService.sendPurchaseConfirmationEmail(latestOrder.id);
+
+              await this.updateBooksSalesCount(latestOrder.orderItems);
 
               return {
                 ok: true,
@@ -963,7 +973,6 @@ export class WebhookController {
           }
         }
 
-        // Se chegou até aqui, nenhuma estratégia funcionou
         logger.error(`❌ Nenhuma estratégia funcionou para encontrar pedido`);
         logger.error(`OrderNumber recebido: ${data.orderNumber}`);
         logger.error(`Email: ${data.email}`);
@@ -1012,10 +1021,9 @@ export class WebhookController {
     const logger = new Logger('TestPaymentConfirmation');
     logger.log('Iniciando teste de confirmação de pagamento');
 
-    // Primeiro, vamos criar um pedido de teste
     const testOrder = await this.webhookService['prismaService'].order.create({
       data: {
-        userId: 'test-user-id', // Você pode ajustar para um ID real
+        userId: 'test-user-id',
         orderNumber: `TEST-${Date.now()}`,
         status: 'pending',
         totalAmount: 49.90,
@@ -1030,7 +1038,6 @@ export class WebhookController {
 
     logger.log(`Pedido de teste criado: ${testOrder.orderNumber}`);
 
-    // Agora vamos testar a confirmação
     const testData = {
       orderNumber: testOrder.orderNumber,
       status: 'COMPLETED',
@@ -1056,6 +1063,161 @@ export class WebhookController {
         error: error.message,
         testOrder: testOrder.orderNumber
       };
+    }
+  }
+
+  /**
+   * Atualiza o contador de vendas dos livros de um pedido
+   */
+  private async updateBooksSalesCount(orderItems: any[]): Promise<void> {
+    try {
+      for (const item of orderItems) {
+
+        const book = await this.webhookService['prismaService']?.book.findUnique({
+          where: { id: item.bookId },
+          select: { sales: true }
+        });
+
+        if (!book) {
+          this.logger.warn(`⚠️ Livro ${item.bookId} não encontrado para atualizar vendas`);
+          continue;
+        }
+
+        const newSalesCount = (book.sales || 0) + item.quantity;
+
+        await this.webhookService['prismaService']?.book.update({
+          where: { id: item.bookId },
+          data: { sales: newSalesCount }
+        });
+
+        this.logger.log(`✅ Vendas do livro ${item.bookId} atualizadas: ${book.sales || 0} → ${newSalesCount} (+${item.quantity})`);
+      }
+    } catch (error) {
+      this.logger.error(`❌ Erro ao atualizar vendas dos livros:`, error);
+    }
+  }
+
+  /**
+   * 🚀 ENDPOINT ADMIN: Contabiliza vendas passadas dos livros que JÁ FORAM VENDIDOS
+   * Executar APENAS UMA VEZ para migrar dados históricos
+   */
+  @Post('admin/recalculate-all-sales')
+  @ApiOperation({
+    summary: 'Recalcula contadores de vendas dos livros que já foram vendidos',
+    description: 'Executa uma migração para contabilizar vendas passadas baseado no histórico de pedidos pagos'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Contabilização de vendas passadas concluída com sucesso'
+  })
+  async recalculateAllSales() {
+    const logger = new Logger('RecalculateAllSales');
+    logger.log('🚀 Iniciando contabilização de vendas passadas...');
+
+    try {
+      // 1. Usar a mesma lógica do comando: groupBy por bookId
+      const salesByBook = await this.webhookService['prismaService'].orderItem.groupBy({
+        by: ['bookId'],
+        where: {
+          order: {
+            paymentStatus: 'paid'
+          }
+        },
+        _count: {
+          bookId: true
+        },
+        orderBy: {
+          _count: {
+            bookId: 'desc'
+          }
+        }
+      });
+
+      logger.log(`📊 Encontrados ${salesByBook.length} livros com vendas para processar`);
+
+      if (salesByBook.length === 0) {
+        return {
+          success: true,
+          message: 'Nenhum livro com vendas encontrado para contabilizar',
+          summary: {
+            totalBooks: 0,
+            updatedBooks: 0,
+            totalSalesCounted: 0
+          },
+          books: []
+        };
+      }
+
+      // 2. Buscar detalhes dos livros e atualizar
+      const booksWithSales = await Promise.all(
+        salesByBook.map(async sale => {
+          const book = await this.webhookService['prismaService'].book.findUnique({
+            where: { id: sale.bookId },
+            select: { id: true, title: true, author: true, price: true, sales: true }
+          });
+          
+          if (!book) {
+            logger.warn(`⚠️ Livro ${sale.bookId} não encontrado`);
+            return null;
+          }
+
+          return {
+            ...book,
+            vendasReais: sale._count.bookId
+          };
+        })
+      );
+
+      // 3. Filtrar livros válidos
+      const validBooks = booksWithSales.filter(book => book !== null);
+
+      logger.log(`📚 Processando ${validBooks.length} livros válidos`);
+
+      // 4. Atualizar cada livro
+      let updatedCount = 0;
+      let totalSalesCounted = 0;
+
+      for (const book of validBooks) {
+        try {
+          await this.webhookService['prismaService'].book.update({
+            where: { id: book.id },
+            data: { sales: book.vendasReais }
+          });
+
+          logger.log(`✅ Livro "${book.title}" (ID: ${book.id}): ${book.sales || 0} → ${book.vendasReais} vendas`);
+          updatedCount++;
+          totalSalesCounted += book.vendasReais;
+
+        } catch (error) {
+          logger.error(`❌ Erro ao atualizar livro ${book.id}:`, error);
+        }
+      }
+
+      logger.log(`🎉 Contabilização concluída!`);
+      logger.log(`📊 Livros atualizados: ${updatedCount}/${validBooks.length}`);
+      logger.log(`💰 Total de vendas contabilizadas: ${totalSalesCounted}`);
+
+      return {
+        success: true,
+        message: 'Contabilização de vendas passadas concluída com sucesso',
+        summary: {
+          totalBooks: validBooks.length,
+          updatedBooks: updatedCount,
+          totalSalesCounted
+        },
+        books: validBooks.map(book => ({
+          bookId: book.id,
+          title: book.title,
+          author: book.author,
+          price: book.price,
+          previousSales: book.sales || 0,
+          newSales: book.vendasReais
+        }))
+      };
+
+    } catch (error) {
+      logger.error(`❌ Erro na contabilização de vendas:`, error);
+      throw new BadRequestException(`Falha na contabilização: ${error.message}`);
     }
   }
 }

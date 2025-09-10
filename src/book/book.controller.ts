@@ -13,6 +13,7 @@ import {
     UploadedFile,
     Res,
     HttpStatus,
+    NotFoundException,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -33,6 +34,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { Response } from 'express';
+import * as fs from 'fs';
 
 @Controller('books')
 @ApiTags('Books')
@@ -376,19 +378,179 @@ export class BookController {
         @GetUser() user: RequestWithUser['user'],
         @Res() res: Response
     ) {
+        console.log(`🔍 Download solicitado - Livro ID: ${id}, Usuário: ${user.id}`);
+        
         const book = await this.bookService.getBookById(Number(id), user?.id);
+        console.log(`📚 Livro encontrado: ${book.title}, Download URL: ${book.downloadUrl}`);
+        
         if (!book.downloadUrl) {
+            console.log(`❌ Download URL não encontrada para o livro ${id}`);
             return res.status(HttpStatus.NOT_FOUND).json({ message: 'Arquivo não encontrado' });
         }
+        
         // Se for pago, só quem comprou pode baixar
         if (!book.isFree) {
+            console.log(`💰 Livro pago - verificando se usuário comprou`);
             const purchased = await this.bookService.userHasPurchasedBook(Number(id), user.id);
+            console.log(`✅ Usuário comprou o livro: ${purchased}`);
+            
             if (!purchased) {
+                console.log(`❌ Usuário não tem permissão para baixar o livro ${id}`);
                 return res.status(HttpStatus.FORBIDDEN).json({ message: 'Você não tem permissão para baixar este livro.' });
             }
+        } else {
+            console.log(`🆓 Livro gratuito - download permitido`);
         }
+        
         // Se for gratuito, qualquer um autenticado pode baixar
-        const filePath = path.join(process.cwd(), book.downloadUrl);
+        let filePath: string;
+        
+        // Corrigir a lógica de construção do caminho
+        if (book.downloadUrl.startsWith('/uploads/')) {
+            // Se começa com /uploads/, remover a barra inicial e usar process.cwd()
+            filePath = path.join(process.cwd(), book.downloadUrl.substring(1));
+        } else if (book.downloadUrl.startsWith('uploads/')) {
+            // Se começa com uploads/ (sem barra), usar process.cwd() diretamente
+            filePath = path.join(process.cwd(), book.downloadUrl);
+        } else {
+            // Se não tem prefixo, adicionar uploads/
+            filePath = path.join(process.cwd(), 'uploads', book.downloadUrl);
+        }
+        
+        console.log(`📁 Caminho do arquivo: ${filePath}`);
+        console.log(`📁 Diretório de trabalho: ${process.cwd()}`);
+        console.log(`📁 Download URL do livro: ${book.downloadUrl}`);
+        
+        // Verificar se o arquivo existe
+        if (!fs.existsSync(filePath)) {
+            console.log(`❌ Arquivo não encontrado no caminho: ${filePath}`);
+            
+            // Tentar caminhos alternativos para debug
+            const alternativePaths = [
+                path.join(process.cwd(), 'uploads', 'books', path.basename(book.downloadUrl)),
+                path.join(process.cwd(), book.downloadUrl),
+                path.join(process.cwd(), 'uploads', path.basename(book.downloadUrl))
+            ];
+            
+            console.log(`🔍 Tentando caminhos alternativos:`);
+            alternativePaths.forEach(altPath => {
+                console.log(`  - ${altPath}: ${fs.existsSync(altPath) ? '✅ Existe' : '❌ Não existe'}`);
+            });
+            
+            return res.status(HttpStatus.NOT_FOUND).json({ message: 'Arquivo físico não encontrado no servidor' });
+        }
+        
+        console.log(`✅ Iniciando download do arquivo: ${book.title}`);
         return res.download(filePath);
+    }
+
+    @Get(':id/purchase-status')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Verificar status de compra do livro (protegido)' })
+    @ApiParam({ name: 'id', description: 'ID do livro' })
+    @ApiResponse({ status: 200, description: 'Status de compra retornado com sucesso' })
+    @ApiResponse({ status: 404, description: 'Livro não encontrado' })
+    async getPurchaseStatus(
+        @Param('id') id: string,
+        @GetUser() user: RequestWithUser['user']
+    ) {
+        console.log(`🔍 Purchase status solicitado - Livro ID: ${id}, Usuário: ${user.id}`);
+        
+        const book = await this.bookService.getBookById(Number(id), user?.id);
+        if (!book) {
+            console.log(`❌ Livro não encontrado: ${id}`);
+            throw new NotFoundException('Livro não encontrado');
+        }
+
+        console.log(`📚 Livro encontrado: ${book.title}, Preço: ${book.price}, Gratuito: ${book.isFree}`);
+        
+        const hasPurchased = await this.bookService.userHasPurchasedBook(Number(id), user.id);
+        console.log(`✅ Usuário comprou o livro: ${hasPurchased}`);
+        
+        const response = {
+            bookId: Number(id),
+            title: book.title,
+            isFree: book.isFree,
+            hasPurchased,
+            canDownload: book.isFree || hasPurchased,
+            downloadUrl: hasPurchased || book.isFree ? book.downloadUrl : null,
+            message: hasPurchased 
+                ? 'Você comprou este livro e pode fazer o download.'
+                : book.isFree 
+                    ? 'Este livro é gratuito e você pode fazer o download.'
+                    : 'Você precisa comprar este livro para fazer o download.'
+        };
+        
+        console.log(`📋 Resposta do purchase status:`, response);
+        return response;
+    }
+
+    @Get('debug/files/:bookId')
+    @UseGuards(JwtAuthGuardAdmin)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Debug: Verificar arquivos de um livro (apenas ADMIN)' })
+    async debugBookFiles(@Param('bookId') bookId: string) {
+        const book = await this.bookService.getBookById(Number(bookId));
+        if (!book) {
+            throw new NotFoundException('Livro não encontrado');
+        }
+
+        const uploadsDir = path.join(process.cwd(), 'uploads');
+        const booksDir = path.join(uploadsDir, 'books');
+        
+        // Verificar estrutura de diretórios
+        const dirsExist = {
+            uploads: fs.existsSync(uploadsDir),
+            books: fs.existsSync(booksDir)
+        };
+        
+        // Listar arquivos no diretório books
+        let filesInBooks = [];
+        if (dirsExist.books) {
+            try {
+                filesInBooks = fs.readdirSync(booksDir);
+            } catch (error) {
+                filesInBooks = [`Erro ao ler diretório: ${error.message}`];
+            }
+        }
+        
+        // Verificar caminhos específicos do livro
+        const possiblePaths = [
+            path.join(process.cwd(), book.downloadUrl || ''),
+            path.join(process.cwd(), 'uploads', book.downloadUrl || ''),
+            path.join(process.cwd(), 'uploads', 'books', path.basename(book.downloadUrl || '')),
+            path.join(process.cwd(), 'uploads', path.basename(book.downloadUrl || ''))
+        ];
+        
+        const pathChecks = possiblePaths.map(p => ({
+            path: p,
+            exists: fs.existsSync(p),
+            isFile: fs.existsSync(p) ? fs.statSync(p).isFile() : false,
+            size: fs.existsSync(p) ? fs.statSync(p).size : 0
+        }));
+        
+        return {
+            book: {
+                id: book.id,
+                title: book.title,
+                downloadUrl: book.downloadUrl
+            },
+            directories: {
+                currentWorkingDir: process.cwd(),
+                uploadsDir,
+                booksDir,
+                ...dirsExist
+            },
+            filesInBooksDir: filesInBooks,
+            pathChecks,
+            recommendations: {
+                correctPath: book.downloadUrl?.startsWith('/uploads/') 
+                    ? path.join(process.cwd(), book.downloadUrl.substring(1))
+                    : book.downloadUrl?.startsWith('uploads/')
+                    ? path.join(process.cwd(), book.downloadUrl)
+                    : path.join(process.cwd(), 'uploads', book.downloadUrl || '')
+            }
+        };
     }
 } 
