@@ -471,6 +471,7 @@ export class WebhookService {
               discount: 0,
               paymentMethod: 'dom',
               paymentStatus: 'paid',
+              store: 'ebook', // DOM sempre vem do ebook
               notes: `Pagamento DOM: ${subscriptionId}`,
               orderItems: {
                 create: [{

@@ -139,7 +139,7 @@ export class CheckoutService {
             quantity: item.quantity,
             selected: item.selected,
             totalPrice: item.book.price * item.quantity,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${item.book.price}&description=${encodeURIComponent(item.book.title)}`
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${item.book.price}&description=${encodeURIComponent(item.book.title)}&store=ebook`
         } as CheckoutItem));
 
         await this.redisService.set(cacheKey, JSON.stringify(cartItemsDto), 300); // 5 minutos
@@ -303,6 +303,7 @@ export class CheckoutService {
                 subtotal,
                 discount,
                 paymentStatus: 'pending' as PaymentStatus,
+                store: 'ebook', // Sempre vem do ebook
             }
         });
         // Criar itens do pedido
@@ -355,7 +356,7 @@ export class CheckoutService {
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
         const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
 
-        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
 
         // Se temos o token do admin, adicionar ao URL
         if (adminToken) {
@@ -396,6 +397,7 @@ export class CheckoutService {
                 subtotal,
                 discount,
                 paymentStatus: 'pending',
+                store: 'ebook', // Sempre vem do ebook
             }
         });
         // Criar item do pedido
@@ -435,7 +437,7 @@ export class CheckoutService {
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
         const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
 
-        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
 
         // Se temos o token do admin, adicionar ao URL
         if (adminToken) {
@@ -505,7 +507,7 @@ export class CheckoutService {
                     const value = Math.round(orderResponse.totalAmount * 100);
                     const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
 
-                    let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}`;
+                    let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
 
                     // Se temos o token do admin, adicionar ao URL
                     if (adminToken) {
@@ -568,7 +570,7 @@ export class CheckoutService {
             }
         }
 
-        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&orderId=${orderResponse.id}&orderNumber=${orderResponse.orderNumber}`;
+        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&orderId=${orderResponse.id}&orderNumber=${orderResponse.orderNumber}&store=ebook`;
 
         // Se temos o token do admin, adicionar ao URL
         if (adminToken) {

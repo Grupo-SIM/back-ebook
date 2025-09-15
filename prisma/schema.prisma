@@ -162,6 +162,7 @@ model Order {
   discount      Float    @default(0)
   paymentMethod String?
   paymentStatus String   @default("pending") // pending, paid, failed
+  store         String?  // Identifica a plataforma de origem (ebook, pagatg, etc.)
   shippingAddress Json?
   billingAddress  Json?
   notes         String?

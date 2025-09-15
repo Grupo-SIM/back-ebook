@@ -729,12 +729,13 @@ export class WebhookController {
       properties: {
         orderNumber: { type: 'string', example: 'ORD-2025-243164' },
         status: { type: 'string', example: 'COMPLETED' },
-        email: { type: 'string', example: 'usuario@exemplo.com' }
+        email: { type: 'string', example: 'usuario@exemplo.com' },
+        store: { type: 'string', example: 'ebook', description: 'Identifica a plataforma de origem' }
       },
       required: ['orderNumber', 'status']
     }
   })
-  async confirmPayment(@Body() data: { orderNumber: string, status: string, email?: string }) {
+  async confirmPayment(@Body() data: { orderNumber: string, status: string, email?: string, store?: string }) {
     const logger = new Logger('PaymentConfirmation');
     logger.log(`Recebida confirmação de pagamento: ${JSON.stringify(data)}`);
 
@@ -762,7 +763,11 @@ export class WebhookController {
           logger.log(`✅ Pedido encontrado por orderNumber: ${existingOrder.orderNumber}`);
           const updated = await prisma.order.update({
             where: { id: existingOrder.id },
-            data: { status: 'paid', paymentStatus: 'paid' }
+            data: { 
+              status: 'paid', 
+              paymentStatus: 'paid',
+              store: data.store || 'ebook' // Default para 'ebook' se não especificado
+            }
           });
 
           await this.webhookService.notificationService.notifyOrderStatusUpdate(
@@ -811,7 +816,11 @@ export class WebhookController {
 
             const updated = await prisma.order.update({
               where: { id: mostRecentOrder.id },
-              data: { status: 'paid', paymentStatus: 'paid' }
+              data: { 
+                status: 'paid', 
+                paymentStatus: 'paid',
+                store: data.store || 'ebook'
+              }
             });
 
             await this.webhookService.notificationService.notifyOrderStatusUpdate(
@@ -873,7 +882,11 @@ export class WebhookController {
               if (orderWithBook.status === 'pending') {
                 const updated = await prisma.order.update({
                   where: { id: orderWithBook.id },
-                  data: { status: 'paid', paymentStatus: 'paid' }
+                  data: { 
+                status: 'paid', 
+                paymentStatus: 'paid',
+                store: data.store || 'ebook'
+              }
                 });
 
                 await this.webhookService.notificationService.notifyOrderStatusUpdate(
@@ -938,7 +951,11 @@ export class WebhookController {
             if (latestOrder.status !== 'paid') {
               const updated = await prisma.order.update({
                 where: { id: latestOrder.id },
-                data: { status: 'paid', paymentStatus: 'paid' }
+                data: { 
+                status: 'paid', 
+                paymentStatus: 'paid',
+                store: data.store || 'ebook'
+              }
               });
 
               await this.webhookService.notificationService.notifyOrderStatusUpdate(

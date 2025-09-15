@@ -151,7 +151,7 @@ export class BookService {
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
             isActive: book.isActive ?? true,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         };
     }
 
@@ -297,7 +297,7 @@ export class BookService {
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
             isActive: book.isActive ?? true,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
         return {
@@ -386,7 +386,7 @@ export class BookService {
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
             isActive: book.isActive ?? true,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         };
 
         return response;
@@ -511,7 +511,7 @@ export class BookService {
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
             isActive: book.isActive ?? true,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
         return {
@@ -623,7 +623,7 @@ export class BookService {
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
             isActive: book.isActive ?? true,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
         return {
@@ -847,7 +847,7 @@ export class BookService {
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
             isActive: book.isActive ?? true,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
@@ -889,7 +889,7 @@ export class BookService {
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
             isActive: book.isActive ?? true,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
     }
 
@@ -1124,7 +1124,7 @@ export class BookService {
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
             isActive: book.isActive ?? true,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
         return {
@@ -1262,7 +1262,7 @@ export class BookService {
                 publishedDate: book.publishedDate ?? undefined,
                 printLength: book.printLength ?? undefined,
                 readingAge: book.readingAge ?? undefined,
-                checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}`,
+                checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
             })),
             total: books.length,
             page: 1,

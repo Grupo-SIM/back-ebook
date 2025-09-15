@@ -235,6 +235,9 @@ export class OrderResponseDto {
     @ApiProperty({ example: 'pending', enum: ['pending', 'paid', 'failed'] })
     paymentStatus: PaymentStatus;
 
+    @ApiProperty({ example: 'ebook', description: 'Identifica a plataforma de origem' })
+    store?: string;
+
     @ApiProperty({ type: AddressDto })
     shippingAddress: AddressDto;
 
