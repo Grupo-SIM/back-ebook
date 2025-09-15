@@ -976,6 +976,7 @@ export class AuthService {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'EbookBackend/1.0',
+          'origin': 'https://admin.ebooksim.com',
         },
         body: JSON.stringify(registerPayload),
       });
@@ -1011,6 +1012,7 @@ export class AuthService {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'EbookBackend/1.0',
+          'origin': 'https://admin.ebooksim.com',
         },
         body: JSON.stringify(tokenPayload),
       });
@@ -1068,6 +1070,7 @@ export class AuthService {
           'Content-Type': 'application/json',
           'User-Agent': 'EbookBackend/1.0',
           'x-access-token': adminToken,
+          'origin': 'https://admin.ebooksim.com',
         },
         body: JSON.stringify(customFeeData),
       });
@@ -1130,6 +1133,8 @@ export class AuthService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'User-Agent': 'EbookBackend/1.0',
+          'origin': 'https://admin.ebooksim.com',
         },
         body: JSON.stringify({
           email: email,

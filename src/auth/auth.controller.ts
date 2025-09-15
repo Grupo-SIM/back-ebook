@@ -497,6 +497,7 @@ export class AuthController {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'EbookBackend/1.0',
+          'origin': 'https://admin.ebooksim.com',
         },
         body: JSON.stringify(registerPayload),
       });
@@ -527,6 +528,7 @@ export class AuthController {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'EbookBackend/1.0',
+          'origin': 'https://admin.ebooksim.com',
         },
         body: JSON.stringify(tokenPayload),
       });
@@ -574,6 +576,7 @@ export class AuthController {
         headers: {
           'Content-Type': 'application/json',
           'User-Agent': 'EbookBackend/1.0',
+          'origin': 'https://admin.ebooksim.com',
         },
         body: JSON.stringify({
           name: 'test',
@@ -624,6 +627,7 @@ export class AuthController {
           'Content-Type': 'application/json',
           'User-Agent': 'EbookBackend/1.0',
           'x-access-token': body.adminToken,
+          'origin': 'https://admin.ebooksim.com',
         },
         body: JSON.stringify(customFeeData),
       });
