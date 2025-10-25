@@ -12,6 +12,7 @@ import {
     ParseIntPipe,
     UseInterceptors,
     UploadedFile,
+    UploadedFiles,
     Req,
 } from '@nestjs/common';
 import {
@@ -27,9 +28,10 @@ import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedB
 import { JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/user.decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
+import { uploadFileS3, getUrlImageByKey } from 'src/common/storj';
 
 @ApiTags('Admin Books')
 @Controller('admin/books')
@@ -180,13 +182,17 @@ export class AdminBookController {
                 printLength: { type: 'number' },
                 isActive: { type: 'boolean' },
                 readingAge: { type: 'string' },
-                file: { type: 'string', format: 'binary' }
+                file: { type: 'string', format: 'binary', description: 'Arquivo do ebook (PDF, EPUB, MOBI)' },
+                coverFile: { type: 'string', format: 'binary', description: 'Imagem da capa (JPG, PNG, GIF)' }
             }
         }
     })
-    @UseInterceptors(FileInterceptor('file', {
+    @UseInterceptors(FileFieldsInterceptor([
+        { name: 'file', maxCount: 1 },
+        { name: 'coverFile', maxCount: 1 }
+    ], {
         storage: diskStorage({
-            destination: './uploads/books',
+            destination: './tmp',
             filename: (req, file, cb) => {
                 const name = file.originalname.split('.')[0];
                 const ext = path.extname(file.originalname);
@@ -195,35 +201,72 @@ export class AdminBookController {
         }),
         fileFilter: (req, file, cb) => {
             if (!file) {
-                cb(null, true); // Permite sem arquivo
+                cb(null, true);
                 return;
             }
-            const allowed = ['.pdf', '.epub', '.mobi'];
-            const ext = path.extname(file.originalname).toLowerCase();
-            if (allowed.includes(ext)) cb(null, true);
-            else cb(new Error('Only PDF, EPUB, MOBI allowed'), false);
+
+            // Validação para o arquivo do ebook
+            if (file.fieldname === 'file') {
+                const allowedEbook = ['.pdf', '.epub', '.mobi'];
+                const ext = path.extname(file.originalname).toLowerCase();
+                if (allowedEbook.includes(ext)) {
+                    cb(null, true);
+                } else {
+                    cb(new Error('Only PDF, EPUB, MOBI allowed for ebook file'), false);
+                }
+            }
+            // Validação para a imagem da capa
+            else if (file.fieldname === 'coverFile') {
+                const allowedImage = ['.jpg', '.jpeg', '.png', '.gif'];
+                const ext = path.extname(file.originalname).toLowerCase();
+                if (allowedImage.includes(ext)) {
+                    cb(null, true);
+                } else {
+                    cb(new Error('Only JPG, JPEG, PNG, GIF allowed for cover image'), false);
+                }
+            } else {
+                cb(null, true);
+            }
         }
     }))
     async updateBook(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateBookDto: UpdateBookDto,
         @GetUser() admin: RequestWithUser['user'],
-        @UploadedFile() file?: Express.Multer.File
+        @UploadedFiles() files?: { file?: Express.Multer.File[], coverFile?: Express.Multer.File[] }
     ): Promise<BookResponseDto> {
         // 🪵 Início da depuração
-        console.log(`\n--- 🚀 [PUT /admin/books/${id}] Endpoint Hit @ ${new Date().toLocaleTimeString()} ---`);
+        console.log(`\n--- 🚀 [PATCH /admin/books/${id}] Endpoint Hit @ ${new Date().toLocaleTimeString()} ---`);
         console.log('1. ID do Livro (Param):', id, '| Tipo:', typeof id);
         console.log('2. Admin Autenticado (User):', { id: admin.id, name: admin.name, email: admin.email });
         console.log('3. DTO Recebido (Body):', updateBookDto);
-        console.log('4. Arquivo Recebido (File):', file ? { filename: file.filename, mimetype: file.mimetype, size: file.size } : 'Nenhum arquivo enviado');
+        console.log('4. Arquivos Recebidos:', {
+            ebookFile: files?.file?.[0] ? { filename: files.file[0].filename, mimetype: files.file[0].mimetype, size: files.file[0].size } : 'Nenhum',
+            coverFile: files?.coverFile?.[0] ? { filename: files.coverFile[0].filename, mimetype: files.coverFile[0].mimetype, size: files.coverFile[0].size } : 'Nenhum'
+        });
 
         // Buscar o livro atual
         const currentBook = await this.bookService.getBookById(id, admin.id, true);
 
+        // Processar arquivo do ebook (se enviado)
         let downloadUrl: string | undefined = undefined;
-        if (file) {
-            downloadUrl = `/uploads/books/${file.filename}`;
+        if (files?.file?.[0]) {
+            downloadUrl = `/uploads/books/${files.file[0].filename}`;
             console.log('   - URL de download gerada:', downloadUrl);
+        }
+
+        // Processar imagem da capa (se enviada)
+        let coverUrl: string | undefined = undefined;
+        if (files?.coverFile?.[0]) {
+            try {
+                console.log('   - Fazendo upload da capa para Storj...');
+                const coverKey = await uploadFileS3(files.coverFile[0]);
+                coverUrl = getUrlImageByKey(coverKey);
+                console.log('   - URL da capa gerada:', coverUrl);
+            } catch (error) {
+                console.error('   - ❌ Erro ao fazer upload da capa:', error);
+                throw error;
+            }
         }
 
         // Filtrar campos vazios do DTO
@@ -244,7 +287,7 @@ export class AdminBookController {
             rating: filteredDto.rating ?? currentBook.rating,
             reviewCount: filteredDto.reviewCount ?? currentBook.reviewCount,
             categoryId: filteredDto.categoryId ?? currentBook.categoryId,
-            cover: filteredDto.cover ?? currentBook.cover,
+            cover: coverUrl ?? filteredDto.cover ?? currentBook.cover, // Prioriza imagem enviada
             description: filteredDto.description ?? currentBook.description,
             sales: filteredDto.sales ?? currentBook.sales,
             language: filteredDto.language ?? currentBook.language,
