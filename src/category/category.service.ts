@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { CreateCategoryDto, UpdateCategoryDto, CategoryResponseDto, CategoryQueryDto, categoryColors } from './dto/category.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../prisma/generated/prisma';
 
 @Injectable()
 export class CategoryService {
