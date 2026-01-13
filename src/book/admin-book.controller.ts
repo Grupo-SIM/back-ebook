@@ -119,11 +119,13 @@ export class AdminBookController {
     })
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/books',
+            destination: './tmp',
             filename: (req, file, cb) => {
-                const ext = path.extname(file.originalname);
-                const name = path.basename(file.originalname, ext).replace(/\s/g, '_');
-                cb(null, `${name}_${Date.now()}${ext}`);
+                const randomName = Array(32)
+                    .fill(null)
+                    .map(() => Math.round(Math.random() * 16).toString(16))
+                    .join('');
+                cb(null, `${randomName}${path.extname(file.originalname)}`);
             }
         }),
         fileFilter: (req, file, cb) => {
@@ -131,7 +133,8 @@ export class AdminBookController {
             const ext = path.extname(file.originalname).toLowerCase();
             if (allowed.includes(ext)) cb(null, true);
             else cb(new Error('Only PDF, EPUB, MOBI allowed'), false);
-        }
+        },
+        limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit para PDFs
     }))
     async createBook(
         @Body() createBookDto: CreateBookDto,
@@ -139,9 +142,26 @@ export class AdminBookController {
         @UploadedFile() file?: Express.Multer.File
     ): Promise<BookResponseDto> {
         let downloadUrl: string | undefined = undefined;
+        
+        // Se um arquivo PDF foi enviado, fazer upload para o Storj S3
         if (file) {
-            downloadUrl = `/uploads/books/${file.filename}`;
+            try {
+                console.log('📚 Fazendo upload do PDF para Storj...', {
+                    originalName: file.originalname,
+                    size: file.size,
+                    mimetype: file.mimetype
+                });
+                
+                const pdfKey = await uploadFileS3(file);
+                downloadUrl = getUrlImageByKey(pdfKey);
+                
+                console.log('✅ Upload do PDF concluído:', downloadUrl);
+            } catch (error) {
+                console.error('❌ Erro ao fazer upload do PDF:', error);
+                throw error;
+            }
         }
+        
         return this.bookService.createBook({ ...createBookDto, downloadUrl }, admin.id);
     }
 
@@ -248,21 +268,34 @@ export class AdminBookController {
         // Buscar o livro atual
         const currentBook = await this.bookService.getBookById(id, admin.id, true);
 
-        // Processar arquivo do ebook (se enviado)
+        // Processar arquivo do ebook (se enviado) - UPLOAD PARA STORJ
         let downloadUrl: string | undefined = undefined;
         if (files?.file?.[0]) {
-            downloadUrl = `/uploads/books/${files.file[0].filename}`;
-            console.log('   - URL de download gerada:', downloadUrl);
+            try {
+                console.log('   - 📚 Fazendo upload do PDF para Storj...', {
+                    originalName: files.file[0].originalname,
+                    size: files.file[0].size,
+                    mimetype: files.file[0].mimetype
+                });
+                
+                const pdfKey = await uploadFileS3(files.file[0]);
+                downloadUrl = getUrlImageByKey(pdfKey);
+                
+                console.log('   - ✅ URL de download gerada (Storj):', downloadUrl);
+            } catch (error) {
+                console.error('   - ❌ Erro ao fazer upload do PDF:', error);
+                throw error;
+            }
         }
 
-        // Processar imagem da capa (se enviada)
+        // Processar imagem da capa (se enviada) - UPLOAD PARA STORJ
         let coverUrl: string | undefined = undefined;
         if (files?.coverFile?.[0]) {
             try {
-                console.log('   - Fazendo upload da capa para Storj...');
+                console.log('   - 🖼️ Fazendo upload da capa para Storj...');
                 const coverKey = await uploadFileS3(files.coverFile[0]);
                 coverUrl = getUrlImageByKey(coverKey);
-                console.log('   - URL da capa gerada:', coverUrl);
+                console.log('   - ✅ URL da capa gerada (Storj):', coverUrl);
             } catch (error) {
                 console.error('   - ❌ Erro ao fazer upload da capa:', error);
                 throw error;
