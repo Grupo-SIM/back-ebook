@@ -1,6 +1,6 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Res, HttpStatus, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
 
 @ApiTags('App')
 @Controller()
@@ -54,9 +54,60 @@ export class AppController {
   }
 
   @Post('/test-email')
-  @ApiOperation({ summary: 'Teste do serviço de email' })
+  @ApiOperation({ summary: 'Teste do serviço de email SMTP' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: {
+          type: 'string',
+          example: 'seu_email@gmail.com',
+          description: 'Email de destino para receber o teste'
+        }
+      },
+      required: ['email']
+    }
+  })
   @ApiResponse({ status: 200, description: 'Email enviado com sucesso' })
-  async testEmailService() {
-    return this.appService.testEmailService('test@example.com', 'Test User');
+  @ApiResponse({ status: 400, description: 'Erro ao enviar email' })
+  async testEmailService(@Body() body: { email: string }) {
+    const email = body?.email;
+    
+    if (!email) {
+      return {
+        success: false,
+        message: 'Por favor, forneça um email no corpo da requisição. Exemplo: { "email": "seu@email.com" }',
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    try {
+      const result = await this.appService.testEmailService(email, 'Usuário de Teste');
+      return {
+        success: true,
+        message: `Email de teste enviado com sucesso para ${email}`,
+        details: result,
+        timestamp: new Date().toISOString(),
+        smtpConfig: {
+          host: process.env.SMTP_HOST,
+          port: process.env.SMTP_PORT,
+          secure: process.env.SMTP_SECURE,
+          user: process.env.SMTP_USER,
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erro ao enviar email de teste',
+        error: error.message,
+        timestamp: new Date().toISOString(),
+        smtpConfig: {
+          host: process.env.SMTP_HOST,
+          port: process.env.SMTP_PORT,
+          secure: process.env.SMTP_SECURE,
+          user: process.env.SMTP_USER,
+        }
+      };
+    }
   }
 }
