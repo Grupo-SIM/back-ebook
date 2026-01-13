@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Req, Res, HttpStatus, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
+import { TestEmailDto } from './dto/test-email.dto';
 
 @ApiTags('App')
 @Controller()
@@ -54,24 +55,11 @@ export class AppController {
   }
 
   @Post('/test-email')
-  @ApiOperation({ summary: 'Teste do serviço de email SMTP' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: {
-          type: 'string',
-          example: 'seu_email@gmail.com',
-          description: 'Email de destino para receber o teste'
-        }
-      },
-      required: ['email']
-    }
-  })
+  @ApiOperation({ summary: 'Teste do serviço de email SMTP - Envie um email de teste' })
   @ApiResponse({ status: 200, description: 'Email enviado com sucesso' })
   @ApiResponse({ status: 400, description: 'Erro ao enviar email' })
-  async testEmailService(@Body() body: { email: string }) {
-    const email = body?.email;
+  async testEmailService(@Body() testEmailDto: TestEmailDto) {
+    const email = testEmailDto?.email;
     
     if (!email) {
       return {
