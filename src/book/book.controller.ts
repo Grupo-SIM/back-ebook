@@ -443,7 +443,16 @@ export class BookController {
             console.log(`🆓 Livro gratuito - download permitido`);
         }
         
-        // Se for gratuito, qualquer um autenticado pode baixar
+        // ✅ Verificar se é URL do Storj (começa com http/https)
+        if (book.downloadUrl.startsWith('http://') || book.downloadUrl.startsWith('https://')) {
+            console.log(`☁️ Arquivo está no Storj - redirecionando para: ${book.downloadUrl}`);
+            
+            // Redirecionar para a URL do Storj (o navegador vai baixar diretamente)
+            return res.redirect(book.downloadUrl);
+        }
+        
+        // 💾 Se for caminho local (livros antigos), manter lógica de disco
+        console.log(`💾 Arquivo no disco local - buscando arquivo físico`);
         let filePath: string;
         
         // Corrigir a lógica de construção do caminho
