@@ -19,7 +19,8 @@ export class AppService {
     const smtpConfig = {
       host: process.env.SMTP_HOST || 'simintermediacoes.com',
       port: parseInt(process.env.SMTP_PORT) || 465,
-      secure: process.env.SMTP_SECURE === 'true' || true,
+
+      secure: process.env.SMTP_SECURE === 'true', 
       auth: {
         user: process.env.SMTP_USER || 'noreply@simintermediacoes.com',
         pass: process.env.SMTP_PASSWORD || 'p4nkZXkQ5yeiZPM',

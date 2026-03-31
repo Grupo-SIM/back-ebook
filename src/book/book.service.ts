@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedBookResponseDto, SortOption, CreateReviewDto, ReviewResponseDto, PaginatedReviewsResponseDto } from './dto/book.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../prisma/generated/prisma';
 import { FavoriteService } from '../favorite/favorite.service';
 import { CheckoutService } from '../checkout/checkout.service';
 
@@ -316,7 +316,7 @@ export class BookService {
         const cached = await this.redisService.get(cacheKey);
 
         const book = await this.prisma.book.findUnique({
-            where: { 
+            where: {
                 id,
                 ...(onlyAdminBooks ? {} : { isActive: true }) // Se não for admin, só mostrar livros ativos
             },
@@ -411,7 +411,7 @@ export class BookService {
         const skip = (page - 1) * limit;
 
         // Construir condições de filtro
-        const where: any = { 
+        const where: any = {
             categoryId: categoryId,
             isActive: true // Mostrar apenas livros ativos
         };
@@ -1056,7 +1056,7 @@ export class BookService {
         // Buscar livros comprados
         const [books, total] = await Promise.all([
             this.prisma.book.findMany({
-                where: { 
+                where: {
                     id: { in: bookIds },
                     isActive: true // Mostrar apenas livros ativos
                 },
@@ -1065,10 +1065,12 @@ export class BookService {
                 take: limit,
                 orderBy: { [sortConfig.field]: sortConfig.order },
             }),
-            this.prisma.book.count({ where: { 
-                id: { in: bookIds },
-                isActive: true // Mostrar apenas livros ativos
-            } }),
+            this.prisma.book.count({
+                where: {
+                    id: { in: bookIds },
+                    isActive: true // Mostrar apenas livros ativos
+                }
+            }),
         ]);
 
         // Buscar favoritos e carrinho em lote

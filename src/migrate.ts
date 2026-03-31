@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('../prisma/generated/prisma');
 
 async function migrateData() {
   const sourcePrisma = new PrismaClient({

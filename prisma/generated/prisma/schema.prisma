@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 enum Role {
@@ -24,7 +24,6 @@ model Admin {
 model User {
   id        String   @id @default(uuid())
   email     String
-  cpf       String?  @unique
   name      String?
   password  String
   role      Role
@@ -32,14 +31,14 @@ model User {
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
 
-  admin Admin? @relation("AdminToUser")
-  adminToken AdminToken? @relation("AdminTokenToUser")
-  Image        Image[]       @relation("UserAvatars")
-  favorites    Favorite[]
-  cart         Cart[]
-  orders       Order[]
+  admin         Admin?         @relation("AdminToUser")
+  adminToken    AdminToken?    @relation("AdminTokenToUser")
+  Image         Image[]        @relation("UserAvatars")
+  favorites     Favorite[]
+  cart          Cart[]
+  orders        Order[]
   notifications Notification[]
-  reviews      Review[]
+  reviews       Review[]
 
   createdById  String?
   createdBy    User?   @relation("CreatedUsers", fields: [createdById], references: [id])
@@ -48,7 +47,7 @@ model User {
   booksCreated Book[] @relation("BooksCreatedByUser")
 
   avatarImageId String?
-  avatarImage   Image? @relation("UserAvatarImage", fields: [avatarImageId], references: [id])
+  avatarImage   Image?  @relation("UserAvatarImage", fields: [avatarImageId], references: [id])
 
   @@map("users")
 }
@@ -60,9 +59,9 @@ model Image {
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
 
-  users         User[]  @relation("UserAvatars")
-  avatarOf      User[]  @relation("UserAvatarImage")
-  coverOfBooks  Book[]  @relation("BookCoverImage")
+  users        User[] @relation("UserAvatars")
+  avatarOf     User[] @relation("UserAvatarImage")
+  coverOfBooks Book[] @relation("BookCoverImage")
 }
 
 model Category {
@@ -89,8 +88,8 @@ model Book {
   originalPrice Float?
   category      String
   cover         String
-  coverImageId String?
-  coverImage   Image? @relation("BookCoverImage", fields: [coverImageId], references: [id])
+  coverImageId  String?
+  coverImage    Image?   @relation("BookCoverImage", fields: [coverImageId], references: [id])
   language      String?
   printLength   Int?
   publisher     String?
@@ -107,15 +106,15 @@ model Book {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   readingAge    String?
-  createdById String?
-  createdBy   User? @relation("BooksCreatedByUser", fields: [createdById], references: [id])
+  createdById   String?
+  createdBy     User?    @relation("BooksCreatedByUser", fields: [createdById], references: [id])
 
-  categoryRef   Category? @relation(fields: [categoryId], references: [id])
-  categoryId    Int?
-  favorites     Favorite[]
-  cart          Cart[]
-  orderItems    OrderItem[]
-  reviews       Review[]
+  categoryRef Category?   @relation(fields: [categoryId], references: [id])
+  categoryId  Int?
+  favorites   Favorite[]
+  cart        Cart[]
+  orderItems  OrderItem[]
+  reviews     Review[]
 
   @@map("books")
 }
@@ -129,7 +128,7 @@ model Favorite {
   updatedAt DateTime @updatedAt
 
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
-  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@unique([userId, bookId])
   @@map("favorites")
@@ -152,41 +151,41 @@ model Cart {
 }
 
 model Order {
-  id            Int      @id @default(autoincrement())
-  userId        String
-  orderNumber   String   @unique
-  status        String   @default("pending") // pending, paid, cancelled, delivered
-  totalAmount   Float
-  subtotal      Float
-  tax           Float    @default(0)
-  discount      Float    @default(0)
-  paymentMethod String?
-  paymentStatus String   @default("pending") // pending, paid, failed
-  store         String?  // Identifica a plataforma de origem (ebook, pagatg, etc.)
+  id              Int      @id @default(autoincrement())
+  userId          String
+  orderNumber     String   @unique
+  status          String   @default("pending") // pending, paid, cancelled, delivered
+  totalAmount     Float
+  subtotal        Float
+  tax             Float    @default(0)
+  discount        Float    @default(0)
+  paymentMethod   String?
+  paymentStatus   String   @default("pending") // pending, paid, failed
+  store           String? // Identifica a plataforma de origem (ebook, pagatg, etc.)
   shippingAddress Json?
   billingAddress  Json?
-  notes         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 
   @@map("orders")
 }
 
 model OrderItem {
-  id        Int      @id @default(autoincrement())
-  orderId   Int
-  bookId    Int
-  quantity  Int
-  unitPrice Float
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  bookId     Int
+  quantity   Int
+  unitPrice  Float
   totalPrice Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  book Book @relation(fields: [bookId], references: [id])
+  book  Book  @relation(fields: [bookId], references: [id])
 
   @@map("order_items")
 }
@@ -198,7 +197,7 @@ model Notification {
   message   String
   type      String   @default("info") // info, success, warning, error
   read      Boolean  @default(false)
-  action    Json?    // { label: string, onClick: string }
+  action    Json? // { label: string, onClick: string }
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -211,7 +210,7 @@ model Review {
   id        Int      @id @default(autoincrement())
   userId    String
   bookId    Int
-  rating    Int      // 1 a 5 estrelas
+  rating    Int // 1 a 5 estrelas
   comment   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -226,7 +225,7 @@ model Review {
 model ActivityLog {
   id        Int      @id @default(autoincrement())
   adminId   String
-  type      String   // 'book_created', 'book_updated', 'book_deleted', 'sale', 'review'
+  type      String // 'book_created', 'book_updated', 'book_deleted', 'sale', 'review'
   message   String
   timestamp DateTime @default(now())
   bookId    Int?
@@ -236,8 +235,8 @@ model ActivityLog {
 model AdminToken {
   id        String   @id @default(uuid())
   adminId   String   @unique
-  token     String   // Token da API DOM
-  title     String?  // Título/descrição do token
+  token     String // Token da API DOM
+  title     String? // Título/descrição do token
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

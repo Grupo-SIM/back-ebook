@@ -35,6 +35,7 @@ import { diskStorage } from 'multer';
 import * as path from 'path';
 import { Response } from 'express';
 import * as fs from 'fs';
+import { uploadFileS3, getUrlImageByKey } from 'src/common/storj';
 
 @Controller('books')
 @ApiTags('Books')
@@ -71,11 +72,13 @@ export class BookController {
     })
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/books',
+            destination: './tmp',
             filename: (req, file, cb) => {
-                const ext = path.extname(file.originalname);
-                const name = path.basename(file.originalname, ext).replace(/\s/g, '_');
-                cb(null, `${name}_${Date.now()}${ext}`);
+                const randomName = Array(32)
+                    .fill(null)
+                    .map(() => Math.round(Math.random() * 16).toString(16))
+                    .join('');
+                cb(null, `${randomName}${path.extname(file.originalname)}`);
             }
         }),
         fileFilter: (req, file, cb) => {
@@ -83,7 +86,8 @@ export class BookController {
             const ext = path.extname(file.originalname).toLowerCase();
             if (allowed.includes(ext)) cb(null, true);
             else cb(new Error('Only PDF, EPUB, MOBI allowed'), false);
-        }
+        },
+        limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit para PDFs
     }))
     async createBook(
         @Body() createBookDto: CreateBookDto,
@@ -91,9 +95,26 @@ export class BookController {
         @UploadedFile() file?: Express.Multer.File
     ): Promise<BookResponseDto> {
         let downloadUrl: string | undefined = undefined;
+        
+        // Se um arquivo PDF foi enviado, fazer upload para o Storj S3
         if (file) {
-            downloadUrl = `/uploads/books/${file.filename}`;
+            try {
+                console.log('📚 Fazendo upload do PDF para Storj...', {
+                    originalName: file.originalname,
+                    size: file.size,
+                    mimetype: file.mimetype
+                });
+                
+                const pdfKey = await uploadFileS3(file);
+                downloadUrl = getUrlImageByKey(pdfKey);
+                
+                console.log('✅ Upload do PDF concluído:', downloadUrl);
+            } catch (error) {
+                console.error('❌ Erro ao fazer upload do PDF:', error);
+                throw error;
+            }
         }
+        
         return this.bookService.createBook({ ...createBookDto, downloadUrl }, user.id);
     }
 
@@ -304,11 +325,13 @@ export class BookController {
     })
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({
-            destination: './uploads/books',
+            destination: './tmp',
             filename: (req, file, cb) => {
-                const ext = path.extname(file.originalname);
-                const name = path.basename(file.originalname, ext).replace(/\s/g, '_');
-                cb(null, `${name}_${Date.now()}${ext}`);
+                const randomName = Array(32)
+                    .fill(null)
+                    .map(() => Math.round(Math.random() * 16).toString(16))
+                    .join('');
+                cb(null, `${randomName}${path.extname(file.originalname)}`);
             }
         }),
         fileFilter: (req, file, cb) => {
@@ -316,7 +339,8 @@ export class BookController {
             const ext = path.extname(file.originalname).toLowerCase();
             if (allowed.includes(ext)) cb(null, true);
             else cb(new Error('Only PDF, EPUB, MOBI allowed'), false);
-        }
+        },
+        limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit para PDFs
     }))
     async updateBook(
         @Param('id') id: string,
@@ -324,9 +348,26 @@ export class BookController {
         @UploadedFile() file?: Express.Multer.File
     ): Promise<BookResponseDto> {
         let downloadUrl: string | undefined = undefined;
+        
+        // Se um arquivo PDF foi enviado, fazer upload para o Storj S3
         if (file) {
-            downloadUrl = `/uploads/books/${file.filename}`;
+            try {
+                console.log('📚 Fazendo upload do PDF para Storj (update)...', {
+                    originalName: file.originalname,
+                    size: file.size,
+                    mimetype: file.mimetype
+                });
+                
+                const pdfKey = await uploadFileS3(file);
+                downloadUrl = getUrlImageByKey(pdfKey);
+                
+                console.log('✅ Upload do PDF concluído:', downloadUrl);
+            } catch (error) {
+                console.error('❌ Erro ao fazer upload do PDF:', error);
+                throw error;
+            }
         }
+        
         return this.bookService.updateBook(Number(id), { ...updateBookDto, ...(downloadUrl ? { downloadUrl } : {}) });
     }
 
@@ -402,7 +443,16 @@ export class BookController {
             console.log(`🆓 Livro gratuito - download permitido`);
         }
         
-        // Se for gratuito, qualquer um autenticado pode baixar
+        // ✅ Verificar se é URL do Storj (começa com http/https)
+        if (book.downloadUrl.startsWith('http://') || book.downloadUrl.startsWith('https://')) {
+            console.log(`☁️ Arquivo está no Storj - redirecionando para: ${book.downloadUrl}`);
+            
+            // Redirecionar para a URL do Storj (o navegador vai baixar diretamente)
+            return res.redirect(book.downloadUrl);
+        }
+        
+        // 💾 Se for caminho local (livros antigos), manter lógica de disco
+        console.log(`💾 Arquivo no disco local - buscando arquivo físico`);
         let filePath: string;
         
         // Corrigir a lógica de construção do caminho

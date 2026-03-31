@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   api_ebook:
-    image: gabrielglp/api-ebook:latest
+    image: brenolima1706/api-ebook:latest
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:pUXSu1qNwOgl4It@postgres_prod:5432/back-ebook
@@ -16,12 +16,12 @@ services:
       - AWS_BUCKET_NAME=ebook
       - AWS_REGION=US1
       - AWS_S3_ENDPOINT=https://gateway.storjshare.io
-      - SMTP_HOST="simintermediacoes.com"
-      - SMTP_PORT="465"
-      - SMTP_SECURE="true"
-      - SMTP_USER="noreply@simintermediacoes.com"
-      - SMTP_PASSWORD="p4nkZXkQ5yeiZPM"
-      - SMTP_FROM_EMAIL="noreply@simintermediacoes.com"
+      - SMTP_HOST=mail.jbmidia.com
+      - SMTP_PORT=587
+      - SMTP_SECURE=false
+      - SMTP_USER=noreply
+      - SMTP_PASSWORD=j0M$$s5e55
+      - SMTP_FROM_EMAIL=noreply@jbmidia.com
       - URL_APP=https://back.ebooksim.com
     volumes:
       - ebook_uploads:/usr/src/app/uploads
