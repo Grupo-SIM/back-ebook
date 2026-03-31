@@ -33,6 +33,10 @@ export class AuthService {
     return hash;
   }
 
+  private normalizeCpf(raw: string | null | undefined): string {
+    return String(raw ?? '').replace(/\D/g, '');
+  }
+
   async validateUser(
     data: LoginInputDTO,
     ip: string,
@@ -582,6 +586,11 @@ export class AuthService {
   }
 
   async createUser(data: CreateUserInputDTO, creatorUserId?: string): Promise<AuthOutputDTO> {
+    const cpfClean = this.normalizeCpf(data.cpf);
+    if (cpfClean.length !== 11) {
+      throw new ConflictException('CPF inválido. Informe os 11 dígitos.');
+    }
+
     if (data.password !== data.confirmPassword) {
       throw new ConflictException('As senhas não coincidem');
     }
@@ -593,8 +602,23 @@ export class AuthService {
 
     if (existingUserByEmailAndRole) {
       // Já existe um usuário com o mesmo email e role, usar o existente
+      if (!existingUserByEmailAndRole.cpf) {
+        await this.prismaService.user.update({
+          where: { id: existingUserByEmailAndRole.id },
+          data: { cpf: cpfClean },
+        });
+        existingUserByEmailAndRole.cpf = cpfClean;
+      }
       newUser = existingUserByEmailAndRole;
     } else {
+      const existingCpf = await this.prismaService.user.findFirst({
+        where: { cpf: cpfClean },
+        select: { id: true },
+      });
+      if (existingCpf) {
+        throw new ConflictException('Já existe um usuário com este CPF');
+      }
+
       // Não existe usuário com o mesmo email e role, criar novo
       const hashedPassword = this.generateHashPassword(data.password);
 
@@ -602,6 +626,7 @@ export class AuthService {
         data: {
           email: data.email,
           name: data.name,
+          cpf: cpfClean,
           password: hashedPassword,
           role: data.role as Role,
           isActive: true,
@@ -935,6 +960,7 @@ export class AuthService {
     const userResponse = {
       id: newUser.id,
       email: newUser.email,
+      cpf: newUser.cpf ?? null,
       name: newUser.name,
       role: newUser.role.toString(),
       createdAt: newUser.createdAt,

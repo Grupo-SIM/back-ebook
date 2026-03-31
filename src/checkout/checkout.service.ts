@@ -24,12 +24,20 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CheckoutService {
+    private static readonly PLATFORM_EBOOK_TAG = '[TENANT:EBOOK]';
+
     constructor(
         private readonly prisma: PrismaService,
         private readonly redisService: RedisService,
         private readonly notificationService: NotificationService,
         private readonly appService: AppService,
     ) { }
+
+    private buildInternalCheckoutDescription(baseDescription: string, ownerCpf: string | null | undefined): string {
+        const cpfDigits = String(ownerCpf ?? '').replace(/\D/g, '');
+        if (cpfDigits.length !== 11) return baseDescription;
+        return `${baseDescription} ${CheckoutService.PLATFORM_EBOOK_TAG} [CPF_DONO:${cpfDigits}]`;
+    }
 
     // Carrinho
     async addToCart(userId: string, data: AddToCartDto): Promise<CheckoutItem> {
@@ -123,7 +131,13 @@ export class CheckoutService {
         const cartItems = await this.prisma.cart.findMany({
             where: { userId },
             include: {
-                book: true
+                book: {
+                    include: {
+                        createdBy: {
+                            select: { cpf: true }
+                        }
+                    }
+                }
             },
             orderBy: { createdAt: 'desc' }
         });
@@ -139,7 +153,7 @@ export class CheckoutService {
             quantity: item.quantity,
             selected: item.selected,
             totalPrice: item.book.price * item.quantity,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${item.book.price}&description=${encodeURIComponent(item.book.title)}&store=ebook`
+            checkoutUrl: `https://checkout.jbmidia.com/?value=${item.book.price}&description=${encodeURIComponent(this.buildInternalCheckoutDescription(item.book.title, item.book.createdBy?.cpf))}&store=ebook`
         } as CheckoutItem));
 
         await this.redisService.set(cacheKey, JSON.stringify(cartItemsDto), 300); // 5 minutos
@@ -354,7 +368,10 @@ export class CheckoutService {
 
         // Gerar link de checkout com o token do admin se disponível
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
-        const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
+        const ownerCpfForDescription = cartItems[0]?.book.createdBy?.cpf;
+        const description = encodeURIComponent(
+            this.buildInternalCheckoutDescription(orderResponse.items[0]?.bookTitle || '', ownerCpfForDescription),
+        );
 
         let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
 
@@ -435,7 +452,9 @@ export class CheckoutService {
 
         // Gerar link de checkout com o token do admin se disponível
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
-        const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
+        const description = encodeURIComponent(
+            this.buildInternalCheckoutDescription(orderResponse.items[0]?.bookTitle || '', book.createdBy?.cpf),
+        );
 
         let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
 
@@ -505,7 +524,10 @@ export class CheckoutService {
 
                     // Gerar checkoutUrl baseado no primeiro item do pedido
                     const value = Math.round(orderResponse.totalAmount * 100);
-                    const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
+                    const ownerCpfForDescription = order.orderItems[0]?.book.createdBy?.cpf;
+                    const description = encodeURIComponent(
+                        this.buildInternalCheckoutDescription(orderResponse.items[0]?.bookTitle || '', ownerCpfForDescription),
+                    );
 
                     let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
 
@@ -553,7 +575,10 @@ export class CheckoutService {
 
         const orderResponse = this.mapOrderToResponse(order);
         const value = uuidv4();
-        const description = encodeURIComponent(orderResponse.items[0]?.bookTitle || '');
+        const ownerCpfForDescription = order.orderItems[0]?.book.createdBy?.cpf;
+        const description = encodeURIComponent(
+            this.buildInternalCheckoutDescription(orderResponse.items[0]?.bookTitle || '', ownerCpfForDescription),
+        );
 
         // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
         let adminToken = null;

@@ -87,6 +87,7 @@ export class UserService extends GenericService {
       userId: user.id,
       name: user.name,
       email: user.email,
+      cpf: user.cpf,
       role: user.role as Role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -119,6 +120,7 @@ export class UserService extends GenericService {
       userId: user.id,
       name: user.name,
       email: user.email,
+      cpf: user.cpf,
       role: user.role as Role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -177,6 +179,7 @@ export class UserService extends GenericService {
       userId: user.id,
       name: user.name,
       email: user.email,
+      cpf: user.cpf,
       role: user.role as Role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -189,6 +192,11 @@ export class UserService extends GenericService {
       throw new ConflictException('Role incorrect. Must be ADMIN, USER or CUSTOMER.');
     }
 
+    const cpfClean = String(data.cpf ?? '').replace(/\D/g, '');
+    if (cpfClean.length !== 11) {
+      throw new ConflictException('CPF inválido. Informe os 11 dígitos.');
+    }
+
     if (data.password !== data.confirmPassword) {
       throw new ConflictException('As senhas não coincidem');
     }
@@ -199,6 +207,14 @@ export class UserService extends GenericService {
 
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
+    }
+
+    const existingCpf = await this.prisma.user.findFirst({
+      where: { cpf: cpfClean },
+      select: { id: true },
+    });
+    if (existingCpf) {
+      throw new ConflictException('Já existe um usuário com este CPF');
     }
 
     const isNameUnique = await this.isUniqueName(data.name, creatorUserId);
@@ -223,6 +239,7 @@ export class UserService extends GenericService {
         data: {
           name: data.name,
           email: data.email,
+          cpf: cpfClean,
           password: newHashedPassword,
           role: data.role,
           isActive: true,
@@ -237,6 +254,7 @@ export class UserService extends GenericService {
         userId: user.id,
         name: user.name,
         email: user.email,
+        cpf: user.cpf,
         role: user.role as Role,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -348,6 +366,7 @@ export class UserService extends GenericService {
       userId: updatedUser.id,
       name: updatedUser.name,
       email: updatedUser.email,
+      cpf: updatedUser.cpf,
       role: updatedUser.role as Role,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
@@ -385,6 +404,7 @@ export class UserService extends GenericService {
       userId: user.id,
       name: user.name,
       email: user.email,
+      cpf: user.cpf,
       role: user.role as Role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

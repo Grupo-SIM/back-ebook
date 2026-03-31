@@ -25,6 +25,7 @@ model Admin {
 model User {
   id        String   @id @default(uuid())
   email     String
+  cpf       String?  @unique
   name      String?
   password  String
   role      Role

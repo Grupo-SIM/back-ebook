@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsIn,
+  Matches,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -128,6 +129,7 @@ export class AuthOutputDTO {
   user: {
     id: string;
     email: string;
+    cpf?: string | null;
     name: string | null;
     role: string;
     roles?: string[]; // Campo opcional para múltiplas roles
@@ -168,6 +170,18 @@ export class CreateUserInputDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
+
+  @ApiProperty({
+    nullable: false,
+    name: 'cpf',
+    type: () => String,
+    description: 'CPF do dono da conta (somente dígitos)',
+    example: '12345678909',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^\d{11}$/, { message: 'CPF deve conter 11 dígitos' })
+  cpf: string;
 
   @ApiProperty({ nullable: false, name: 'password', type: () => String })
   @IsString()

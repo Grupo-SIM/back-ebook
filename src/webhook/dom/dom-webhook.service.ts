@@ -41,6 +41,12 @@ export class WebhookService {
     public readonly notificationService: NotificationService,
   ) { }
 
+  private buildSyntheticCpfFromInput(input: string): string {
+    const digits = String(input ?? '').replace(/\D/g, '');
+    if (digits.length >= 11) return digits.slice(0, 11);
+    return `${digits}${'0'.repeat(11)}`.slice(0, 11);
+  }
+
   private shouldSendEmail(email: string, eventType: string): boolean {
     const key = `${email}-${eventType}`;
     const now = new Date();
@@ -262,6 +268,7 @@ export class WebhookService {
       const result = await this.authService.createUser({
         email: normalizedEmail,
         name,
+        cpf: this.buildSyntheticCpfFromInput(normalizedEmail),
         password,
         confirmPassword: password, 
         role: isAdmin ? Role.ADMIN : Role.USER, 

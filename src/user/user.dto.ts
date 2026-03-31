@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEmail, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsEmail, IsEnum, Matches } from 'class-validator';
 import { Role } from 'src/types/interfaces/role';
 
 export class CreateUserDto {
@@ -10,6 +10,11 @@ export class CreateUserDto {
   @ApiProperty({ example: 'john@example.com' })
   @IsEmail()
   email: string;
+
+  @ApiProperty({ example: '12345678909', description: 'CPF do usuário (somente dígitos)' })
+  @IsString()
+  @Matches(/^\d{11}$/, { message: 'CPF deve conter 11 dígitos' })
+  cpf: string;
 
   @ApiProperty({ example: 'securePassword123' })
   @IsString()
@@ -52,6 +57,9 @@ export class UserResponseDto {
 
   @ApiProperty({ example: 'john@example.com' })
   email: string;
+
+  @ApiProperty({ example: '12345678909', required: false, nullable: true })
+  cpf?: string | null;
 
   @ApiProperty({ enum: Role, example: Role.USER })
   role: Role;

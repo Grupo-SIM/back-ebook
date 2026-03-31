@@ -1,0 +1,5 @@
+ALTER TABLE "users"
+ADD COLUMN IF NOT EXISTS "cpf" TEXT;
+
+CREATE UNIQUE INDEX IF NOT EXISTS "users_cpf_key"
+ON "users"("cpf");
