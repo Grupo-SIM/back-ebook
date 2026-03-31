@@ -43,6 +43,12 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   avatarUrl?: string;
+
+  @ApiProperty({ example: '12345678909', required: false, description: 'CPF do usuário (somente dígitos)' })
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{11}$/, { message: 'CPF deve conter 11 dígitos' })
+  cpf?: string;
 }
 
 export class UserResponseDto {

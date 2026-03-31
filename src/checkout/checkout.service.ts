@@ -33,10 +33,84 @@ export class CheckoutService {
         private readonly appService: AppService,
     ) { }
 
-    private buildInternalCheckoutDescription(baseDescription: string, ownerCpf: string | null | undefined): string {
+    private buildInternalOrderTag(ownerCpf: string | null | undefined): string | null {
         const cpfDigits = String(ownerCpf ?? '').replace(/\D/g, '');
-        if (cpfDigits.length !== 11) return baseDescription;
-        return `${baseDescription} ${CheckoutService.PLATFORM_EBOOK_TAG} [CPF_DONO:${cpfDigits}]`;
+        if (cpfDigits.length !== 11) return null;
+        return `${CheckoutService.PLATFORM_EBOOK_TAG} [CPF_DONO:${cpfDigits}]`;
+    }
+
+    private stripInternalTags(value: string | null | undefined): string | null {
+        if (!value) return null;
+        const sanitized = value
+            .replace(/\s*\[TENANT:EBOOK\]/gi, '')
+            .replace(/\s*\[CPF_DONO:[^\]]+\]/gi, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        return sanitized.length ? sanitized : null;
+    }
+
+    private getApiMachineBaseUrl(): string | null {
+        const base = process.env.API_MACHINE_URL || null;
+        if (!base) return null;
+        return base.replace(/\/+$/, '');
+    }
+
+    private buildLocalCheckoutUrl(params: {
+        value: number | string;
+        description: string;
+        store?: string;
+        adminToken?: string | null;
+        orderId?: string | number | null;
+        orderNumber?: string | null;
+    }): string {
+        const store = params.store || 'ebook';
+        let checkoutUrl = `https://checkout.jbmidia.com/?value=${params.value}&description=${encodeURIComponent(params.description)}&store=${encodeURIComponent(store)}`;
+        if (params.orderId != null && String(params.orderId).length > 0) {
+            checkoutUrl += `&orderId=${encodeURIComponent(String(params.orderId))}`;
+        }
+        if (params.orderNumber) {
+            checkoutUrl += `&orderNumber=${encodeURIComponent(params.orderNumber)}`;
+        }
+        if (params.adminToken) {
+            checkoutUrl += `&adminToken=${encodeURIComponent(params.adminToken)}`;
+        }
+        return checkoutUrl;
+    }
+
+    private async buildCheckoutUrl(params: {
+        value: number | string;
+        description: string;
+        store?: string;
+        adminToken?: string | null;
+        orderId?: string | number | null;
+        orderNumber?: string | null;
+    }): Promise<string> {
+        const fallback = this.buildLocalCheckoutUrl(params);
+        const baseUrl = this.getApiMachineBaseUrl();
+        if (!baseUrl) return fallback;
+
+        try {
+            const response = await fetch(`${baseUrl}/checkout/ebook-url`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(process.env.API_MACHINE_INTERNAL_TOKEN
+                        ? { 'x-internal-token': process.env.API_MACHINE_INTERNAL_TOKEN }
+                        : {}),
+                },
+                body: JSON.stringify(params),
+            });
+
+            if (!response.ok) return fallback;
+
+            const data = await response.json();
+            if (typeof data?.checkoutUrl === 'string' && data.checkoutUrl.length > 0) {
+                return data.checkoutUrl;
+            }
+            return fallback;
+        } catch {
+            return fallback;
+        }
     }
 
     // Carrinho
@@ -153,7 +227,11 @@ export class CheckoutService {
             quantity: item.quantity,
             selected: item.selected,
             totalPrice: item.book.price * item.quantity,
-            checkoutUrl: `https://checkout.jbmidia.com/?value=${item.book.price}&description=${encodeURIComponent(this.buildInternalCheckoutDescription(item.book.title, item.book.createdBy?.cpf))}&store=ebook`
+            checkoutUrl: this.buildLocalCheckoutUrl({
+                value: item.book.price,
+                description: item.book.title,
+                store: 'ebook',
+            })
         } as CheckoutItem));
 
         await this.redisService.set(cacheKey, JSON.stringify(cartItemsDto), 300); // 5 minutos
@@ -308,6 +386,7 @@ export class CheckoutService {
         // Gerar número do pedido
         const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
         // Criar pedido
+        const internalOrderTag = this.buildInternalOrderTag(cartItems[0]?.book.createdBy?.cpf);
         const order = await this.prisma.order.create({
             data: {
                 userId,
@@ -318,6 +397,7 @@ export class CheckoutService {
                 discount,
                 paymentStatus: 'pending' as PaymentStatus,
                 store: 'ebook', // Sempre vem do ebook
+                notes: internalOrderTag ?? null,
             }
         });
         // Criar itens do pedido
@@ -368,17 +448,13 @@ export class CheckoutService {
 
         // Gerar link de checkout com o token do admin se disponível
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
-        const ownerCpfForDescription = cartItems[0]?.book.createdBy?.cpf;
-        const description = encodeURIComponent(
-            this.buildInternalCheckoutDescription(orderResponse.items[0]?.bookTitle || '', ownerCpfForDescription),
-        );
 
-        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
-
-        // Se temos o token do admin, adicionar ao URL
-        if (adminToken) {
-            checkoutUrl += `&adminToken=${encodeURIComponent(adminToken)}`;
-        }
+        const checkoutUrl = await this.buildCheckoutUrl({
+            value,
+            description: orderResponse.items[0]?.bookTitle || '',
+            store: 'ebook',
+            adminToken,
+        });
 
         return {
             ...orderResponse,
@@ -405,6 +481,7 @@ export class CheckoutService {
         const discount = 0;
         const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
         // Criar pedido
+        const internalOrderTag = this.buildInternalOrderTag(book.createdBy?.cpf);
         const order = await this.prisma.order.create({
             data: {
                 userId,
@@ -415,6 +492,7 @@ export class CheckoutService {
                 discount,
                 paymentStatus: 'pending',
                 store: 'ebook', // Sempre vem do ebook
+                notes: internalOrderTag ?? null,
             }
         });
         // Criar item do pedido
@@ -452,16 +530,13 @@ export class CheckoutService {
 
         // Gerar link de checkout com o token do admin se disponível
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
-        const description = encodeURIComponent(
-            this.buildInternalCheckoutDescription(orderResponse.items[0]?.bookTitle || '', book.createdBy?.cpf),
-        );
 
-        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
-
-        // Se temos o token do admin, adicionar ao URL
-        if (adminToken) {
-            checkoutUrl += `&adminToken=${encodeURIComponent(adminToken)}`;
-        }
+        const checkoutUrl = await this.buildCheckoutUrl({
+            value,
+            description: orderResponse.items[0]?.bookTitle || '',
+            store: 'ebook',
+            adminToken,
+        });
 
         return {
             ...orderResponse,
@@ -524,17 +599,13 @@ export class CheckoutService {
 
                     // Gerar checkoutUrl baseado no primeiro item do pedido
                     const value = Math.round(orderResponse.totalAmount * 100);
-                    const ownerCpfForDescription = order.orderItems[0]?.book.createdBy?.cpf;
-                    const description = encodeURIComponent(
-                        this.buildInternalCheckoutDescription(orderResponse.items[0]?.bookTitle || '', ownerCpfForDescription),
-                    );
 
-                    let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&store=ebook`;
-
-                    // Se temos o token do admin, adicionar ao URL
-                    if (adminToken) {
-                        checkoutUrl += `&adminToken=${encodeURIComponent(adminToken)}`;
-                    }
+                    const checkoutUrl = await this.buildCheckoutUrl({
+                        value,
+                        description: orderResponse.items[0]?.bookTitle || '',
+                        store: 'ebook',
+                        adminToken,
+                    });
 
                     return { ...orderResponse, checkoutUrl };
                 })),
@@ -575,10 +646,6 @@ export class CheckoutService {
 
         const orderResponse = this.mapOrderToResponse(order);
         const value = uuidv4();
-        const ownerCpfForDescription = order.orderItems[0]?.book.createdBy?.cpf;
-        const description = encodeURIComponent(
-            this.buildInternalCheckoutDescription(orderResponse.items[0]?.bookTitle || '', ownerCpfForDescription),
-        );
 
         // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
         let adminToken = null;
@@ -595,12 +662,14 @@ export class CheckoutService {
             }
         }
 
-        let checkoutUrl = `https://checkout.jbmidia.com/?value=${value}&description=${description}&orderId=${orderResponse.id}&orderNumber=${orderResponse.orderNumber}&store=ebook`;
-
-        // Se temos o token do admin, adicionar ao URL
-        if (adminToken) {
-            checkoutUrl += `&adminToken=${encodeURIComponent(adminToken)}`;
-        }
+        const checkoutUrl = await this.buildCheckoutUrl({
+            value,
+            description: orderResponse.items[0]?.bookTitle || '',
+            orderId: orderResponse.id,
+            orderNumber: orderResponse.orderNumber,
+            store: 'ebook',
+            adminToken,
+        });
 
         return { ...orderResponse, checkoutUrl };
     }
@@ -694,7 +763,7 @@ export class CheckoutService {
             paymentStatus: order.paymentStatus as PaymentStatus,
             shippingAddress: order.shippingAddress,
             billingAddress: order.billingAddress,
-            notes: order.notes,
+            notes: this.stripInternalTags(order.notes),
             createdAt: order.createdAt,
             updatedAt: order.updatedAt,
             items: order.orderItems.map(item => ({

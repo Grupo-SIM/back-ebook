@@ -18,6 +18,7 @@ import {
   UpdateRecoveryPasswordInputDTO,
 } from './dto/auth.dto';
 import { Role } from 'src/types/interfaces/role';
+import { isValidCpf, normalizeCpf } from 'src/common/utils/cpf.util';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,15 @@ export class AuthService {
   }
 
   private normalizeCpf(raw: string | null | undefined): string {
-    return String(raw ?? '').replace(/\D/g, '');
+    return normalizeCpf(raw);
+  }
+
+  private getPaymentsApiBaseUrl(): string {
+    const base =
+      process.env.API_MACHINE_URL ||
+      process.env.API_DOM_URL ||
+      'https://api-dom.jbmidia.com';
+    return base.replace(/\/+$/, '');
   }
 
   async validateUser(
@@ -93,6 +102,7 @@ export class AuthService {
     const userResponse = {
       id: user.id,
       email: user.email,
+      cpf: user.cpf ?? null,
       name: user.name,
       role: user.role.toString(),
       createdAt: user.createdAt,
@@ -587,8 +597,8 @@ export class AuthService {
 
   async createUser(data: CreateUserInputDTO, creatorUserId?: string): Promise<AuthOutputDTO> {
     const cpfClean = this.normalizeCpf(data.cpf);
-    if (cpfClean.length !== 11) {
-      throw new ConflictException('CPF inválido. Informe os 11 dígitos.');
+    if (!isValidCpf(cpfClean)) {
+      throw new ConflictException('CPF inválido. Informe um CPF válido.');
     }
 
     if (data.password !== data.confirmPassword) {
@@ -997,7 +1007,7 @@ export class AuthService {
 
       console.log('Payload de registro:', { ...registerPayload, password: '***' });
 
-      const registerResponse = await fetch('https://api-dom.jbmidia.com/auth/register', {
+      const registerResponse = await fetch(`${this.getPaymentsApiBaseUrl()}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1033,7 +1043,7 @@ export class AuthService {
 
       console.log('Payload de token:', { ...tokenPayload, password: '***' });
 
-      const tokenResponse = await fetch('https://api-dom.jbmidia.com/auth/generate-token', {
+      const tokenResponse = await fetch(`${this.getPaymentsApiBaseUrl()}/auth/generate-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1090,7 +1100,7 @@ export class AuthService {
 
       console.log('Payload de taxa customizada:', customFeeData);
 
-      const customFeeResponse = await fetch('https://api-dom.jbmidia.com/custom-fees', {
+      const customFeeResponse = await fetch(`${this.getPaymentsApiBaseUrl()}/custom-fees`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1155,7 +1165,7 @@ export class AuthService {
     try {
       console.log(`Buscando tokens para: ${email}`);
 
-      const response = await fetch('https://api-dom.jbmidia.com/auth/list-tokens', {
+      const response = await fetch(`${this.getPaymentsApiBaseUrl()}/auth/list-tokens`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

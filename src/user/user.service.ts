@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { Role } from 'src/types/interfaces/role';
+import { isValidCpf, normalizeCpf } from 'src/common/utils/cpf.util';
 
 @Injectable()
 export class UserService extends GenericService {
@@ -192,9 +193,9 @@ export class UserService extends GenericService {
       throw new ConflictException('Role incorrect. Must be ADMIN, USER or CUSTOMER.');
     }
 
-    const cpfClean = String(data.cpf ?? '').replace(/\D/g, '');
-    if (cpfClean.length !== 11) {
-      throw new ConflictException('CPF inválido. Informe os 11 dígitos.');
+    const cpfClean = normalizeCpf(data.cpf);
+    if (!isValidCpf(cpfClean)) {
+      throw new ConflictException('CPF inválido. Informe um CPF válido.');
     }
 
     if (data.password !== data.confirmPassword) {
@@ -268,7 +269,7 @@ export class UserService extends GenericService {
 
   async updateUser(
     id: string,
-    data: { name?: string; email?: string; password?: string; avatarUrl?: string },
+    data: { name?: string; email?: string; password?: string; avatarUrl?: string; cpf?: string },
     updaterUserId?: string,
     req?: any
   ): Promise<UserResponseDto> {
@@ -322,12 +323,33 @@ export class UserService extends GenericService {
       }
     }
 
+    if (data.cpf !== undefined) {
+      const cpfDigits = normalizeCpf(data.cpf);
+      if (!isValidCpf(cpfDigits)) {
+        throw new ConflictException('CPF inválido. Informe um CPF válido.');
+      }
+
+      const existingCpf = await this.prisma.user.findFirst({
+        where: {
+          cpf: cpfDigits,
+          id: { not: id },
+        },
+        select: { id: true },
+      });
+      if (existingCpf) {
+        throw new ConflictException('Já existe um usuário com este CPF');
+      }
+    }
+
     const updateData: any = {};
 
     if (data.name !== undefined) updateData.name = data.name;
     if (data.email !== undefined) updateData.email = data.email;
     if (data.password && data.password.trim().length > 0) {
       updateData.password = this.generateHashPassword(data.password);
+    }
+    if (data.cpf !== undefined) {
+      updateData.cpf = normalizeCpf(data.cpf);
     }
     // Atualizar avatar via URL
     if (data.avatarUrl && typeof data.avatarUrl === 'string') {

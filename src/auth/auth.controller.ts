@@ -44,6 +44,14 @@ export class AuthController {
     private appService: AppService,
   ) { }
 
+  private getPaymentsApiBaseUrl(): string {
+    const base =
+      process.env.API_MACHINE_URL ||
+      process.env.API_DOM_URL ||
+      'https://api-dom.jbmidia.com';
+    return base.replace(/\/+$/, '');
+  }
+
   @ApiOperation({ summary: 'Generate an access token for user' })
   @ApiResponse({
     status: 200,
@@ -161,6 +169,7 @@ export class AuthController {
       const userResponse = {
         id: user.id,
         email: user.email,
+        cpf: user.cpf ?? null,
         name: user.name,
         role: user.role.toString(),
         roles: roles, // Incluir todas as roles disponíveis
@@ -494,7 +503,7 @@ export class AuthController {
 
       console.log('Enviando payload de registro:', { ...registerPayload, password: '***' });
 
-      const registerResponse = await fetch('https://api-dom.jbmidia.com/auth/register', {
+      const registerResponse = await fetch(`${this.getPaymentsApiBaseUrl()}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -525,7 +534,7 @@ export class AuthController {
 
       console.log('Enviando payload de token:', { ...tokenPayload, password: '***' });
 
-      const tokenResponse = await fetch('https://api-dom.jbmidia.com/auth/generate-token', {
+      const tokenResponse = await fetch(`${this.getPaymentsApiBaseUrl()}/auth/generate-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -573,7 +582,7 @@ export class AuthController {
       console.log('=== TESTE DE CONEXÃO COM API DOM ===');
 
       // Testar se a API DOM está acessível
-      const response = await fetch('https://api-dom.jbmidia.com/auth/register', {
+      const response = await fetch(`${this.getPaymentsApiBaseUrl()}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -623,7 +632,7 @@ export class AuthController {
 
       console.log('Payload de teste:', customFeeData);
 
-      const response = await fetch('https://api-dom.jbmidia.com/custom-fees', {
+      const response = await fetch(`${this.getPaymentsApiBaseUrl()}/custom-fees`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

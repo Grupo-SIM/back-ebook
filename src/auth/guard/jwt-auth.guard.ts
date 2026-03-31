@@ -1,8 +1,10 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { PrismaService } from 'prisma/prisma.service';
 import { Role } from 'src/types/interfaces/role';
+import { isValidCpf } from 'src/common/utils/cpf.util';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -14,10 +16,42 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+function isCpfBypassRoute(request: any): boolean {
+  const path = String(request?.originalUrl || request?.url || '');
+  return (
+    path.startsWith('/users/my-profile') ||
+    path.startsWith('/auth/logout')
+  );
+}
+
+async function enforceCpfRequirement(request: AuthenticatedRequest, prisma: PrismaService): Promise<void> {
+  const user = request?.user;
+  if (!user || !['ADMIN', 'USER', 'CUSTOMER'].includes(user.role)) return;
+  if (isCpfBypassRoute(request)) return;
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { cpf: true },
+  });
+  if (isValidCpf(dbUser?.cpf)) return;
+
+  throw new ForbiddenException({
+    message: 'CPF obrigatório. Configure seu CPF para continuar.',
+    code: 'CPF_REQUIRED',
+  });
+}
+
 @Injectable()
 export class JwtAuthGuardUser extends AuthGuard('jwt') {
-  canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
+  constructor(private readonly prisma: PrismaService) {
+    super();
+  }
+
+  async canActivate(context: ExecutionContext) {
+    await super.canActivate(context);
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    await enforceCpfRequirement(req, this.prisma);
+    return true;
   }
 
   handleRequest(err: any, user: any, info: any) {
@@ -30,8 +64,15 @@ export class JwtAuthGuardUser extends AuthGuard('jwt') {
 
 @Injectable()
 export class JwtAuthGuardAdmin extends AuthGuard('jwt') implements CanActivate {
-  canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
+  constructor(private readonly prisma: PrismaService) {
+    super();
+  }
+
+  async canActivate(context: ExecutionContext) {
+    await super.canActivate(context);
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    await enforceCpfRequirement(req, this.prisma);
+    return true;
   }
 
   handleRequest(err: any, user: any, info: any) {
@@ -49,8 +90,15 @@ export class JwtAuthGuardAdmin extends AuthGuard('jwt') implements CanActivate {
 
 @Injectable()
 export class JwtAuthGuardCustomer extends AuthGuard('jwt') implements CanActivate {
-  canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
+  constructor(private readonly prisma: PrismaService) {
+    super();
+  }
+
+  async canActivate(context: ExecutionContext) {
+    await super.canActivate(context);
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    await enforceCpfRequirement(req, this.prisma);
+    return true;
   }
 
   handleRequest(err: any, user: any, info: any) {
@@ -68,8 +116,15 @@ export class JwtAuthGuardCustomer extends AuthGuard('jwt') implements CanActivat
 
 @Injectable()
 export class JwtAuthGuardAdminOrUser extends AuthGuard('jwt') implements CanActivate {
-  canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
+  constructor(private readonly prisma: PrismaService) {
+    super();
+  }
+
+  async canActivate(context: ExecutionContext) {
+    await super.canActivate(context);
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    await enforceCpfRequirement(req, this.prisma);
+    return true;
   }
 
   handleRequest(err: any, user: any, info: any) {
@@ -87,7 +142,10 @@ export class JwtAuthGuardAdminOrUser extends AuthGuard('jwt') implements CanActi
 
 @Injectable()
 export class JwtAuthGuardAdminOrCustomer extends AuthGuard('jwt') implements CanActivate {
-  constructor(private reflector: Reflector) {
+  constructor(
+    private reflector: Reflector,
+    private readonly prisma: PrismaService,
+  ) {
     super();
   }
 
@@ -104,14 +162,23 @@ export class JwtAuthGuardAdminOrCustomer extends AuthGuard('jwt') implements Can
       throw new UnauthorizedException('Access denied. Admin or Customer role required.');
     }
 
+    await enforceCpfRequirement(req, this.prisma);
+
     return true;
   }
 }
 
 @Injectable()
 export class JwtAuthGuardPanel extends AuthGuard('jwt') implements CanActivate {
-  canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
+  constructor(private readonly prisma: PrismaService) {
+    super();
+  }
+
+  async canActivate(context: ExecutionContext) {
+    await super.canActivate(context);
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    await enforceCpfRequirement(req, this.prisma);
+    return true;
   }
 
   handleRequest(err: any, user: any, info: any) {
@@ -129,7 +196,11 @@ export class JwtAuthGuardPanel extends AuthGuard('jwt') implements CanActivate {
 
 @Injectable()
 export class JwtAuthGuardAll extends AuthGuard('jwt') implements CanActivate {
-  canActivate(context: ExecutionContext) {
+  constructor(private readonly prisma: PrismaService) {
+    super();
+  }
+
+  async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
@@ -147,7 +218,10 @@ export class JwtAuthGuardAll extends AuthGuard('jwt') implements CanActivate {
     }
 
     // Continua com autenticação JWT normal
-    return super.canActivate(context);
+    await super.canActivate(context);
+    const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    await enforceCpfRequirement(req, this.prisma);
+    return true;
   }
 
   handleRequest(err: any, user: any, info: any) {
