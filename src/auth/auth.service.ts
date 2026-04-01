@@ -39,10 +39,10 @@ export class AuthService {
   }
 
   private getPaymentsApiBaseUrl(): string {
-    const base =
-      process.env.API_MACHINE_URL ||
-      process.env.API_DOM_URL ||
-      'https://api-dom.jbmidia.com';
+    const base = process.env.API_MACHINE_URL;
+    if (!base) {
+      throw new Error('API_MACHINE_URL não configurada. A integração com API Machine é obrigatória.');
+    }
     return base.replace(/\/+$/, '');
   }
 

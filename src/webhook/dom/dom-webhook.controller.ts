@@ -2,10 +2,14 @@
 import {
   Body,
   Controller,
+  Headers,
   Post,
   Logger,
   BadRequestException,
+  UnauthorizedException,
+  Req,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import type { PayloadWebhook } from './dom-webhook.service';
 import { WebhookService } from './dom-webhook.service';
@@ -728,33 +732,127 @@ export class WebhookController {
       type: 'object',
       properties: {
         orderNumber: { type: 'string', example: 'ORD-2025-243164' },
+        orderId: { type: 'string', example: 'ORD-2025-243164' },
+        order_id: { type: 'string', example: 'ORD-2025-243164' },
         status: { type: 'string', example: 'COMPLETED' },
         email: { type: 'string', example: 'usuario@exemplo.com' },
-        store: { type: 'string', example: 'ebook', description: 'Identifica a plataforma de origem' }
+        store: { type: 'string', example: 'ebook', description: 'Identifica a plataforma de origem' },
+        description: { type: 'string', example: 'Pedido ORD-2025-243164 - Meu Ebook' },
       },
-      required: ['orderNumber', 'status']
+      required: ['status']
     }
   })
-  async confirmPayment(@Body() data: { orderNumber: string, status: string, email?: string, store?: string }) {
+  async confirmPayment(
+    @Body()
+    data: {
+      orderNumber?: string;
+      order_id?: string;
+      orderId?: string;
+      status: string;
+      email?: string;
+      store?: string;
+      description?: string;
+    },
+    @Headers('x-internal-token') internalToken?: string,
+    @Headers('authorization') authorization?: string,
+    @Headers('x-webhook-secret') webhookSecret?: string,
+    @Req() req?: Request,
+  ) {
     const logger = new Logger('PaymentConfirmation');
     logger.log(`Recebida confirmação de pagamento: ${JSON.stringify(data)}`);
 
-    // Validação básica
-    if (!data || !data.orderNumber || !data.status) {
-      logger.error('Payload inválido: orderNumber e status são obrigatórios');
-      throw new BadRequestException('orderNumber e status são obrigatórios');
+    const configuredTokens = [
+      process.env.API_MACHINE_INTERNAL_TOKEN,
+      process.env.INTERNAL_SERVICE_TOKEN,
+      process.env.WEBHOOK_SECRET,
+    ]
+      .map((v) => String(v ?? '').trim())
+      .filter((v) => v.length > 0);
+
+    const bearerToken = String(authorization ?? '').replace(/^Bearer\s+/i, '').trim();
+    const providedTokens = [internalToken, webhookSecret, bearerToken]
+      .map((v) => String(v ?? '').trim())
+      .filter((v) => v.length > 0);
+
+    const isAuthorized = configuredTokens.length > 0
+      && providedTokens.some((provided) => configuredTokens.includes(provided));
+
+    if (!isAuthorized) {
+      const h = req?.headers ?? {};
+      const forwardedFor = h['x-forwarded-for'] ?? h['x-real-ip'];
+      const authDiag = {
+        reason: !configuredTokens.length
+          ? 'no_env_token_configured'
+          : !providedTokens.length
+            ? 'no_auth_header_in_request'
+            : 'token_mismatch',
+        envHasApiMachineToken: Boolean(String(process.env.API_MACHINE_INTERNAL_TOKEN ?? '').trim()),
+        envHasInternalServiceToken: Boolean(String(process.env.INTERNAL_SERVICE_TOKEN ?? '').trim()),
+        envHasWebhookSecret: Boolean(String(process.env.WEBHOOK_SECRET ?? '').trim()),
+        headerXInternalTokenPresent: Boolean(internalToken?.length),
+        headerXInternalTokenLength: internalToken?.length ?? 0,
+        headerAuthorizationPresent: Boolean(bearerToken.length),
+        headerXWebhookSecretPresent: Boolean(webhookSecret?.length),
+        configuredTokenLengths: configuredTokens.map((t) => t.length),
+        providedTokenLengths: providedTokens.map((t) => t.length),
+        userAgent: typeof h['user-agent'] === 'string' ? h['user-agent'].slice(0, 120) : undefined,
+        forwardedFor: typeof forwardedFor === 'string' ? forwardedFor.slice(0, 80) : undefined,
+        expressRawKeys: req
+          ? Object.keys(h).filter((k) => /internal|webhook|auth/i.test(k))
+          : [],
+      };
+      logger.warn(
+        `Webhook payment-confirmation bloqueado: origem não autorizada | ${JSON.stringify(authDiag)}`,
+      );
+      throw new UnauthorizedException('Webhook permitido apenas via API Machine');
     }
 
-    if (data.status === 'paid' || data.status === 'COMPLETED') {
+    logger.log(
+      '[PaymentConfirmation] Autenticação interna OK (token conferido; detalhes omitidos por segurança)',
+    );
+
+    const rawOrderReference = String(
+      data?.orderNumber ?? data?.orderId ?? data?.order_id ?? '',
+    ).trim();
+    const extractedOrderNumberFromDescription = String(data?.description ?? '')
+      .match(/ORD-\d{4}-\d{6}/i)?.[0];
+    const normalizedOrderNumber = rawOrderReference || extractedOrderNumberFromDescription || '';
+    const normalizedStatus = String(data?.status ?? '').trim().toUpperCase();
+
+    // Validação básica
+    if (!data || !normalizedStatus) {
+      logger.error('Payload inválido: status é obrigatório');
+      throw new BadRequestException('status é obrigatório');
+    }
+
+    const normalizedStore = String(data.store ?? '').trim().toLowerCase();
+    const isEbookStore = normalizedStore === '' || normalizedStore === 'ebook' || normalizedStore === 'ebooksim';
+    if (!isEbookStore) {
+      logger.warn(`Webhook ignorado por store não-ebook: ${data.store}`);
+      return {
+        ok: true,
+        ignored: true,
+        reason: 'store_not_ebook',
+        orderNumber: normalizedOrderNumber,
+      };
+    }
+
+    const isEbookOrderNumber =
+      /^ORD-\d{4}-\d{6}$/i.test(normalizedOrderNumber) || /^TEST-\d+$/i.test(normalizedOrderNumber);
+    if (!isEbookOrderNumber) {
+      logger.warn(`orderNumber fora do padrão ebook, seguindo por estratégias de fallback: ${normalizedOrderNumber}`);
+    }
+
+    if (['PAID', 'COMPLETED', 'APPROVED'].includes(normalizedStatus)) {
       const prisma = this.webhookService['prismaService'] || this.webhookService['prisma'];
 
       try {
         // ESTRATÉGIA 1: Buscar por orderNumber exato
-        logger.log(`Tentativa 1: Buscando pedido por orderNumber exato: ${data.orderNumber}`);
+        logger.log(`Tentativa 1: Buscando pedido por orderNumber exato: ${normalizedOrderNumber}`);
         let existingOrder = await prisma.order.findUnique({
-          where: { orderNumber: data.orderNumber },
+          where: { orderNumber: normalizedOrderNumber },
           include: {
-            orderItems: { include: { book: true } },
+            orderItems: { include: { book: { include: { createdBy: { select: { cpf: true } } } } } },
             user: true
           }
         });
@@ -784,10 +882,18 @@ export class WebhookController {
 
           await this.updateBooksSalesCount(existingOrder.orderItems);
 
+          // Extrair CPF do dono do livro para a api-machine criar a transaction corretamente
+          const ownerCpfFromNotes = String(existingOrder.notes ?? '').match(/\[CPF_DONO:(\d{11})\]/i)?.[1] ?? null;
+          const ownerCpfFromBook = existingOrder.orderItems[0]?.book?.createdBy?.cpf
+            ? String(existingOrder.orderItems[0].book.createdBy.cpf).replace(/\D/g, '')
+            : null;
+          const ownerCpf = ownerCpfFromNotes || (ownerCpfFromBook?.length === 11 ? ownerCpfFromBook : null);
+
           return {
             ok: true,
             message: `Pedido ${existingOrder.orderNumber} atualizado com sucesso`,
             orderNumber: existingOrder.orderNumber,
+            ownerCpf,
             strategy: 'exact_orderNumber'
           };
         }
@@ -841,19 +947,19 @@ export class WebhookController {
               orderNumber: mostRecentOrder.orderNumber,
               strategy: 'most_recent_pending',
               totalPendingOrders: pendingOrders.length,
-              originalOrderNumber: data.orderNumber
+              originalOrderNumber: normalizedOrderNumber
             };
           }
         }
 
         if (data.email) {
-          logger.log(`Tentativa 3: Buscando por título do livro: ${data.orderNumber}`);
+          logger.log(`Tentativa 3: Buscando por título do livro: ${rawOrderReference || normalizedOrderNumber}`);
 
           const book = await prisma.book.findFirst({
             where: {
               OR: [
-                { title: { contains: data.orderNumber, mode: 'insensitive' } },
-                { title: data.orderNumber }
+                { title: { contains: rawOrderReference || normalizedOrderNumber, mode: 'insensitive' } },
+                { title: rawOrderReference || normalizedOrderNumber }
               ]
             }
           });
@@ -905,7 +1011,7 @@ export class WebhookController {
                   orderNumber: orderWithBook.orderNumber,
                   strategy: 'found_by_book_title',
                   bookTitle: book.title,
-                  originalOrderNumber: data.orderNumber
+                  originalOrderNumber: normalizedOrderNumber
                 };
               } else {
                 return {
@@ -914,7 +1020,7 @@ export class WebhookController {
                   orderNumber: orderWithBook.orderNumber,
                   strategy: 'found_by_book_title_already_paid',
                   bookTitle: book.title,
-                  originalOrderNumber: data.orderNumber
+                  originalOrderNumber: normalizedOrderNumber
                 };
               }
             }
@@ -974,7 +1080,7 @@ export class WebhookController {
                 orderNumber: latestOrder.orderNumber,
                 strategy: 'latest_order_fallback',
                 originalStatus: latestOrder.status,
-                originalOrderNumber: data.orderNumber,
+                originalOrderNumber: normalizedOrderNumber,
                 totalOrdersFound: allOrders.length
               };
             } else {
@@ -983,7 +1089,7 @@ export class WebhookController {
                 message: `Último pedido ${latestOrder.orderNumber} já estava pago`,
                 orderNumber: latestOrder.orderNumber,
                 strategy: 'latest_order_already_paid',
-                originalOrderNumber: data.orderNumber,
+                originalOrderNumber: normalizedOrderNumber,
                 totalOrdersFound: allOrders.length
               };
             }
@@ -991,12 +1097,12 @@ export class WebhookController {
         }
 
         logger.error(`❌ Nenhuma estratégia funcionou para encontrar pedido`);
-        logger.error(`OrderNumber recebido: ${data.orderNumber}`);
+        logger.error(`OrderNumber recebido: ${normalizedOrderNumber}`);
         logger.error(`Email: ${data.email}`);
 
         throw new BadRequestException({
           message: 'Pedido não encontrado com nenhuma estratégia',
-          orderNumber: data.orderNumber,
+          orderNumber: normalizedOrderNumber,
           email: data.email,
           strategies_tried: [
             'exact_orderNumber',
@@ -1012,7 +1118,7 @@ export class WebhookController {
         throw new BadRequestException({
           message: 'Erro interno ao processar confirmação de pagamento',
           error: err.message,
-          orderNumber: data.orderNumber,
+          orderNumber: normalizedOrderNumber,
           email: data.email
         });
       }
@@ -1020,8 +1126,8 @@ export class WebhookController {
 
     return {
       ok: true,
-      message: `Status ${data.status} recebido, mas não requer atualização`,
-      orderNumber: data.orderNumber
+      message: `Status ${normalizedStatus} recebido, mas não requer atualização`,
+      orderNumber: normalizedOrderNumber
     };
   }
 

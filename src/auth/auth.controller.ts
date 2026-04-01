@@ -45,10 +45,10 @@ export class AuthController {
   ) { }
 
   private getPaymentsApiBaseUrl(): string {
-    const base =
-      process.env.API_MACHINE_URL ||
-      process.env.API_DOM_URL ||
-      'https://api-dom.jbmidia.com';
+    const base = process.env.API_MACHINE_URL;
+    if (!base) {
+      throw new InternalServerErrorException('API_MACHINE_URL não configurada.');
+    }
     return base.replace(/\/+$/, '');
   }
 

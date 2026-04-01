@@ -20,7 +20,6 @@ import {
     CheckoutItem,
     CheckoutState
 } from './dto/checkout.dto';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CheckoutService {
@@ -32,6 +31,35 @@ export class CheckoutService {
         private readonly notificationService: NotificationService,
         private readonly appService: AppService,
     ) { }
+
+    private async notifyPendingTransaction(
+        orderNumber: string,
+        amount: number,
+        ownerCpf: string | null,
+        paymentMethod?: string,
+        buyer?: { name?: string; email?: string; cpf?: string },
+    ): Promise<void> {
+        const apiMachineUrl = process.env.API_MACHINE_URL;
+        const token = process.env.API_MACHINE_INTERNAL_TOKEN;
+        if (!apiMachineUrl || !token) return;
+        try {
+            await fetch(`${apiMachineUrl.replace(/\/+$/, '')}/internal/ebook/finance/pending-transaction`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-internal-token': token },
+                body: JSON.stringify({
+                    orderNumber,
+                    amount,
+                    ownerCpf: ownerCpf ?? undefined,
+                    paymentMethod,
+                    buyerName: buyer?.name ?? undefined,
+                    buyerEmail: buyer?.email ?? undefined,
+                    buyerDocument: buyer?.cpf ?? undefined,
+                }),
+            });
+        } catch {
+            // não bloqueia o fluxo de checkout se a api-machine estiver indisponível
+        }
+    }
 
     private buildInternalOrderTag(ownerCpf: string | null | undefined): string | null {
         const cpfDigits = String(ownerCpf ?? '').replace(/\D/g, '');
@@ -55,6 +83,93 @@ export class CheckoutService {
         return base.replace(/\/+$/, '');
     }
 
+    private parseDomDate(raw: string | null | undefined): Date | null {
+        if (!raw) return null;
+        const normalized = String(raw).trim().replace(' ', 'T');
+        const withTimezone = /[zZ]|[+-]\d{2}:\d{2}$/.test(normalized)
+            ? normalized
+            : `${normalized}-03:00`;
+        const d = new Date(withTimezone);
+        return Number.isNaN(d.getTime()) ? null : d;
+    }
+
+    private async tryReconcileEbookOrderPaid(order: any): Promise<void> {
+        if (!order || order.store !== 'ebook') return;
+        if (order.status === 'paid' || order.paymentStatus === 'paid') return;
+
+        const baseUrl = this.getApiMachineBaseUrl();
+        if (!baseUrl) return;
+
+        const orderAmount = Number(order.totalAmount ?? 0);
+        const orderEmail = String(order?.user?.email ?? '').trim().toLowerCase();
+        const firstBookTitle = String(order?.orderItems?.[0]?.book?.title ?? '').trim().toLowerCase();
+        if (!Number.isFinite(orderAmount) || orderAmount <= 0 || !firstBookTitle) return;
+
+        const beginDate = new Date(order.createdAt).toISOString().slice(0, 10);
+        const endDate = new Date().toISOString().slice(0, 10);
+
+        for (let page = 1; page <= 10; page++) {
+            const search = new URLSearchParams({
+                page: String(page),
+                limit: '200',
+                begin_date: beginDate,
+                end_date: endDate,
+                status: 'paid',
+                payment_method: 'pix',
+            });
+            const response = await fetch(`${baseUrl}/admin/transacoes-dom?${search.toString()}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok) return;
+
+            const data = await response.json();
+            const txs = Array.isArray(data?.data?.transactions) ? data.data.transactions : [];
+            if (txs.length === 0) break;
+
+            const match = txs.find((tx: any) => {
+                const txStatus = String(tx?.status ?? '').toLowerCase();
+                if (!['paid', 'approved', 'completed'].includes(txStatus)) return false;
+
+                const txAmount = Number(tx?.amount ?? 0);
+                if (Math.abs(txAmount - orderAmount) > 0.0001) return false;
+
+                const txTitle = String(tx?.product_first ?? '').trim().toLowerCase();
+                if (!(txTitle.includes(firstBookTitle) || firstBookTitle.includes(txTitle))) return false;
+
+                const txEmail = String(tx?.customer_email ?? '').trim().toLowerCase();
+                if (orderEmail && txEmail && orderEmail !== txEmail) return false;
+
+                const txCreatedAt = this.parseDomDate(tx?.created_at);
+                if (!txCreatedAt) return false;
+
+                const orderCreatedAt = new Date(order.createdAt);
+                const diff = Math.abs(txCreatedAt.getTime() - orderCreatedAt.getTime());
+                return diff <= 12 * 60 * 60 * 1000;
+            });
+
+            if (match) {
+                await this.prisma.order.update({
+                    where: { id: order.id },
+                    data: {
+                        status: 'paid',
+                        paymentStatus: 'paid',
+                    },
+                });
+                return;
+            }
+
+            if (txs.length < 200) break;
+        }
+    }
+
+    private normalizeCheckoutValue(value: number | string): number | null {
+        const num = typeof value === 'string' ? Number(value.trim()) : Number(value);
+        if (!Number.isFinite(num) || num <= 0) return null;
+        return Math.round(num);
+    }
+
     private buildLocalCheckoutUrl(params: {
         value: number | string;
         description: string;
@@ -63,8 +178,13 @@ export class CheckoutService {
         orderId?: string | number | null;
         orderNumber?: string | null;
     }): string {
+        const normalizedValue = this.normalizeCheckoutValue(params.value);
+        if (!normalizedValue) {
+            throw new BadRequestException('Valor inválido para checkout');
+        }
+
         const store = params.store || 'ebook';
-        let checkoutUrl = `https://checkout.jbmidia.com/?value=${params.value}&description=${encodeURIComponent(params.description)}&store=${encodeURIComponent(store)}`;
+        let checkoutUrl = `https://checkout.jbmidia.com/?value=${normalizedValue}&description=${encodeURIComponent(params.description)}&store=${encodeURIComponent(store)}`;
         if (params.orderId != null && String(params.orderId).length > 0) {
             checkoutUrl += `&orderId=${encodeURIComponent(String(params.orderId))}`;
         }
@@ -85,7 +205,17 @@ export class CheckoutService {
         orderId?: string | number | null;
         orderNumber?: string | null;
     }): Promise<string> {
-        const fallback = this.buildLocalCheckoutUrl(params);
+        const normalizedValue = this.normalizeCheckoutValue(params.value);
+        if (!normalizedValue) {
+            throw new BadRequestException('Valor inválido para checkout');
+        }
+
+        const normalizedParams = {
+            ...params,
+            value: normalizedValue,
+        };
+
+        const fallback = this.buildLocalCheckoutUrl(normalizedParams);
         const baseUrl = this.getApiMachineBaseUrl();
         if (!baseUrl) return fallback;
 
@@ -98,7 +228,7 @@ export class CheckoutService {
                         ? { 'x-internal-token': process.env.API_MACHINE_INTERNAL_TOKEN }
                         : {}),
                 },
-                body: JSON.stringify(params),
+                body: JSON.stringify(normalizedParams),
             });
 
             if (!response.ok) return fallback;
@@ -424,6 +554,19 @@ export class CheckoutService {
         // Invalidar cache
         await this.invalidateCartCache(userId);
         await this.invalidateOrderCache(userId);
+        // Notificar api-machine sobre pedido pendente
+        const ownerCpfCart = cartItems[0]?.book?.createdBy?.cpf
+            ? String(cartItems[0].book.createdBy.cpf).replace(/\D/g, '')
+            : null;
+        const buyerCart = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { name: true, email: true, cpf: true },
+        });
+        await this.notifyPendingTransaction(orderNumber, totalAmount, ownerCpfCart, undefined, {
+            name: buyerCart?.name ?? undefined,
+            email: buyerCart?.email ?? undefined,
+            cpf: buyerCart?.cpf ?? undefined,
+        });
         // Buscar pedido completo
         const orderWithItems = await this.prisma.order.findUnique({
             where: { id: order.id },
@@ -451,9 +594,12 @@ export class CheckoutService {
 
         const checkoutUrl = await this.buildCheckoutUrl({
             value,
-            description: orderResponse.items[0]?.bookTitle || '',
+            // Para webhook externo, usar orderNumber como identificador canônico do pedido.
+            description: orderResponse.orderNumber,
             store: 'ebook',
             adminToken,
+            orderId: orderResponse.id,
+            orderNumber: orderResponse.orderNumber,
         });
 
         return {
@@ -505,6 +651,19 @@ export class CheckoutService {
                 totalPrice: book.price * quantity
             }
         });
+        // Notificar api-machine sobre pedido pendente
+        const ownerCpfBook = book.createdBy?.cpf
+            ? String(book.createdBy.cpf).replace(/\D/g, '')
+            : null;
+        const buyerBook = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { name: true, email: true, cpf: true },
+        });
+        await this.notifyPendingTransaction(orderNumber, totalAmount, ownerCpfBook, undefined, {
+            name: buyerBook?.name ?? undefined,
+            email: buyerBook?.email ?? undefined,
+            cpf: buyerBook?.cpf ?? undefined,
+        });
         // Buscar pedido completo
         const orderWithItems = await this.prisma.order.findUnique({
             where: { id: order.id },
@@ -533,9 +692,12 @@ export class CheckoutService {
 
         const checkoutUrl = await this.buildCheckoutUrl({
             value,
-            description: orderResponse.items[0]?.bookTitle || '',
+            // Para webhook externo, usar orderNumber como identificador canônico do pedido.
+            description: orderResponse.orderNumber,
             store: 'ebook',
             adminToken,
+            orderId: orderResponse.id,
+            orderNumber: orderResponse.orderNumber,
         });
 
         return {
@@ -602,9 +764,12 @@ export class CheckoutService {
 
                     const checkoutUrl = await this.buildCheckoutUrl({
                         value,
-                        description: orderResponse.items[0]?.bookTitle || '',
+                        // Para webhook externo, usar orderNumber como identificador canônico do pedido.
+                        description: orderResponse.orderNumber,
                         store: 'ebook',
                         adminToken,
+                        orderId: orderResponse.id,
+                        orderNumber: orderResponse.orderNumber,
                     });
 
                     return { ...orderResponse, checkoutUrl };
@@ -625,7 +790,7 @@ export class CheckoutService {
             ? { id: orderId }  // Não filtra por usuário
             : { id: orderId, userId }; // Filtra por usuário normalmente
 
-        const order = await this.prisma.order.findFirst({
+        let order = await this.prisma.order.findFirst({
             where: whereCondition,
             include: {
                 orderItems: {
@@ -636,7 +801,38 @@ export class CheckoutService {
                             }
                         }
                     }
-                }
+                },
+                user: {
+                    select: {
+                        email: true,
+                    }
+                },
+            }
+        });
+
+        if (!order) {
+            throw new NotFoundException('Pedido não encontrado');
+        }
+
+        await this.tryReconcileEbookOrderPaid(order);
+
+        order = await this.prisma.order.findFirst({
+            where: whereCondition,
+            include: {
+                orderItems: {
+                    include: {
+                        book: {
+                            include: {
+                                createdBy: true
+                            }
+                        }
+                    }
+                },
+                user: {
+                    select: {
+                        email: true,
+                    }
+                },
             }
         });
 
@@ -645,7 +841,7 @@ export class CheckoutService {
         }
 
         const orderResponse = this.mapOrderToResponse(order);
-        const value = uuidv4();
+        const value = Math.round(orderResponse.totalAmount * 100);
 
         // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
         let adminToken = null;
@@ -664,7 +860,8 @@ export class CheckoutService {
 
         const checkoutUrl = await this.buildCheckoutUrl({
             value,
-            description: orderResponse.items[0]?.bookTitle || '',
+            // Para webhook externo, usar orderNumber como identificador canônico do pedido.
+            description: orderResponse.orderNumber,
             orderId: orderResponse.id,
             orderNumber: orderResponse.orderNumber,
             store: 'ebook',
@@ -913,268 +1110,130 @@ export class CheckoutService {
                 `• ${item.book.title} - ${item.book.author} (Qtd: ${item.quantity})`
             ).join('\n');
 
-            // Enviar email
+            const firstBook = order.orderItems[0]?.book;
+            const firstBookTitle = firstBook?.title || 'seu ebook';
+            const appUrl = process.env.URL_APP || process.env.FRONTEND_URL || 'https://ebooksim.com';
+
             await this.appService.sendMail({
                 to: userEmail,
-                subject: `🎉 Compra Confirmada - ${orderNumber}`,
-                html: `
-                    <!DOCTYPE html>
-                    <html lang="pt-BR">
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <title>Compra Confirmada</title>
-                        <style>
-                            * {
-                                margin: 0;
-                                padding: 0;
-                                box-sizing: border-box;
-                            }
-                            
-                            body {
-                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                                background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-                                color: #ffffff;
-                                line-height: 1.6;
-                            }
-                            
-                            .container {
-                                max-width: 600px;
-                                margin: 0 auto;
-                                padding: 40px 20px;
-                            }
-                            
-                            .header {
-                                text-align: center;
-                                margin-bottom: 40px;
-                            }
-                            
-                            .logo {
-                                font-size: 32px;
-                                font-weight: 700;
-                                color: #ffffff;
-                                margin-bottom: 8px;
-                                letter-spacing: -0.5px;
-                            }
-                            
-                            .subtitle {
-                                color: #a1a1aa;
-                                font-size: 16px;
-                                font-weight: 400;
-                            }
-                            
-                            .card {
-                                background: #1f1f1f;
-                                border: 1px solid #2a2a2a;
-                                border-radius: 12px;
-                                padding: 32px;
-                                margin-bottom: 24px;
-                                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-                            }
-                            
-                            .success-title {
-                                font-size: 28px;
-                                font-weight: 700;
-                                color: #22c55e;
-                                margin-bottom: 16px;
-                                text-align: center;
-                            }
-                            
-                            .success-text {
-                                color: #d4d4d8;
-                                font-size: 16px;
-                                margin-bottom: 24px;
-                                text-align: center;
-                            }
-                            
-                            .order-info {
-                                background: #2a2a2a;
-                                border-radius: 8px;
-                                padding: 20px;
-                                margin: 24px 0;
-                            }
-                            
-                            .info-grid {
-                                display: grid;
-                                grid-template-columns: 1fr 1fr;
-                                gap: 16px;
-                                margin-top: 16px;
-                            }
-                            
-                            .info-item {
-                                display: flex;
-                                flex-direction: column;
-                            }
-                            
-                            .info-label {
-                                color: #a1a1aa;
-                                font-size: 12px;
-                                font-weight: 500;
-                                text-transform: uppercase;
-                                letter-spacing: 0.5px;
-                                margin-bottom: 4px;
-                            }
-                            
-                            .info-value {
-                                color: #ffffff;
-                                font-size: 14px;
-                                font-weight: 600;
-                                margin-left: 6px;
-                            }
-                            
-                            .books-section {
-                                margin: 24px 0;
-                            }
-                            
-                            .books-title {
-                                font-size: 18px;
-                                font-weight: 600;
-                                color: #ffffff;
-                                margin-bottom: 16px;
-                            }
-                            
-                            .book-item {
-                                background: #2a2a2a;
-                                border-radius: 6px;
-                                padding: 12px;
-                                margin-bottom: 8px;
-                                color: #d4d4d8;
-                                font-size: 14px;
-                            }
-                            
-                            .cta-button {
-                                display: inline-block;
-                                background: #22c55e;
-                                color: #000000;
-                                text-decoration: none;
-                                padding: 12px 24px;
-                                border-radius: 8px;
-                                font-weight: 600;
-                                font-size: 14px;
-                                text-align: center;
-                                margin: 24px 0;
-                                transition: all 0.2s ease;
-                            }
-                            
-                            .cta-button:hover {
-                                background: #16a34a;
-                                transform: translateY(-1px);
-                            }
-                            
-                            .footer {
-                                text-align: center;
-                                margin-top: 40px;
-                                padding-top: 24px;
-                                border-top: 1px solid #2a2a2a;
-                            }
-                            
-                            .footer-text {
-                                color: #71717a;
-                                font-size: 12px;
-                                line-height: 1.5;
-                            }
-                            
-                            .badge {
-                                display: inline-block;
-                                background: #22c55e;
-                                color: #000000;
-                                padding: 4px 8px;
-                                border-radius: 4px;
-                                font-size: 11px;
-                                font-weight: 600;
-                                text-transform: uppercase;
-                                letter-spacing: 0.5px;
-                            }
-                            
-                            @media (max-width: 600px) {
-                                .container {
-                                    padding: 20px 16px;
-                                }
-                                
-                                .card {
-                                    padding: 24px;
-                                }
-                                
-                                .info-grid {
-                                    grid-template-columns: 1fr;
-                                }
-                                
-                                .success-title {
-                                    font-size: 24px;
-                                }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <div class="header">
-                                <div class="logo">EbookSIM</div>
-                                <div class="subtitle">Sua biblioteca digital</div>
-                            </div>
-                            
-                            <div class="card">
-                                <h1 class="success-title">🎉 Compra Confirmada!</h1>
-                                <p class="success-text">
-                                    Olá <strong>${userName}</strong>, sua compra foi realizada com sucesso! 
-                                    Os livros já estão disponíveis na sua biblioteca.
-                                </p>
-                                
-                                <div class="order-info">
-                                    <div class="badge">Pedido Confirmado</div>
-                                    <div class="info-grid">
-                                        <div class="info-item">
-                                            <span class="info-label">Número do Pedido</span>
-                                            <span class="info-value">${orderNumber}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Data da Compra</span>
-                                            <span class="info-value">${purchaseDate}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Total Pago</span>
-                                            <span class="info-value">${totalAmount}</span>
-                                        </div>
-                                        <div class="info-item">
-                                            <span class="info-label">Status</span>
-                                            <span class="info-value">Pago</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="books-section">
-                                    <h3 class="books-title">📚 Livros Adquiridos:</h3>
-                                    ${order.orderItems.map(item => `
-                                        <div class="book-item">
-                                            <strong>${item.book.title}</strong><br>
-                                            <small>Autor: ${item.book.author}</small><br>
-                                            <small>Quantidade: ${item.quantity}</small>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                                
-                                <a href="${process.env.FRONTEND_URL || 'https://ebooksim.com'}/library" class="cta-button">
-                                    📚 Acessar Minha Biblioteca
-                                </a>
-                                
-                                <p style="text-align: center; color: #a1a1aa; font-size: 14px; margin-top: 24px;">
-                                    Os livros já estão disponíveis para download na sua conta. 
-                                    Acesse sua biblioteca para começar a ler!
-                                </p>
-                            </div>
-                            
-                            <div class="footer">
-                                <p class="footer-text">
-                                    Este é um email automático. Se você tiver alguma dúvida, 
-                                    entre em contato conosco através do suporte.
-                                </p>
-                                <p class="footer-text">
-                                    Data e hora do envio: ${new Date().toLocaleString('pt-BR')}
-                                </p>
-                            </div>
-                        </div>
-                    </body>
-                    </html>
-                `
+                subject: `Parabéns pela sua compra — ${firstBookTitle}`,
+                html: `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compra Confirmada</title>
+</head>
+<body style="margin:0;padding:0;background:#0d0d0d;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0d0d;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td align="center" style="padding-bottom:32px;">
+              <div style="display:inline-block;background:linear-gradient(135deg,#10b981,#0891b2);padding:10px 24px;border-radius:10px;">
+                <span style="color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.3px;">EbookSIM</span>
+              </div>
+              <p style="color:#52525b;font-size:13px;margin:8px 0 0;">Sua biblioteca digital</p>
+            </td>
+          </tr>
+
+          <!-- Hero card -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#064e3b,#0e7490);border-radius:16px 16px 0 0;padding:40px 40px 32px;text-align:center;">
+              <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎉</div>
+              <h1 style="margin:0 0 12px;font-size:26px;font-weight:700;color:#ffffff;">Parabéns, ${userName}!</h1>
+              <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6;">Sua compra foi confirmada com sucesso.<br>O conteúdo já está disponível na sua biblioteca.</p>
+            </td>
+          </tr>
+
+          <!-- Book highlight -->
+          <tr>
+            <td style="background:#18181b;padding:28px 40px 0;">
+              <p style="margin:0 0 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Você adquiriu</p>
+              ${order.orderItems.map(item => `
+              <div style="background:#27272a;border:1px solid #3f3f46;border-radius:10px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;">
+                <div style="width:40px;height:40px;background:linear-gradient(135deg,#10b981,#0891b2);border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">📖</div>
+                <div style="margin-left:16px;">
+                  <p style="margin:0;font-size:15px;font-weight:600;color:#f4f4f5;">${item.book.title}</p>
+                  <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${item.book.author}</p>
+                </div>
+              </div>`).join('')}
+            </td>
+          </tr>
+
+          <!-- Order details -->
+          <tr>
+            <td style="background:#18181b;padding:24px 40px 0;">
+              <p style="margin:0 0 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Detalhes do pedido</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#27272a;border:1px solid #3f3f46;border-radius:10px;overflow:hidden;">
+                <tr>
+                  <td style="padding:14px 20px;border-bottom:1px solid #3f3f46;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#a1a1aa;font-size:13px;">Número do Pedido</td>
+                        <td align="right" style="color:#f4f4f5;font-size:13px;font-weight:600;font-family:monospace;">${orderNumber}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 20px;border-bottom:1px solid #3f3f46;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#a1a1aa;font-size:13px;">Data da Compra</td>
+                        <td align="right" style="color:#f4f4f5;font-size:13px;font-weight:600;">${purchaseDate}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="color:#a1a1aa;font-size:13px;">Valor Pago</td>
+                        <td align="right" style="color:#10b981;font-size:15px;font-weight:700;">${totalAmount}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- CTA -->
+          <tr>
+            <td style="background:#18181b;padding:28px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center">
+                    <a href="${appUrl}/books" style="display:inline-block;background:linear-gradient(135deg,#10b981,#0891b2);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;">
+                      Acessar Minha Biblioteca →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#18181b;border-radius:0 0 16px 16px;border-top:1px solid #27272a;padding:24px 40px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#52525b;line-height:1.6;">
+                Este é um email automático — por favor, não responda.<br>
+                EbookSIM · Sua biblioteca digital
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
             });
 
             console.log(`✅ Email de confirmação de compra enviado com sucesso para ${userEmail} - Pedido: ${orderNumber}`);

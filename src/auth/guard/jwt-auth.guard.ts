@@ -18,9 +18,14 @@ interface AuthenticatedRequest extends Request {
 
 function isCpfBypassRoute(request: any): boolean {
   const path = String(request?.originalUrl || request?.url || '');
+  const normalizedPath = path.toLowerCase();
   return (
-    path.startsWith('/users/my-profile') ||
-    path.startsWith('/auth/logout')
+    normalizedPath.includes('/users/my-profile') ||
+    normalizedPath.includes('/auth/logout') ||
+    normalizedPath.includes('/checkout') ||
+    normalizedPath.includes('/favorites') ||
+    normalizedPath.includes('/books/purchased') ||
+    normalizedPath.includes('/purchase-status')
   );
 }
 

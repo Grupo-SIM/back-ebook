@@ -28,6 +28,7 @@ import { GenericService } from './generic.service';
 import { RedisService } from './redis.service';
 import { JwtStrategy } from './auth/guard/jwt.strategy';
 import { CommonModule } from './common/common.module';
+import { PaymentsController } from './payments/payments.controller';
 
 dotenv.config();
 
@@ -57,7 +58,8 @@ dotenv.config();
     AdminController,
     UserController,
     WebhookController,
-    ImageControllerUser
+    ImageControllerUser,
+    PaymentsController,
   ],
   providers: [
     {
