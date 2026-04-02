@@ -852,7 +852,7 @@ export class WebhookController {
         let existingOrder = await prisma.order.findUnique({
           where: { orderNumber: normalizedOrderNumber },
           include: {
-            orderItems: { include: { book: { include: { createdBy: { select: { cpf: true } } } } } },
+            orderItems: { include: { book: { include: { createdBy: { select: { cpf: true, name: true } } } } } },
             user: true
           }
         });
@@ -882,18 +882,20 @@ export class WebhookController {
 
           await this.updateBooksSalesCount(existingOrder.orderItems);
 
-          // Extrair CPF do dono do livro para a api-machine criar a transaction corretamente
+          // Extrair CPF e nome do dono do livro para a api-machine criar a transaction corretamente
           const ownerCpfFromNotes = String(existingOrder.notes ?? '').match(/\[CPF_DONO:(\d{11})\]/i)?.[1] ?? null;
           const ownerCpfFromBook = existingOrder.orderItems[0]?.book?.createdBy?.cpf
             ? String(existingOrder.orderItems[0].book.createdBy.cpf).replace(/\D/g, '')
             : null;
           const ownerCpf = ownerCpfFromNotes || (ownerCpfFromBook?.length === 11 ? ownerCpfFromBook : null);
+          const ownerName = existingOrder.orderItems[0]?.book?.createdBy?.name?.trim() || null;
 
           return {
             ok: true,
             message: `Pedido ${existingOrder.orderNumber} atualizado com sucesso`,
             orderNumber: existingOrder.orderNumber,
             ownerCpf,
+            ownerName,
             strategy: 'exact_orderNumber'
           };
         }
