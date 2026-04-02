@@ -38,6 +38,7 @@ export class CheckoutService {
         ownerCpf: string | null,
         paymentMethod?: string,
         buyer?: { name?: string; email?: string; cpf?: string },
+        ownerName?: string | null,
     ): Promise<void> {
         const apiMachineUrl = process.env.API_MACHINE_URL;
         const token = process.env.API_MACHINE_INTERNAL_TOKEN;
@@ -50,6 +51,7 @@ export class CheckoutService {
                     orderNumber,
                     amount,
                     ownerCpf: ownerCpf ?? undefined,
+                    ownerName: ownerName ?? undefined,
                     paymentMethod,
                     buyerName: buyer?.name ?? undefined,
                     buyerEmail: buyer?.email ?? undefined,
@@ -558,6 +560,7 @@ export class CheckoutService {
         const ownerCpfCart = cartItems[0]?.book?.createdBy?.cpf
             ? String(cartItems[0].book.createdBy.cpf).replace(/\D/g, '')
             : null;
+        const ownerNameCart = cartItems[0]?.book?.createdBy?.name ?? null;
         const buyerCart = await this.prisma.user.findUnique({
             where: { id: userId },
             select: { name: true, email: true, cpf: true },
@@ -566,7 +569,7 @@ export class CheckoutService {
             name: buyerCart?.name ?? undefined,
             email: buyerCart?.email ?? undefined,
             cpf: buyerCart?.cpf ?? undefined,
-        });
+        }, ownerNameCart);
         // Buscar pedido completo
         const orderWithItems = await this.prisma.order.findUnique({
             where: { id: order.id },
@@ -655,6 +658,7 @@ export class CheckoutService {
         const ownerCpfBook = book.createdBy?.cpf
             ? String(book.createdBy.cpf).replace(/\D/g, '')
             : null;
+        const ownerNameBook = book.createdBy?.name ?? null;
         const buyerBook = await this.prisma.user.findUnique({
             where: { id: userId },
             select: { name: true, email: true, cpf: true },
@@ -663,7 +667,7 @@ export class CheckoutService {
             name: buyerBook?.name ?? undefined,
             email: buyerBook?.email ?? undefined,
             cpf: buyerBook?.cpf ?? undefined,
-        });
+        }, ownerNameBook);
         // Buscar pedido completo
         const orderWithItems = await this.prisma.order.findUnique({
             where: { id: order.id },
