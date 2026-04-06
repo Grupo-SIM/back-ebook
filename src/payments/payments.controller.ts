@@ -263,7 +263,9 @@ export class PaymentsController {
           fee: 0,
           dom_fee: 0,
           payment_method: (order.paymentMethod || 'pix').toString().toLowerCase(),
-          amountWithoutAllFee: Number((Number(order.totalAmount ?? 0) * 0.91).toFixed(2)),
+          amountWithoutAllFee: order.netAmount != null
+            ? Number(order.netAmount)
+            : Number((Number(order.totalAmount ?? 0) * 0.91).toFixed(2)), // Transações antigas sem netAmount ficam com o padrão histórico de 91%
           walletId: null,
           createdAt: order.createdAt,
           paymentId: `ORDER:${order.orderNumber}`,

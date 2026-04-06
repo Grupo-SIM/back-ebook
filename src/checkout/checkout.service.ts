@@ -95,6 +95,38 @@ export class CheckoutService {
         return Number.isNaN(d.getTime()) ? null : d;
     }
 
+    private _ebookLiquidez: number | null = null;
+    private _ebookLiquidezFetchedAt = 0;
+
+    private async getEbookLiquidez(): Promise<number> {
+        const now = Date.now();
+        if (this._ebookLiquidez !== null && now - this._ebookLiquidezFetchedAt < 30 * 1000) {
+            return this._ebookLiquidez;
+        }
+        try {
+            const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
+            const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
+            if (base && token) {
+                const res = await fetch(`${base.replace(/\/+$/, '')}/internal/ebook/finance/config`, {
+                    headers: { 'x-internal-token': token },
+                });
+                if (res.ok) {
+                    const body = await res.json() as { liquidez?: number };
+                    const v = body?.liquidez;
+                    if (typeof v === 'number' && Number.isFinite(v)) {
+                        this._ebookLiquidez = v;
+                        this._ebookLiquidezFetchedAt = now;
+                        return v;
+                    }
+                }
+            }
+        } catch { /* fallback abaixo */ }
+        const fallback = parseFloat(process.env.EBOOKSIM_LIQUIDEZ ?? '0.91');
+        this._ebookLiquidez = fallback;
+        this._ebookLiquidezFetchedAt = now;
+        return fallback;
+    }
+
     private async tryReconcileEbookOrderPaid(order: any): Promise<void> {
         if (!order || order.store !== 'ebook') return;
         if (order.status === 'paid' || order.paymentStatus === 'paid') return;
@@ -179,6 +211,7 @@ export class CheckoutService {
         adminToken?: string | null;
         orderId?: string | number | null;
         orderNumber?: string | null;
+        maxInstallments?: number | null;
     }): string {
         const normalizedValue = this.normalizeCheckoutValue(params.value);
         if (!normalizedValue) {
@@ -196,6 +229,9 @@ export class CheckoutService {
         if (params.adminToken) {
             checkoutUrl += `&adminToken=${encodeURIComponent(params.adminToken)}`;
         }
+        if (params.maxInstallments && params.maxInstallments > 1) {
+            checkoutUrl += `&maxInstallments=${params.maxInstallments}`;
+        }
         return checkoutUrl;
     }
 
@@ -206,6 +242,7 @@ export class CheckoutService {
         adminToken?: string | null;
         orderId?: string | number | null;
         orderNumber?: string | null;
+        maxInstallments?: number | null;
     }): Promise<string> {
         const normalizedValue = this.normalizeCheckoutValue(params.value);
         if (!normalizedValue) {
@@ -517,6 +554,9 @@ export class CheckoutService {
         const discount = 0; // Pode ser implementado com cupons
         // Gerar número do pedido
         const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+        // Gravar netAmount no momento da criação para não recalcular depois
+        const liquidez = await this.getEbookLiquidez();
+        const netAmount = parseFloat((totalAmount * liquidez).toFixed(2));
         // Criar pedido
         const internalOrderTag = this.buildInternalOrderTag(cartItems[0]?.book.createdBy?.cpf);
         const order = await this.prisma.order.create({
@@ -525,6 +565,7 @@ export class CheckoutService {
                 orderNumber,
                 status: 'pending' as OrderStatus,
                 totalAmount,
+                netAmount,
                 subtotal,
                 discount,
                 paymentStatus: 'pending' as PaymentStatus,
@@ -594,6 +635,7 @@ export class CheckoutService {
 
         // Gerar link de checkout com o token do admin se disponível
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
+        const maxInstallmentsCart = Math.max(...cartItems.map(item => (item.book as any).maxInstallments || 1));
 
         const checkoutUrl = await this.buildCheckoutUrl({
             value,
@@ -603,6 +645,7 @@ export class CheckoutService {
             adminToken,
             orderId: orderResponse.id,
             orderNumber: orderResponse.orderNumber,
+            maxInstallments: maxInstallmentsCart > 1 ? maxInstallmentsCart : null,
         });
 
         return {
@@ -629,6 +672,11 @@ export class CheckoutService {
         }
         const discount = 0;
         const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+        
+        // Gravar netAmount no momento da criação para não recalcular depois
+        const liquidez = await this.getEbookLiquidez();
+        const netAmount = parseFloat((totalAmount * liquidez).toFixed(2));
+
         // Criar pedido
         const internalOrderTag = this.buildInternalOrderTag(book.createdBy?.cpf);
         const order = await this.prisma.order.create({
@@ -637,6 +685,7 @@ export class CheckoutService {
                 orderNumber,
                 status: 'pending',
                 totalAmount,
+                netAmount,
                 subtotal,
                 discount,
                 paymentStatus: 'pending',
@@ -693,6 +742,7 @@ export class CheckoutService {
 
         // Gerar link de checkout com o token do admin se disponível
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
+        const maxInstallmentsBook = (book as any).maxInstallments || 1;
 
         const checkoutUrl = await this.buildCheckoutUrl({
             value,
@@ -702,6 +752,7 @@ export class CheckoutService {
             adminToken,
             orderId: orderResponse.id,
             orderNumber: orderResponse.orderNumber,
+            maxInstallments: maxInstallmentsBook > 1 ? maxInstallmentsBook : null,
         });
 
         return {
@@ -765,6 +816,7 @@ export class CheckoutService {
 
                     // Gerar checkoutUrl baseado no primeiro item do pedido
                     const value = Math.round(orderResponse.totalAmount * 100);
+                    const maxInstallmentsOrder = Math.max(...order.orderItems.map(i => (i.book as any).maxInstallments || 1));
 
                     const checkoutUrl = await this.buildCheckoutUrl({
                         value,
@@ -774,6 +826,7 @@ export class CheckoutService {
                         adminToken,
                         orderId: orderResponse.id,
                         orderNumber: orderResponse.orderNumber,
+                        maxInstallments: maxInstallmentsOrder > 1 ? maxInstallmentsOrder : null,
                     });
 
                     return { ...orderResponse, checkoutUrl };
@@ -862,6 +915,8 @@ export class CheckoutService {
             }
         }
 
+        const maxInstallmentsSingle = Math.max(...order.orderItems.map(i => (i.book as any).maxInstallments || 1));
+
         const checkoutUrl = await this.buildCheckoutUrl({
             value,
             // Para webhook externo, usar orderNumber como identificador canônico do pedido.
@@ -870,6 +925,7 @@ export class CheckoutService {
             orderNumber: orderResponse.orderNumber,
             store: 'ebook',
             adminToken,
+            maxInstallments: maxInstallmentsSingle > 1 ? maxInstallmentsSingle : null,
         });
 
         return { ...orderResponse, checkoutUrl };

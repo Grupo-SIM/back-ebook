@@ -191,6 +191,14 @@ export class CreateBookDto {
     @IsString()
     readingAge: string;
 
+    @ApiProperty({ example: 1, description: 'Número máximo de parcelas (1 = à vista)', default: 1, required: false })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    @Min(1)
+    @Max(12)
+    maxInstallments?: number = 1;
+
     @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)', default: true })
     @IsOptional()
     isActive?: boolean = true;
@@ -296,6 +304,14 @@ export class UpdateBookDto {
     @IsString()
     readingAge?: string;
 
+    @ApiProperty({ example: 1, description: 'Número máximo de parcelas (1 = à vista)', required: false })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    @Min(1)
+    @Max(12)
+    maxInstallments?: number;
+
     @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)', required: false })
     @IsOptional()
     @Type(() => Boolean) // ✅ CORRIGIDO: Adicionado para converter 'true'/'false' (strings) para booleano
@@ -389,6 +405,9 @@ export class BookResponseDto {
 
     @ApiProperty({ example: '12-16', required: false })
     readingAge?: string;
+
+    @ApiProperty({ example: 1, description: 'Número máximo de parcelas', required: false })
+    maxInstallments?: number;
 
     @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)' })
     isActive: boolean;

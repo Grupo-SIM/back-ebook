@@ -7022,6 +7022,7 @@ export namespace Prisma {
     rating: number | null
     reviewCount: number | null
     sales: number | null
+    maxInstallments: number | null
     downloadCount: number | null
     categoryId: number | null
   }
@@ -7034,6 +7035,7 @@ export namespace Prisma {
     rating: number | null
     reviewCount: number | null
     sales: number | null
+    maxInstallments: number | null
     downloadCount: number | null
     categoryId: number | null
   }
@@ -7058,6 +7060,7 @@ export namespace Prisma {
     isActive: boolean | null
     isFeatured: boolean | null
     isFree: boolean | null
+    maxInstallments: number | null
     fileSize: string | null
     downloadUrl: string | null
     downloadCount: number | null
@@ -7088,6 +7091,7 @@ export namespace Prisma {
     isActive: boolean | null
     isFeatured: boolean | null
     isFree: boolean | null
+    maxInstallments: number | null
     fileSize: string | null
     downloadUrl: string | null
     downloadCount: number | null
@@ -7118,6 +7122,7 @@ export namespace Prisma {
     isActive: number
     isFeatured: number
     isFree: number
+    maxInstallments: number
     fileSize: number
     downloadUrl: number
     downloadCount: number
@@ -7138,6 +7143,7 @@ export namespace Prisma {
     rating?: true
     reviewCount?: true
     sales?: true
+    maxInstallments?: true
     downloadCount?: true
     categoryId?: true
   }
@@ -7150,6 +7156,7 @@ export namespace Prisma {
     rating?: true
     reviewCount?: true
     sales?: true
+    maxInstallments?: true
     downloadCount?: true
     categoryId?: true
   }
@@ -7174,6 +7181,7 @@ export namespace Prisma {
     isActive?: true
     isFeatured?: true
     isFree?: true
+    maxInstallments?: true
     fileSize?: true
     downloadUrl?: true
     downloadCount?: true
@@ -7204,6 +7212,7 @@ export namespace Prisma {
     isActive?: true
     isFeatured?: true
     isFree?: true
+    maxInstallments?: true
     fileSize?: true
     downloadUrl?: true
     downloadCount?: true
@@ -7234,6 +7243,7 @@ export namespace Prisma {
     isActive?: true
     isFeatured?: true
     isFree?: true
+    maxInstallments?: true
     fileSize?: true
     downloadUrl?: true
     downloadCount?: true
@@ -7351,6 +7361,7 @@ export namespace Prisma {
     isActive: boolean
     isFeatured: boolean
     isFree: boolean
+    maxInstallments: number
     fileSize: string | null
     downloadUrl: string | null
     downloadCount: number
@@ -7400,6 +7411,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: boolean
     fileSize?: boolean
     downloadUrl?: boolean
     downloadCount?: boolean
@@ -7438,6 +7450,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: boolean
     fileSize?: boolean
     downloadUrl?: boolean
     downloadCount?: boolean
@@ -7471,6 +7484,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: boolean
     fileSize?: boolean
     downloadUrl?: boolean
     downloadCount?: boolean
@@ -7504,6 +7518,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: boolean
     fileSize?: boolean
     downloadUrl?: boolean
     downloadCount?: boolean
@@ -7514,7 +7529,7 @@ export namespace Prisma {
     categoryId?: boolean
   }
 
-  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "author" | "description" | "price" | "originalPrice" | "category" | "cover" | "coverImageId" | "language" | "printLength" | "publisher" | "publishedDate" | "rating" | "reviewCount" | "sales" | "isActive" | "isFeatured" | "isFree" | "fileSize" | "downloadUrl" | "downloadCount" | "createdAt" | "updatedAt" | "readingAge" | "createdById" | "categoryId", ExtArgs["result"]["book"]>
+  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "author" | "description" | "price" | "originalPrice" | "category" | "cover" | "coverImageId" | "language" | "printLength" | "publisher" | "publishedDate" | "rating" | "reviewCount" | "sales" | "isActive" | "isFeatured" | "isFree" | "maxInstallments" | "fileSize" | "downloadUrl" | "downloadCount" | "createdAt" | "updatedAt" | "readingAge" | "createdById" | "categoryId", ExtArgs["result"]["book"]>
   export type BookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     coverImage?: boolean | Book$coverImageArgs<ExtArgs>
     createdBy?: boolean | Book$createdByArgs<ExtArgs>
@@ -7567,6 +7582,7 @@ export namespace Prisma {
       isActive: boolean
       isFeatured: boolean
       isFree: boolean
+      maxInstallments: number
       fileSize: string | null
       downloadUrl: string | null
       downloadCount: number
@@ -8024,6 +8040,7 @@ export namespace Prisma {
     readonly isActive: FieldRef<"Book", 'Boolean'>
     readonly isFeatured: FieldRef<"Book", 'Boolean'>
     readonly isFree: FieldRef<"Book", 'Boolean'>
+    readonly maxInstallments: FieldRef<"Book", 'Int'>
     readonly fileSize: FieldRef<"Book", 'String'>
     readonly downloadUrl: FieldRef<"Book", 'String'>
     readonly downloadCount: FieldRef<"Book", 'Int'>
@@ -10884,6 +10901,7 @@ export namespace Prisma {
   export type OrderAvgAggregateOutputType = {
     id: number | null
     totalAmount: number | null
+    netAmount: number | null
     subtotal: number | null
     tax: number | null
     discount: number | null
@@ -10892,6 +10910,7 @@ export namespace Prisma {
   export type OrderSumAggregateOutputType = {
     id: number | null
     totalAmount: number | null
+    netAmount: number | null
     subtotal: number | null
     tax: number | null
     discount: number | null
@@ -10903,6 +10922,7 @@ export namespace Prisma {
     orderNumber: string | null
     status: string | null
     totalAmount: number | null
+    netAmount: number | null
     subtotal: number | null
     tax: number | null
     discount: number | null
@@ -10920,6 +10940,7 @@ export namespace Prisma {
     orderNumber: string | null
     status: string | null
     totalAmount: number | null
+    netAmount: number | null
     subtotal: number | null
     tax: number | null
     discount: number | null
@@ -10937,6 +10958,7 @@ export namespace Prisma {
     orderNumber: number
     status: number
     totalAmount: number
+    netAmount: number
     subtotal: number
     tax: number
     discount: number
@@ -10955,6 +10977,7 @@ export namespace Prisma {
   export type OrderAvgAggregateInputType = {
     id?: true
     totalAmount?: true
+    netAmount?: true
     subtotal?: true
     tax?: true
     discount?: true
@@ -10963,6 +10986,7 @@ export namespace Prisma {
   export type OrderSumAggregateInputType = {
     id?: true
     totalAmount?: true
+    netAmount?: true
     subtotal?: true
     tax?: true
     discount?: true
@@ -10974,6 +10998,7 @@ export namespace Prisma {
     orderNumber?: true
     status?: true
     totalAmount?: true
+    netAmount?: true
     subtotal?: true
     tax?: true
     discount?: true
@@ -10991,6 +11016,7 @@ export namespace Prisma {
     orderNumber?: true
     status?: true
     totalAmount?: true
+    netAmount?: true
     subtotal?: true
     tax?: true
     discount?: true
@@ -11008,6 +11034,7 @@ export namespace Prisma {
     orderNumber?: true
     status?: true
     totalAmount?: true
+    netAmount?: true
     subtotal?: true
     tax?: true
     discount?: true
@@ -11114,6 +11141,7 @@ export namespace Prisma {
     orderNumber: string
     status: string
     totalAmount: number
+    netAmount: number | null
     subtotal: number
     tax: number
     discount: number
@@ -11152,6 +11180,7 @@ export namespace Prisma {
     orderNumber?: boolean
     status?: boolean
     totalAmount?: boolean
+    netAmount?: boolean
     subtotal?: boolean
     tax?: boolean
     discount?: boolean
@@ -11174,6 +11203,7 @@ export namespace Prisma {
     orderNumber?: boolean
     status?: boolean
     totalAmount?: boolean
+    netAmount?: boolean
     subtotal?: boolean
     tax?: boolean
     discount?: boolean
@@ -11194,6 +11224,7 @@ export namespace Prisma {
     orderNumber?: boolean
     status?: boolean
     totalAmount?: boolean
+    netAmount?: boolean
     subtotal?: boolean
     tax?: boolean
     discount?: boolean
@@ -11214,6 +11245,7 @@ export namespace Prisma {
     orderNumber?: boolean
     status?: boolean
     totalAmount?: boolean
+    netAmount?: boolean
     subtotal?: boolean
     tax?: boolean
     discount?: boolean
@@ -11227,7 +11259,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "orderNumber" | "status" | "totalAmount" | "subtotal" | "tax" | "discount" | "paymentMethod" | "paymentStatus" | "store" | "shippingAddress" | "billingAddress" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "orderNumber" | "status" | "totalAmount" | "netAmount" | "subtotal" | "tax" | "discount" | "paymentMethod" | "paymentStatus" | "store" | "shippingAddress" | "billingAddress" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     orderItems?: boolean | Order$orderItemsArgs<ExtArgs>
@@ -11252,6 +11284,7 @@ export namespace Prisma {
       orderNumber: string
       status: string
       totalAmount: number
+      netAmount: number | null
       subtotal: number
       tax: number
       discount: number
@@ -11693,6 +11726,7 @@ export namespace Prisma {
     readonly orderNumber: FieldRef<"Order", 'String'>
     readonly status: FieldRef<"Order", 'String'>
     readonly totalAmount: FieldRef<"Order", 'Float'>
+    readonly netAmount: FieldRef<"Order", 'Float'>
     readonly subtotal: FieldRef<"Order", 'Float'>
     readonly tax: FieldRef<"Order", 'Float'>
     readonly discount: FieldRef<"Order", 'Float'>
@@ -17770,6 +17804,7 @@ export namespace Prisma {
     isActive: 'isActive',
     isFeatured: 'isFeatured',
     isFree: 'isFree',
+    maxInstallments: 'maxInstallments',
     fileSize: 'fileSize',
     downloadUrl: 'downloadUrl',
     downloadCount: 'downloadCount',
@@ -17814,6 +17849,7 @@ export namespace Prisma {
     orderNumber: 'orderNumber',
     status: 'status',
     totalAmount: 'totalAmount',
+    netAmount: 'netAmount',
     subtotal: 'subtotal',
     tax: 'tax',
     discount: 'discount',
@@ -18362,6 +18398,7 @@ export namespace Prisma {
     isActive?: BoolFilter<"Book"> | boolean
     isFeatured?: BoolFilter<"Book"> | boolean
     isFree?: BoolFilter<"Book"> | boolean
+    maxInstallments?: IntFilter<"Book"> | number
     fileSize?: StringNullableFilter<"Book"> | string | null
     downloadUrl?: StringNullableFilter<"Book"> | string | null
     downloadCount?: IntFilter<"Book"> | number
@@ -18399,6 +18436,7 @@ export namespace Prisma {
     isActive?: SortOrder
     isFeatured?: SortOrder
     isFree?: SortOrder
+    maxInstallments?: SortOrder
     fileSize?: SortOrderInput | SortOrder
     downloadUrl?: SortOrderInput | SortOrder
     downloadCount?: SortOrder
@@ -18439,6 +18477,7 @@ export namespace Prisma {
     isActive?: BoolFilter<"Book"> | boolean
     isFeatured?: BoolFilter<"Book"> | boolean
     isFree?: BoolFilter<"Book"> | boolean
+    maxInstallments?: IntFilter<"Book"> | number
     fileSize?: StringNullableFilter<"Book"> | string | null
     downloadUrl?: StringNullableFilter<"Book"> | string | null
     downloadCount?: IntFilter<"Book"> | number
@@ -18476,6 +18515,7 @@ export namespace Prisma {
     isActive?: SortOrder
     isFeatured?: SortOrder
     isFree?: SortOrder
+    maxInstallments?: SortOrder
     fileSize?: SortOrderInput | SortOrder
     downloadUrl?: SortOrderInput | SortOrder
     downloadCount?: SortOrder
@@ -18514,6 +18554,7 @@ export namespace Prisma {
     isActive?: BoolWithAggregatesFilter<"Book"> | boolean
     isFeatured?: BoolWithAggregatesFilter<"Book"> | boolean
     isFree?: BoolWithAggregatesFilter<"Book"> | boolean
+    maxInstallments?: IntWithAggregatesFilter<"Book"> | number
     fileSize?: StringNullableWithAggregatesFilter<"Book"> | string | null
     downloadUrl?: StringNullableWithAggregatesFilter<"Book"> | string | null
     downloadCount?: IntWithAggregatesFilter<"Book"> | number
@@ -18670,6 +18711,7 @@ export namespace Prisma {
     orderNumber?: StringFilter<"Order"> | string
     status?: StringFilter<"Order"> | string
     totalAmount?: FloatFilter<"Order"> | number
+    netAmount?: FloatNullableFilter<"Order"> | number | null
     subtotal?: FloatFilter<"Order"> | number
     tax?: FloatFilter<"Order"> | number
     discount?: FloatFilter<"Order"> | number
@@ -18691,6 +18733,7 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     totalAmount?: SortOrder
+    netAmount?: SortOrderInput | SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -18715,6 +18758,7 @@ export namespace Prisma {
     userId?: StringFilter<"Order"> | string
     status?: StringFilter<"Order"> | string
     totalAmount?: FloatFilter<"Order"> | number
+    netAmount?: FloatNullableFilter<"Order"> | number | null
     subtotal?: FloatFilter<"Order"> | number
     tax?: FloatFilter<"Order"> | number
     discount?: FloatFilter<"Order"> | number
@@ -18736,6 +18780,7 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     totalAmount?: SortOrder
+    netAmount?: SortOrderInput | SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -18763,6 +18808,7 @@ export namespace Prisma {
     orderNumber?: StringWithAggregatesFilter<"Order"> | string
     status?: StringWithAggregatesFilter<"Order"> | string
     totalAmount?: FloatWithAggregatesFilter<"Order"> | number
+    netAmount?: FloatNullableWithAggregatesFilter<"Order"> | number | null
     subtotal?: FloatWithAggregatesFilter<"Order"> | number
     tax?: FloatWithAggregatesFilter<"Order"> | number
     discount?: FloatWithAggregatesFilter<"Order"> | number
@@ -19474,6 +19520,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -19509,6 +19556,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -19541,6 +19589,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -19576,6 +19625,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -19610,6 +19660,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -19638,6 +19689,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -19666,6 +19718,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -19803,6 +19856,7 @@ export namespace Prisma {
     orderNumber: string
     status?: string
     totalAmount: number
+    netAmount?: number | null
     subtotal: number
     tax?: number
     discount?: number
@@ -19824,6 +19878,7 @@ export namespace Prisma {
     orderNumber: string
     status?: string
     totalAmount: number
+    netAmount?: number | null
     subtotal: number
     tax?: number
     discount?: number
@@ -19842,6 +19897,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -19863,6 +19919,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -19883,6 +19940,7 @@ export namespace Prisma {
     orderNumber: string
     status?: string
     totalAmount: number
+    netAmount?: number | null
     subtotal: number
     tax?: number
     discount?: number
@@ -19900,6 +19958,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -19919,6 +19978,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -20767,6 +20827,7 @@ export namespace Prisma {
     isActive?: SortOrder
     isFeatured?: SortOrder
     isFree?: SortOrder
+    maxInstallments?: SortOrder
     fileSize?: SortOrder
     downloadUrl?: SortOrder
     downloadCount?: SortOrder
@@ -20785,6 +20846,7 @@ export namespace Prisma {
     rating?: SortOrder
     reviewCount?: SortOrder
     sales?: SortOrder
+    maxInstallments?: SortOrder
     downloadCount?: SortOrder
     categoryId?: SortOrder
   }
@@ -20809,6 +20871,7 @@ export namespace Prisma {
     isActive?: SortOrder
     isFeatured?: SortOrder
     isFree?: SortOrder
+    maxInstallments?: SortOrder
     fileSize?: SortOrder
     downloadUrl?: SortOrder
     downloadCount?: SortOrder
@@ -20839,6 +20902,7 @@ export namespace Prisma {
     isActive?: SortOrder
     isFeatured?: SortOrder
     isFree?: SortOrder
+    maxInstallments?: SortOrder
     fileSize?: SortOrder
     downloadUrl?: SortOrder
     downloadCount?: SortOrder
@@ -20857,6 +20921,7 @@ export namespace Prisma {
     rating?: SortOrder
     reviewCount?: SortOrder
     sales?: SortOrder
+    maxInstallments?: SortOrder
     downloadCount?: SortOrder
     categoryId?: SortOrder
   }
@@ -21032,6 +21097,7 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     totalAmount?: SortOrder
+    netAmount?: SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -21048,6 +21114,7 @@ export namespace Prisma {
   export type OrderAvgOrderByAggregateInput = {
     id?: SortOrder
     totalAmount?: SortOrder
+    netAmount?: SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -21059,6 +21126,7 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     totalAmount?: SortOrder
+    netAmount?: SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -21076,6 +21144,7 @@ export namespace Prisma {
     orderNumber?: SortOrder
     status?: SortOrder
     totalAmount?: SortOrder
+    netAmount?: SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -21090,6 +21159,7 @@ export namespace Prisma {
   export type OrderSumOrderByAggregateInput = {
     id?: SortOrder
     totalAmount?: SortOrder
+    netAmount?: SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -22906,6 +22976,7 @@ export namespace Prisma {
     orderNumber: string
     status?: string
     totalAmount: number
+    netAmount?: number | null
     subtotal: number
     tax?: number
     discount?: number
@@ -22925,6 +22996,7 @@ export namespace Prisma {
     orderNumber: string
     status?: string
     totalAmount: number
+    netAmount?: number | null
     subtotal: number
     tax?: number
     discount?: number
@@ -23133,6 +23205,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -23167,6 +23240,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -23376,6 +23450,7 @@ export namespace Prisma {
     orderNumber?: StringFilter<"Order"> | string
     status?: StringFilter<"Order"> | string
     totalAmount?: FloatFilter<"Order"> | number
+    netAmount?: FloatNullableFilter<"Order"> | number | null
     subtotal?: FloatFilter<"Order"> | number
     tax?: FloatFilter<"Order"> | number
     discount?: FloatFilter<"Order"> | number
@@ -23578,6 +23653,7 @@ export namespace Prisma {
     isActive?: BoolFilter<"Book"> | boolean
     isFeatured?: BoolFilter<"Book"> | boolean
     isFree?: BoolFilter<"Book"> | boolean
+    maxInstallments?: IntFilter<"Book"> | number
     fileSize?: StringNullableFilter<"Book"> | string | null
     downloadUrl?: StringNullableFilter<"Book"> | string | null
     downloadCount?: IntFilter<"Book"> | number
@@ -23744,6 +23820,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -23777,6 +23854,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -23867,6 +23945,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -23901,6 +23980,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -24417,6 +24497,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -24451,6 +24532,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -24555,6 +24637,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -24589,6 +24672,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -24671,6 +24755,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -24705,6 +24790,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -24809,6 +24895,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -24843,6 +24930,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -25013,6 +25101,7 @@ export namespace Prisma {
     orderNumber: string
     status?: string
     totalAmount: number
+    netAmount?: number | null
     subtotal: number
     tax?: number
     discount?: number
@@ -25033,6 +25122,7 @@ export namespace Prisma {
     orderNumber: string
     status?: string
     totalAmount: number
+    netAmount?: number | null
     subtotal: number
     tax?: number
     discount?: number
@@ -25069,6 +25159,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -25103,6 +25194,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -25136,6 +25228,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -25156,6 +25249,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -25198,6 +25292,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -25232,6 +25327,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -25422,6 +25518,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -25456,6 +25553,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -25560,6 +25658,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -25594,6 +25693,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -25737,6 +25837,7 @@ export namespace Prisma {
     orderNumber: string
     status?: string
     totalAmount: number
+    netAmount?: number | null
     subtotal: number
     tax?: number
     discount?: number
@@ -25803,6 +25904,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -25893,6 +25995,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -25912,6 +26015,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -25931,6 +26035,7 @@ export namespace Prisma {
     orderNumber?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
+    netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -26080,6 +26185,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -26114,6 +26220,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -26147,6 +26254,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -26188,6 +26296,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -26335,6 +26444,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -26368,6 +26478,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -26401,6 +26512,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -26431,6 +26543,7 @@ export namespace Prisma {
     isActive?: boolean
     isFeatured?: boolean
     isFree?: boolean
+    maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
     downloadCount?: number
@@ -26458,6 +26571,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -26492,6 +26606,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
@@ -26525,6 +26640,7 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
     downloadCount?: IntFieldUpdateOperationsInput | number
