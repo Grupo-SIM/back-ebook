@@ -15,6 +15,15 @@ import { GetUser } from 'src/common/decorators/user.decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { PrismaService } from '../../prisma/prisma.service';
 import { isValidCpf, normalizeCpf } from 'src/common/utils/cpf.util';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class WithdrawRequestDto {
+  @ApiProperty({ description: 'Valor a ser sacado', example: 100.50 })
+  amount: number;
+
+  @ApiProperty({ description: 'Chave PIX para recebimento', example: '12345678909' })
+  pixKey: string;
+}
 
 @ApiTags('Payments')
 @Controller('payments')
@@ -357,10 +366,18 @@ export class PaymentsController {
   }
 
   @Post('withdraw')
+  @ApiOperation({ summary: 'Solicitar saque' })
   async withdraw(
     @GetUser() user: RequestWithUser['user'],
-    @Body() body: { amount: number; pixKey: string },
+    @Body() body: WithdrawRequestDto,
   ) {
+    if (!body.amount || isNaN(Number(body.amount)) || body.amount <= 0) {
+      throw new BadRequestException('Valor de saque inválido ou não informado.');
+    }
+    if (!body.pixKey) {
+      throw new BadRequestException('Chave PIX é obrigatória.');
+    }
+
     const cpf = await this.getCpfFromUser(user);
     const response = await fetch(`${this.getApiMachineUrl()}/internal/ebook/finance/withdraw`, {
       method: 'POST',
