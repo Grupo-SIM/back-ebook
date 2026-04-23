@@ -877,7 +877,7 @@ export class WebhookController {
           await this.checkoutService.removeOrderBooksFromCart(existingOrder.userId, existingOrder.id);
 
 
-          await this.checkoutService.sendPurchaseConfirmationEmail(existingOrder.id);
+          await this.checkoutService.sendPurchaseConfirmationEmail(existingOrder.id, data.email || undefined);
 
 
           await this.updateBooksSalesCount(existingOrder.orderItems);
@@ -939,7 +939,7 @@ export class WebhookController {
 
             await this.checkoutService.removeOrderBooksFromCart(mostRecentOrder.userId, mostRecentOrder.id);
 
-            await this.checkoutService.sendPurchaseConfirmationEmail(mostRecentOrder.id);
+            await this.checkoutService.sendPurchaseConfirmationEmail(mostRecentOrder.id, data.email || undefined);
 
             await this.updateBooksSalesCount(mostRecentOrder.orderItems);
 
@@ -1003,7 +1003,7 @@ export class WebhookController {
                   'paid'
                 );
 
-                await this.checkoutService.sendPurchaseConfirmationEmail(orderWithBook.id);
+                await this.checkoutService.sendPurchaseConfirmationEmail(orderWithBook.id, data.email || undefined);
 
                 await this.updateBooksSalesCount(orderWithBook.orderItems);
 
@@ -1072,7 +1072,7 @@ export class WebhookController {
                 'paid'
               );
 
-              await this.checkoutService.sendPurchaseConfirmationEmail(latestOrder.id);
+              await this.checkoutService.sendPurchaseConfirmationEmail(latestOrder.id, data.email || undefined);
 
               await this.updateBooksSalesCount(latestOrder.orderItems);
 

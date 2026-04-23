@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/user.decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
@@ -325,7 +325,21 @@ export class PaymentsController {
     });
 
     const machineTxs = Array.isArray(machineData?.transactions) ? machineData.transactions : [];
-    const merged = [...machineTxs, ...localPending];
+
+    // Extrai orderNumbers presentes nas transações da machine (descrição começa com o orderNumber antes de [TENANT:])
+    const machineOrderNums = new Set<string>();
+    for (const tx of machineTxs) {
+      const m = String(tx.description || '').match(/^([A-Z0-9-]+)\s*\[TENANT:/i);
+      if (m) machineOrderNums.add(m[1].trim());
+    }
+
+    // Remove locais que já existem na machine (evita duplicatas)
+    const filteredLocal = localPending.filter(tx => {
+      const ordNum = String(tx.paymentId || '').replace(/^ORDER:/, '');
+      return !machineOrderNums.has(ordNum);
+    });
+
+    const merged = [...machineTxs, ...filteredLocal];
     const uniqueByKey = new Map<string, any>();
     for (const tx of merged) {
       const key = String(tx?.paymentId || tx?.id || '');
@@ -438,6 +452,7 @@ export class PaymentsController {
       limit: 5000,
       startDate,
       endDate,
+      status: 'COMPLETED',
     });
     const txs = Array.isArray(data?.transactions) ? data.transactions : [];
 

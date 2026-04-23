@@ -1136,7 +1136,7 @@ export class CheckoutService {
     /**
      * Envia email de confirmação de compra para o usuário
      */
-    async sendPurchaseConfirmationEmail(orderId: number): Promise<void> {
+    async sendPurchaseConfirmationEmail(orderId: number, customerEmail?: string): Promise<void> {
         try {
             // Buscar o pedido com todos os dados necessários
             const order = await this.prisma.order.findUnique({
@@ -1157,7 +1157,7 @@ export class CheckoutService {
 
             // Preparar dados para o email
             const userName = order.user.name;
-            const userEmail = order.user.email;
+            const userEmail = customerEmail || order.user.email;
             const orderNumber = order.orderNumber;
             const totalAmount = new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
