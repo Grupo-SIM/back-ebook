@@ -534,6 +534,13 @@ export class WebhookService {
       this.logger.log(
         `E-mail de confirmação de pagamento enviado com sucesso para ${email}`,
       );
+
+      await this.notificationService.notifyUsersByRole(
+        'Nova Venda Realizada',
+        `${name} (${email}) comprou "${planDescription}" por ${formattedValue} em ${paymentDate}.`,
+        'ADMIN',
+        'success',
+      );
     } catch (error) {
       this.logger.error(
         `Falha ao enviar notificação de pagamento para ${email}: ${error.message}`,

@@ -16,12 +16,16 @@ import { RequestWithUser } from 'src/common/interfaces/request-with-user.interfa
 import { PrismaService } from '../../prisma/prisma.service';
 import { isValidCpf, normalizeCpf } from 'src/common/utils/cpf.util';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsString, Min } from 'class-validator';
 
 export class WithdrawRequestDto {
   @ApiProperty({ description: 'Valor a ser sacado', example: 100.50 })
+  @IsNumber()
+  @Min(0.01)
   amount: number;
 
   @ApiProperty({ description: 'Chave PIX para recebimento', example: '12345678909' })
+  @IsString()
   pixKey: string;
 }
 
