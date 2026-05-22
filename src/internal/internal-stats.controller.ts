@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, HttpCode, NotFoundException, Post, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, NotFoundException, Post, Query, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Controller('internal')
@@ -20,7 +20,7 @@ export class InternalStatsController {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const [totalContas, activeSellerBooks] = await Promise.all([
-      this.prisma.user.count({ where: { role: 'USER' } }),
+      this.prisma.user.count(),
       this.prisma.book.findMany({
         where: {
           createdById: { not: null },
@@ -37,6 +37,30 @@ export class InternalStatsController {
     const sellersAtivos = new Set(activeSellerBooks.map((b) => b.createdById)).size;
 
     return { totalContas, sellersAtivos };
+  }
+
+  @Get('users/list')
+  async listUsers(
+    @Headers('x-internal-token') token: string | undefined,
+    @Query('page') page = '1',
+    @Query('pageSize') pageSize = '20',
+  ) {
+    this.ensureInternalToken(token);
+    const pageNum = Math.max(1, Number(page));
+    const size = Math.min(Math.max(1, Number(pageSize)), 100);
+    const skip = (pageNum - 1) * size;
+
+    const [total, users] = await Promise.all([
+      this.prisma.user.count(),
+      this.prisma.user.findMany({
+        skip,
+        take: size,
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, name: true, email: true, cpf: true, createdAt: true, isActive: true },
+      }),
+    ]);
+
+    return { data: users, total, page: pageNum, pageSize: size };
   }
 
   @Post('users/deactivate')
