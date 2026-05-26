@@ -311,12 +311,16 @@ export class PaymentsController {
     const pageNum = Math.max(1, Number(page || 1));
     const limitNum = Math.min(Math.max(1, Number(limit || 10)), 200);
 
+    // Machine API uses COMPLETED for paid, not PAID
+    const normalizedStatus = String(status || '').toUpperCase();
+    const machineStatus = normalizedStatus === 'PAID' ? 'COMPLETED' : (normalizedStatus || undefined);
+
     const machineData = await this.machineGet('/internal/ebook/finance/transactions', cpf, {
       page: 1,
       limit: 5000,
       startDate,
       endDate,
-      status,
+      status: machineStatus,
       description,
     });
 
@@ -328,7 +332,12 @@ export class PaymentsController {
       endDate,
     });
 
-    const machineTxs = Array.isArray(machineData?.transactions) ? machineData.transactions : [];
+    const machineTxs = (Array.isArray(machineData?.transactions) ? machineData.transactions : [])
+      .map((tx: any) => ({
+        ...tx,
+        // Normalize COMPLETED → PAID so frontend sees consistent status
+        status: tx.status === 'COMPLETED' ? 'PAID' : tx.status,
+      }));
 
     // Extrai orderNumbers presentes nas transações da machine (descrição começa com o orderNumber antes de [TENANT:])
     const machineOrderNums = new Set<string>();
