@@ -793,7 +793,10 @@ export class BookService {
                 }
             });
         }
-        const deleted = await this.prisma.book.delete({ where: { id } });
+        const deleted = await this.prisma.$transaction(async (tx) => {
+            await tx.orderItem.deleteMany({ where: { bookId: id } });
+            return tx.book.delete({ where: { id } });
+        });
         await this.invalidateCache('all_books');
         return {
             id: deleted.id,
