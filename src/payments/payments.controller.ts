@@ -213,6 +213,10 @@ export class PaymentsController {
   }) {
     const normalizedStatus = String(params.status || '').toUpperCase();
 
+    // Local orders only ever have PAID or PENDING — all other statuses come exclusively from machine
+    const LOCAL_STATUSES = new Set(['PAID', 'COMPLETED', 'PENDING', 'ALL', '']);
+    if (!LOCAL_STATUSES.has(normalizedStatus)) return [];
+
     const where: any = {
       store: 'ebook',
       notes: {
