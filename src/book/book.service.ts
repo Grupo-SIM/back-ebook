@@ -50,6 +50,7 @@ export class BookService {
             limit: query.limit ? Number(query.limit) : 10,
             categoryId: query.categoryId ? Number(query.categoryId) : undefined,
             author: query.author,
+            search: query.search,
             minRating: query.minRating ? Number(query.minRating) : undefined,
             maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
             minPrice: query.minPrice !== undefined ? Number(query.minPrice) : 0, // Padrão 0 para incluir gratuitos
@@ -164,6 +165,7 @@ export class BookService {
             limit,
             categoryId,
             author,
+            search,
             minRating,
             maxPrice,
             minPrice,
@@ -188,6 +190,13 @@ export class BookService {
 
         if (author) {
             where.author = { contains: author, mode: 'insensitive' };
+        }
+
+        if (search) {
+            where.OR = [
+                { title: { contains: search, mode: 'insensitive' } },
+                { author: { contains: search, mode: 'insensitive' } },
+            ];
         }
 
         if (minRating !== undefined) {

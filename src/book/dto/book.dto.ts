@@ -34,6 +34,11 @@ export class BookQueryDto extends PaginationDto {
     @IsString()
     author?: string;
 
+    @ApiProperty({ example: 'senhor dos aneis', required: false, description: 'Busca por título ou autor' })
+    @IsOptional()
+    @IsString()
+    search?: string;
+
     @ApiProperty({ example: 4.0, required: false })
     @IsOptional()
     @Type(() => Number)
