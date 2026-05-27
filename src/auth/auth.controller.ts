@@ -356,20 +356,20 @@ export class AuthController {
         email: { type: 'string' },
         password: { type: 'string' },
         name: { type: 'string' },
-        cpf: { type: 'string', example: '12345678909' }
+        document: { type: 'string', example: '12345678909', description: 'CPF (11 dígitos) ou CNPJ (14 dígitos)' }
       },
-      required: ['email', 'password', 'name', 'cpf']
+      required: ['email', 'password', 'name', 'document']
     }
   })
   @Post('/create-admin-account')
-  async createAdminAccount(@Body() body: { email: string; password: string; name: string; cpf: string }) {
+  async createAdminAccount(@Body() body: { email: string; password: string; name: string; document: string }) {
     try {
       const createUserData: CreateUserInputDTO = {
         email: body.email,
         password: body.password,
         confirmPassword: body.password,
         name: body.name,
-        cpf: String(body.cpf ?? '').replace(/\D/g, ''),
+        document: String(body.document ?? '').replace(/\D/g, ''),
         role: 'ADMIN'
       };
 

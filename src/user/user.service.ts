@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { Role } from 'src/types/interfaces/role';
-import { isValidCpf, normalizeCpf } from 'src/common/utils/cpf.util';
+import { isValidCpf, isValidCnpj, normalizeCpf } from 'src/common/utils/cpf.util';
 
 @Injectable()
 export class UserService extends GenericService {
@@ -193,9 +193,12 @@ export class UserService extends GenericService {
       throw new ConflictException('Role incorrect. Must be ADMIN, USER or CUSTOMER.');
     }
 
-    const cpfClean = normalizeCpf(data.cpf);
-    if (!isValidCpf(cpfClean)) {
-      throw new ConflictException('CPF inválido. Informe um CPF válido.');
+    const docDigits = String(data.document ?? '').replace(/\D/g, '');
+    const isCnpjCreate = docDigits.length === 14;
+    if (isCnpjCreate) {
+      if (!isValidCnpj(docDigits)) throw new ConflictException('CNPJ inválido. Informe um CNPJ válido.');
+    } else {
+      if (!isValidCpf(docDigits)) throw new ConflictException('CPF inválido. Informe um CPF válido.');
     }
 
     if (data.password !== data.confirmPassword) {
@@ -210,12 +213,12 @@ export class UserService extends GenericService {
       throw new ConflictException('User with this email already exists');
     }
 
-    const existingCpf = await this.prisma.user.findFirst({
-      where: { cpf: cpfClean },
-      select: { id: true },
-    });
-    if (existingCpf) {
-      throw new ConflictException('Já existe um usuário com este CPF');
+    if (isCnpjCreate) {
+      const existingCnpj = await (this.prisma.user as any).findFirst({ where: { cnpj: docDigits }, select: { id: true } });
+      if (existingCnpj) throw new ConflictException('Já existe um usuário com este CNPJ');
+    } else {
+      const existingCpf = await this.prisma.user.findFirst({ where: { cpf: docDigits }, select: { id: true } });
+      if (existingCpf) throw new ConflictException('Já existe um usuário com este CPF');
     }
 
     const isNameUnique = await this.isUniqueName(data.name, creatorUserId);
@@ -236,11 +239,12 @@ export class UserService extends GenericService {
         throw new UnauthorizedException('CUSTOMER can only create USER role');
       }
 
-      user = await this.prisma.user.create({
+      user = await (this.prisma.user as any).create({
         data: {
           name: data.name,
           email: data.email,
-          cpf: cpfClean,
+          cpf: isCnpjCreate ? null : docDigits,
+          cnpj: isCnpjCreate ? docDigits : null,
           password: newHashedPassword,
           role: data.role,
           isActive: true,
@@ -269,7 +273,7 @@ export class UserService extends GenericService {
 
   async updateUser(
     id: string,
-    data: { name?: string; email?: string; password?: string; avatarUrl?: string; cpf?: string },
+    data: { name?: string; email?: string; password?: string; avatarUrl?: string; document?: string },
     updaterUserId?: string,
     req?: any
   ): Promise<UserResponseDto> {
@@ -323,21 +327,17 @@ export class UserService extends GenericService {
       }
     }
 
-    if (data.cpf !== undefined) {
-      const cpfDigits = normalizeCpf(data.cpf);
-      if (!isValidCpf(cpfDigits)) {
-        throw new ConflictException('CPF inválido. Informe um CPF válido.');
-      }
-
-      const existingCpf = await this.prisma.user.findFirst({
-        where: {
-          cpf: cpfDigits,
-          id: { not: id },
-        },
-        select: { id: true },
-      });
-      if (existingCpf) {
-        throw new ConflictException('Já existe um usuário com este CPF');
+    if (data.document !== undefined) {
+      const docDigits = String(data.document ?? '').replace(/\D/g, '');
+      const isCnpjDoc = docDigits.length === 14;
+      if (isCnpjDoc) {
+        if (!isValidCnpj(docDigits)) throw new ConflictException('CNPJ inválido. Informe um CNPJ válido.');
+        const existingCnpj = await (this.prisma.user as any).findFirst({ where: { cnpj: docDigits, id: { not: id } }, select: { id: true } });
+        if (existingCnpj) throw new ConflictException('Já existe um usuário com este CNPJ');
+      } else {
+        if (!isValidCpf(docDigits)) throw new ConflictException('CPF inválido. Informe um CPF válido.');
+        const existingCpf = await this.prisma.user.findFirst({ where: { cpf: docDigits, id: { not: id } }, select: { id: true } });
+        if (existingCpf) throw new ConflictException('Já existe um usuário com este CPF');
       }
     }
 
@@ -348,8 +348,15 @@ export class UserService extends GenericService {
     if (data.password && data.password.trim().length > 0) {
       updateData.password = this.generateHashPassword(data.password);
     }
-    if (data.cpf !== undefined) {
-      updateData.cpf = normalizeCpf(data.cpf);
+    if (data.document !== undefined) {
+      const docDigits = String(data.document ?? '').replace(/\D/g, '');
+      if (docDigits.length === 14) {
+        updateData.cnpj = docDigits;
+        updateData.cpf = null;
+      } else {
+        updateData.cpf = docDigits;
+        updateData.cnpj = null;
+      }
     }
     // Atualizar avatar via URL
     if (data.avatarUrl && typeof data.avatarUrl === 'string') {

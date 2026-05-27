@@ -1,11 +1,11 @@
 import {
   IsEmail,
   IsIn,
-  Matches,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
+import { IsDocument } from 'src/common/dto/is-document';
 
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/types/interfaces/role';
@@ -130,9 +130,10 @@ export class AuthOutputDTO {
     id: string;
     email: string;
     cpf?: string | null;
+    cnpj?: string | null;
     name: string | null;
     role: string;
-    roles?: string[]; // Campo opcional para múltiplas roles
+    roles?: string[];
     createdAt: Date;
     updatedAt: Date;
     isActive: boolean;
@@ -173,15 +174,15 @@ export class CreateUserInputDTO {
 
   @ApiProperty({
     nullable: false,
-    name: 'cpf',
+    name: 'document',
     type: () => String,
-    description: 'CPF do dono da conta (somente dígitos)',
+    description: 'CPF (11 dígitos) ou CNPJ (14 dígitos) do dono da conta',
     example: '12345678909',
   })
   @IsString()
   @IsNotEmpty()
-  @Matches(/^\d{11}$/, { message: 'CPF deve conter 11 dígitos' })
-  cpf: string;
+  @IsDocument()
+  document: string;
 
   @ApiProperty({ nullable: false, name: 'password', type: () => String })
   @IsString()

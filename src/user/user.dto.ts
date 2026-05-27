@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEmail, IsEnum, Matches } from 'class-validator';
+import { IsString, IsOptional, IsEmail, IsEnum } from 'class-validator';
 import { Role } from 'src/types/interfaces/role';
+import { IsDocument } from 'src/common/dto/is-document';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John Doe' })
@@ -11,10 +12,10 @@ export class CreateUserDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: '12345678909', description: 'CPF do usuário (somente dígitos)' })
+  @ApiProperty({ example: '12345678909', description: 'CPF (11 dígitos) ou CNPJ (14 dígitos)' })
   @IsString()
-  @Matches(/^\d{11}$/, { message: 'CPF deve conter 11 dígitos' })
-  cpf: string;
+  @IsDocument()
+  document: string;
 
   @ApiProperty({ example: 'securePassword123' })
   @IsString()
@@ -44,11 +45,11 @@ export class UpdateUserDto {
   @IsString()
   avatarUrl?: string;
 
-  @ApiProperty({ example: '12345678909', required: false, description: 'CPF do usuário (somente dígitos)' })
+  @ApiProperty({ example: '12345678909', required: false, description: 'CPF (11 dígitos) ou CNPJ (14 dígitos)' })
   @IsOptional()
   @IsString()
-  @Matches(/^\d{11}$/, { message: 'CPF deve conter 11 dígitos' })
-  cpf?: string;
+  @IsDocument()
+  document?: string;
 }
 
 export class UserResponseDto {

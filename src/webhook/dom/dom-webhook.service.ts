@@ -268,10 +268,10 @@ export class WebhookService {
       const result = await this.authService.createUser({
         email: normalizedEmail,
         name,
-        cpf: this.buildSyntheticCpfFromInput(normalizedEmail),
+        document: this.buildSyntheticCpfFromInput(normalizedEmail),
         password,
-        confirmPassword: password, 
-        role: isAdmin ? Role.ADMIN : Role.USER, 
+        confirmPassword: password,
+        role: isAdmin ? Role.ADMIN : Role.USER,
       });
       this.logger.log(`Usuário criado com sucesso: ${result.user.id}`);
 

@@ -18,7 +18,7 @@ import {
   UpdateRecoveryPasswordInputDTO,
 } from './dto/auth.dto';
 import { Role } from 'src/types/interfaces/role';
-import { isValidCpf, normalizeCpf } from 'src/common/utils/cpf.util';
+import { isValidCpf, isValidCnpj, normalizeCpf } from 'src/common/utils/cpf.util';
 
 @Injectable()
 export class AuthService {
@@ -103,6 +103,7 @@ export class AuthService {
       id: user.id,
       email: user.email,
       cpf: user.cpf ?? null,
+      cnpj: (user as any).cnpj ?? null,
       name: user.name,
       role: user.role.toString(),
       createdAt: user.createdAt,
@@ -596,9 +597,13 @@ export class AuthService {
   }
 
   async createUser(data: CreateUserInputDTO, creatorUserId?: string): Promise<AuthOutputDTO> {
-    const cpfClean = this.normalizeCpf(data.cpf);
-    if (!isValidCpf(cpfClean)) {
-      throw new ConflictException('CPF inválido. Informe um CPF válido.');
+    const docDigits = String(data.document ?? '').replace(/\D/g, '');
+    const isCnpj = docDigits.length === 14;
+
+    if (isCnpj) {
+      if (!isValidCnpj(docDigits)) throw new ConflictException('CNPJ inválido. Informe um CNPJ válido.');
+    } else {
+      if (!isValidCpf(docDigits)) throw new ConflictException('CPF inválido. Informe um CPF válido.');
     }
 
     if (data.password !== data.confirmPassword) {
@@ -612,31 +617,34 @@ export class AuthService {
 
     if (existingUserByEmailAndRole) {
       // Já existe um usuário com o mesmo email e role, usar o existente
-      if (!existingUserByEmailAndRole.cpf) {
-        await this.prismaService.user.update({
+      const hasDoc = isCnpj ? !!(existingUserByEmailAndRole as any).cnpj : !!existingUserByEmailAndRole.cpf;
+      if (!hasDoc) {
+        await (this.prismaService.user as any).update({
           where: { id: existingUserByEmailAndRole.id },
-          data: { cpf: cpfClean },
+          data: isCnpj ? { cnpj: docDigits } : { cpf: docDigits },
         });
-        existingUserByEmailAndRole.cpf = cpfClean;
+        if (isCnpj) (existingUserByEmailAndRole as any).cnpj = docDigits;
+        else existingUserByEmailAndRole.cpf = docDigits;
       }
       newUser = existingUserByEmailAndRole;
     } else {
-      const existingCpf = await this.prismaService.user.findFirst({
-        where: { cpf: cpfClean },
-        select: { id: true },
-      });
-      if (existingCpf) {
-        throw new ConflictException('Já existe um usuário com este CPF');
+      if (isCnpj) {
+        const existingCnpj = await (this.prismaService.user as any).findFirst({ where: { cnpj: docDigits }, select: { id: true } });
+        if (existingCnpj) throw new ConflictException('Já existe um usuário com este CNPJ');
+      } else {
+        const existingCpf = await this.prismaService.user.findFirst({ where: { cpf: docDigits }, select: { id: true } });
+        if (existingCpf) throw new ConflictException('Já existe um usuário com este CPF');
       }
 
       // Não existe usuário com o mesmo email e role, criar novo
       const hashedPassword = this.generateHashPassword(data.password);
 
-      newUser = await this.prismaService.user.create({
+      newUser = await (this.prismaService.user as any).create({
         data: {
           email: data.email,
           name: data.name,
-          cpf: cpfClean,
+          cpf: isCnpj ? null : docDigits,
+          cnpj: isCnpj ? docDigits : null,
           password: hashedPassword,
           role: data.role as Role,
           isActive: true,
@@ -971,6 +979,7 @@ export class AuthService {
       id: newUser.id,
       email: newUser.email,
       cpf: newUser.cpf ?? null,
+      cnpj: newUser.cnpj ?? null,
       name: newUser.name,
       role: newUser.role.toString(),
       createdAt: newUser.createdAt,

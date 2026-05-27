@@ -3293,6 +3293,7 @@ export namespace Prisma {
     id: string | null
     email: string | null
     cpf: string | null
+    cnpj: string | null
     name: string | null
     password: string | null
     role: $Enums.Role | null
@@ -3307,6 +3308,7 @@ export namespace Prisma {
     id: string | null
     email: string | null
     cpf: string | null
+    cnpj: string | null
     name: string | null
     password: string | null
     role: $Enums.Role | null
@@ -3321,6 +3323,7 @@ export namespace Prisma {
     id: number
     email: number
     cpf: number
+    cnpj: number
     name: number
     password: number
     role: number
@@ -3337,6 +3340,7 @@ export namespace Prisma {
     id?: true
     email?: true
     cpf?: true
+    cnpj?: true
     name?: true
     password?: true
     role?: true
@@ -3351,6 +3355,7 @@ export namespace Prisma {
     id?: true
     email?: true
     cpf?: true
+    cnpj?: true
     name?: true
     password?: true
     role?: true
@@ -3365,6 +3370,7 @@ export namespace Prisma {
     id?: true
     email?: true
     cpf?: true
+    cnpj?: true
     name?: true
     password?: true
     role?: true
@@ -3452,6 +3458,7 @@ export namespace Prisma {
     id: string
     email: string
     cpf: string | null
+    cnpj: string | null
     name: string | null
     password: string
     role: $Enums.Role
@@ -3483,6 +3490,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     cpf?: boolean
+    cnpj?: boolean
     name?: boolean
     password?: boolean
     role?: boolean
@@ -3510,6 +3518,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     cpf?: boolean
+    cnpj?: boolean
     name?: boolean
     password?: boolean
     role?: boolean
@@ -3526,6 +3535,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     cpf?: boolean
+    cnpj?: boolean
     name?: boolean
     password?: boolean
     role?: boolean
@@ -3542,6 +3552,7 @@ export namespace Prisma {
     id?: boolean
     email?: boolean
     cpf?: boolean
+    cnpj?: boolean
     name?: boolean
     password?: boolean
     role?: boolean
@@ -3552,7 +3563,7 @@ export namespace Prisma {
     avatarImageId?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "cpf" | "name" | "password" | "role" | "createdAt" | "updatedAt" | "isActive" | "createdById" | "avatarImageId", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "cpf" | "cnpj" | "name" | "password" | "role" | "createdAt" | "updatedAt" | "isActive" | "createdById" | "avatarImageId", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     admin?: boolean | User$adminArgs<ExtArgs>
     adminToken?: boolean | User$adminTokenArgs<ExtArgs>
@@ -3597,6 +3608,7 @@ export namespace Prisma {
       id: string
       email: string
       cpf: string | null
+      cnpj: string | null
       name: string | null
       password: string
       role: $Enums.Role
@@ -4043,6 +4055,7 @@ export namespace Prisma {
     readonly id: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
     readonly cpf: FieldRef<"User", 'String'>
+    readonly cnpj: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
     readonly password: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
@@ -17746,6 +17759,7 @@ export namespace Prisma {
     id: 'id',
     email: 'email',
     cpf: 'cpf',
+    cnpj: 'cnpj',
     name: 'name',
     password: 'password',
     role: 'role',
@@ -18131,6 +18145,7 @@ export namespace Prisma {
     id?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     cpf?: StringNullableFilter<"User"> | string | null
+    cnpj?: StringNullableFilter<"User"> | string | null
     name?: StringNullableFilter<"User"> | string | null
     password?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
@@ -18157,6 +18172,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     cpf?: SortOrderInput | SortOrder
+    cnpj?: SortOrderInput | SortOrder
     name?: SortOrderInput | SortOrder
     password?: SortOrder
     role?: SortOrder
@@ -18182,6 +18198,7 @@ export namespace Prisma {
   export type UserWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     cpf?: string
+    cnpj?: string
     AND?: UserWhereInput | UserWhereInput[]
     OR?: UserWhereInput[]
     NOT?: UserWhereInput | UserWhereInput[]
@@ -18206,12 +18223,13 @@ export namespace Prisma {
     createdUsers?: UserListRelationFilter
     booksCreated?: BookListRelationFilter
     avatarImage?: XOR<ImageNullableScalarRelationFilter, ImageWhereInput> | null
-  }, "id" | "cpf">
+  }, "id" | "cpf" | "cnpj">
 
   export type UserOrderByWithAggregationInput = {
     id?: SortOrder
     email?: SortOrder
     cpf?: SortOrderInput | SortOrder
+    cnpj?: SortOrderInput | SortOrder
     name?: SortOrderInput | SortOrder
     password?: SortOrder
     role?: SortOrder
@@ -18232,6 +18250,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
     cpf?: StringNullableWithAggregatesFilter<"User"> | string | null
+    cnpj?: StringNullableWithAggregatesFilter<"User"> | string | null
     name?: StringNullableWithAggregatesFilter<"User"> | string | null
     password?: StringWithAggregatesFilter<"User"> | string
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
@@ -19224,6 +19243,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -19248,6 +19268,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -19272,6 +19293,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -19296,6 +19318,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -19320,6 +19343,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -19334,6 +19358,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -19346,6 +19371,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -20568,6 +20594,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     cpf?: SortOrder
+    cnpj?: SortOrder
     name?: SortOrder
     password?: SortOrder
     role?: SortOrder
@@ -20582,6 +20609,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     cpf?: SortOrder
+    cnpj?: SortOrder
     name?: SortOrder
     password?: SortOrder
     role?: SortOrder
@@ -20596,6 +20624,7 @@ export namespace Prisma {
     id?: SortOrder
     email?: SortOrder
     cpf?: SortOrder
+    cnpj?: SortOrder
     name?: SortOrder
     password?: SortOrder
     role?: SortOrder
@@ -22751,6 +22780,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -22774,6 +22804,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -22813,6 +22844,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -22836,6 +22868,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -23084,6 +23117,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -23107,6 +23141,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -23135,6 +23170,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -23158,6 +23194,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -23539,6 +23576,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -23562,6 +23600,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -23604,6 +23643,7 @@ export namespace Prisma {
     id?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     cpf?: StringNullableFilter<"User"> | string | null
+    cnpj?: StringNullableFilter<"User"> | string | null
     name?: StringNullableFilter<"User"> | string | null
     password?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
@@ -23699,6 +23739,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -23722,6 +23763,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -23750,6 +23792,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -23773,6 +23816,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -24049,6 +24093,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -24072,6 +24117,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -24276,6 +24322,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -24299,6 +24346,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -24432,6 +24480,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -24455,6 +24504,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -24566,6 +24616,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -24589,6 +24640,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -24690,6 +24742,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -24713,6 +24766,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -24824,6 +24878,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -24847,6 +24902,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -24948,6 +25004,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -24971,6 +25028,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -25039,6 +25097,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -25062,6 +25121,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -25345,6 +25405,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -25368,6 +25429,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -25407,6 +25469,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -25430,6 +25493,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -25453,6 +25517,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -25476,6 +25541,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -25587,6 +25653,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -25610,6 +25677,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -25711,6 +25779,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -25734,6 +25803,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -25773,6 +25843,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -25796,6 +25867,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -25875,6 +25947,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -26112,6 +26185,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -26135,6 +26209,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -26158,6 +26233,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -26268,6 +26344,7 @@ export namespace Prisma {
     id?: string
     email: string
     cpf?: string | null
+    cnpj?: string | null
     name?: string | null
     password: string
     role: $Enums.Role
@@ -26311,6 +26388,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -26334,6 +26412,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -26357,6 +26436,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -26371,6 +26451,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -26394,6 +26475,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
@@ -26417,6 +26499,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
