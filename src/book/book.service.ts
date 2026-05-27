@@ -72,7 +72,7 @@ export class BookService {
         }
 
         // Determinar se o livro é gratuito baseado no preço
-        const isFree = data.price === 0;
+        const isFree = data.price === 0 && (data.originalPrice ?? 0) === 0;
 
         // Se cover for enviado, buscar ou criar imagem e associar coverImageId
         let coverImageId: string | undefined = undefined;
@@ -681,6 +681,11 @@ export class BookService {
         if (data.author !== undefined) updateData.author = data.author;
         if (data.price !== undefined) updateData.price = data.price;
         if (data.originalPrice !== undefined) updateData.originalPrice = data.originalPrice;
+        if (data.price !== undefined || data.originalPrice !== undefined) {
+            const effectivePrice = updateData.price ?? existingBook.price;
+            const effectiveOriginalPrice = updateData.originalPrice ?? existingBook.originalPrice;
+            updateData.isFree = effectivePrice === 0 && effectiveOriginalPrice === 0;
+        }
         if (data.rating !== undefined) updateData.rating = data.rating;
         if (data.reviewCount !== undefined) updateData.reviewCount = data.reviewCount;
         if (data.categoryId !== undefined) {
