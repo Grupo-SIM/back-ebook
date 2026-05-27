@@ -312,11 +312,14 @@ export class AdminBookController {
         });
 
         // Mesclar dados: se não veio no DTO (ou veio vazio), usa o valor atual
+        const newPrice = filteredDto.price ?? currentBook.price;
+        const newOriginalPrice = filteredDto.originalPrice ?? currentBook.originalPrice;
         const dataToUpdate = {
             title: filteredDto.title ?? currentBook.title,
             author: filteredDto.author ?? currentBook.author,
-            price: filteredDto.price ?? currentBook.price,
-            originalPrice: filteredDto.originalPrice ?? currentBook.originalPrice,
+            price: newPrice,
+            originalPrice: newOriginalPrice,
+            isFree: newPrice === 0 && newOriginalPrice === 0,
             rating: filteredDto.rating ?? currentBook.rating,
             reviewCount: filteredDto.reviewCount ?? currentBook.reviewCount,
             categoryId: filteredDto.categoryId ?? currentBook.categoryId,

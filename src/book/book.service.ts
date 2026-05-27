@@ -681,7 +681,9 @@ export class BookService {
         if (data.author !== undefined) updateData.author = data.author;
         if (data.price !== undefined) updateData.price = data.price;
         if (data.originalPrice !== undefined) updateData.originalPrice = data.originalPrice;
-        if (data.price !== undefined || data.originalPrice !== undefined) {
+        if ((data as any).isFree !== undefined) {
+            updateData.isFree = (data as any).isFree;
+        } else if (data.price !== undefined || data.originalPrice !== undefined) {
             const effectivePrice = updateData.price ?? existingBook.price;
             const effectiveOriginalPrice = updateData.originalPrice ?? existingBook.originalPrice;
             updateData.isFree = effectivePrice === 0 && effectiveOriginalPrice === 0;

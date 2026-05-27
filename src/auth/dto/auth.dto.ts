@@ -173,16 +173,17 @@ export class CreateUserInputDTO {
   name: string;
 
   @ApiProperty({
-    nullable: false,
+    nullable: true,
+    required: false,
     name: 'document',
     type: () => String,
     description: 'CPF (11 dígitos) ou CNPJ (14 dígitos) do dono da conta',
     example: '12345678909',
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @IsDocument()
-  document: string;
+  document?: string;
 
   @ApiProperty({ nullable: false, name: 'password', type: () => String })
   @IsString()
