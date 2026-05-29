@@ -64,9 +64,10 @@ export class CheckoutService {
     }
 
     private buildInternalOrderTag(ownerCpf: string | null | undefined): string | null {
-        const cpfDigits = String(ownerCpf ?? '').replace(/\D/g, '');
-        if (cpfDigits.length !== 11) return null;
-        return `${CheckoutService.PLATFORM_EBOOK_TAG} [CPF_DONO:${cpfDigits}]`;
+        const digits = String(ownerCpf ?? '').replace(/\D/g, '');
+        if (digits.length === 14) return `${CheckoutService.PLATFORM_EBOOK_TAG} [CNPJ_DONO:${digits}]`;
+        if (digits.length === 11) return `${CheckoutService.PLATFORM_EBOOK_TAG} [CPF_DONO:${digits}]`;
+        return null;
     }
 
     private stripInternalTags(value: string | null | undefined): string | null {
@@ -74,6 +75,7 @@ export class CheckoutService {
         const sanitized = value
             .replace(/\s*\[TENANT:EBOOK\]/gi, '')
             .replace(/\s*\[CPF_DONO:[^\]]+\]/gi, '')
+            .replace(/\s*\[CNPJ_DONO:[^\]]+\]/gi, '')
             .replace(/\s+/g, ' ')
             .trim();
         return sanitized.length ? sanitized : null;

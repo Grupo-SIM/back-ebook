@@ -882,12 +882,22 @@ export class WebhookController {
 
           await this.updateBooksSalesCount(existingOrder.orderItems);
 
-          // Extrair CPF e nome do dono do livro para a api-machine criar a transaction corretamente
+          // Extrair CPF ou CNPJ do dono do livro para a api-machine criar a transaction corretamente
           const ownerCpfFromNotes = String(existingOrder.notes ?? '').match(/\[CPF_DONO:(\d{11})\]/i)?.[1] ?? null;
-          const ownerCpfFromBook = existingOrder.orderItems[0]?.book?.createdBy?.cpf
-            ? String(existingOrder.orderItems[0].book.createdBy.cpf).replace(/\D/g, '')
+          const ownerCnpjFromNotes = String(existingOrder.notes ?? '').match(/\[CNPJ_DONO:(\d{14})\]/i)?.[1] ?? null;
+          const bookAuthor = existingOrder.orderItems[0]?.book?.createdBy;
+          const ownerCpfFromBook = bookAuthor?.cpf
+            ? String(bookAuthor.cpf).replace(/\D/g, '')
             : null;
-          const ownerCpf = ownerCpfFromNotes || (ownerCpfFromBook?.length === 11 ? ownerCpfFromBook : null);
+          const ownerCnpjFromBook = (bookAuthor as any)?.cnpj
+            ? String((bookAuthor as any).cnpj).replace(/\D/g, '')
+            : null;
+          // Prioridade: tag nas notas > campo direto do autor (CPF primeiro, CNPJ como fallback)
+          const ownerCpf =
+            ownerCpfFromNotes ||
+            ownerCnpjFromNotes ||
+            (ownerCpfFromBook?.length === 11 ? ownerCpfFromBook : null) ||
+            (ownerCnpjFromBook?.length === 14 ? ownerCnpjFromBook : null);
           const ownerName = existingOrder.orderItems[0]?.book?.createdBy?.name?.trim() || null;
 
           return {
