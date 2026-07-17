@@ -81,6 +81,25 @@ export class InternalStatsController {
     return { deactivated: true };
   }
 
+  /** Reativa o usuário — espelho do deactivate. Usado quando o master reativa a conta no SIM INT PAY. */
+  @Post('users/activate')
+  @HttpCode(200)
+  async activateUser(
+    @Headers('x-internal-token') token: string | undefined,
+    @Body() body: { cpf?: string },
+  ) {
+    this.ensureInternalToken(token);
+
+    const cpf = body?.cpf?.replace(/\D/g, '');
+    if (!cpf) throw new NotFoundException('CPF não informado');
+
+    const user = await this.prisma.user.findUnique({ where: { cpf } });
+    if (!user) return { activated: false, reason: 'not_found' };
+
+    await this.prisma.user.update({ where: { cpf }, data: { isActive: true } });
+    return { activated: true };
+  }
+
   @Post('users/update')
   @HttpCode(200)
   async updateUser(
