@@ -207,6 +207,10 @@ export class CreateBookDto {
     @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)', default: true })
     @IsOptional()
     isActive?: boolean = true;
+
+    @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados', default: false, required: false })
+    @IsOptional()
+    isAffiliate?: boolean = false;
 }
 
 export class UpdateBookDto {
@@ -321,6 +325,11 @@ export class UpdateBookDto {
     @IsOptional()
     @Type(() => Boolean) // ✅ CORRIGIDO: Adicionado para converter 'true'/'false' (strings) para booleano
     isActive?: boolean;
+
+    @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados', required: false })
+    @IsOptional()
+    @Type(() => Boolean)
+    isAffiliate?: boolean;
 }
 
 export class ReviewResponseDto {
@@ -416,6 +425,9 @@ export class BookResponseDto {
 
     @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)' })
     isActive: boolean;
+
+    @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados' })
+    isAffiliate: boolean;
 }
 
 export class PaginatedBookResponseDto {

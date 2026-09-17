@@ -195,6 +195,11 @@ export class CreateOrderDto {
     @IsNumber({}, { each: true })
     @Type(() => Number)
     cartItemIds: number[];
+
+    @ApiProperty({ example: 'A1B2C3D4', required: false, description: 'Código de afiliado capturado no link (?ref=CODE)' })
+    @IsOptional()
+    @IsString()
+    affiliateCode?: string;
 }
 
 export class CreateOrderFromBookDto {
@@ -208,6 +213,11 @@ export class CreateOrderFromBookDto {
     @IsNumber()
     @Type(() => Number)
     quantity?: number = 1;
+
+    @ApiProperty({ example: 'A1B2C3D4', required: false, description: 'Código de afiliado capturado no link (?ref=CODE)' })
+    @IsOptional()
+    @IsString()
+    affiliateCode?: string;
 }
 
 export class OrderResponseDto {

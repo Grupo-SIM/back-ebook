@@ -113,6 +113,7 @@ export class AdminBookController {
                 printLength: { type: 'number' },
                 readingAge: { type: 'string' },
                 isActive: { type: 'boolean' },
+                isAffiliate: { type: 'boolean', description: 'Participa do programa de afiliados' },
                 file: { type: 'string', format: 'binary' }
             }
         }
@@ -201,6 +202,7 @@ export class AdminBookController {
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
                 isActive: { type: 'boolean' },
+                isAffiliate: { type: 'boolean', description: 'Participa do programa de afiliados' },
                 readingAge: { type: 'string' },
                 file: { type: 'string', format: 'binary', description: 'Arquivo do ebook (PDF, EPUB, MOBI)' },
                 coverFile: { type: 'string', format: 'binary', description: 'Imagem da capa (JPG, PNG, GIF)' }
@@ -331,6 +333,7 @@ export class AdminBookController {
             publishedDate: filteredDto.publishedDate ?? currentBook.publishedDate,
             printLength: filteredDto.printLength ?? currentBook.printLength,
             isActive: filteredDto.isActive ?? currentBook.isActive,
+            isAffiliate: filteredDto.isAffiliate ?? currentBook.isAffiliate,
             readingAge: filteredDto.readingAge ?? currentBook.readingAge,
             ...(downloadUrl ? { downloadUrl } : { downloadUrl: currentBook.downloadUrl })
         };

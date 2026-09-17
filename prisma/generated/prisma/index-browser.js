@@ -139,7 +139,8 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt',
   isActive: 'isActive',
   createdById: 'createdById',
-  avatarImageId: 'avatarImageId'
+  avatarImageId: 'avatarImageId',
+  affiliateCode: 'affiliateCode'
 };
 
 exports.Prisma.ImageScalarFieldEnum = {
@@ -181,6 +182,7 @@ exports.Prisma.BookScalarFieldEnum = {
   isActive: 'isActive',
   isFeatured: 'isFeatured',
   isFree: 'isFree',
+  isAffiliate: 'isAffiliate',
   maxInstallments: 'maxInstallments',
   fileSize: 'fileSize',
   downloadUrl: 'downloadUrl',
@@ -227,6 +229,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   shippingAddress: 'shippingAddress',
   billingAddress: 'billingAddress',
   notes: 'notes',
+  affiliateCode: 'affiliateCode',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -274,6 +277,20 @@ exports.Prisma.ActivityLogScalarFieldEnum = {
   bookTitle: 'bookTitle'
 };
 
+exports.Prisma.AffiliateCommissionScalarFieldEnum = {
+  id: 'id',
+  affiliateId: 'affiliateId',
+  bookId: 'bookId',
+  orderId: 'orderId',
+  orderNumber: 'orderNumber',
+  grossAmount: 'grossAmount',
+  commissionRate: 'commissionRate',
+  commissionAmount: 'commissionAmount',
+  status: 'status',
+  createdAt: 'createdAt',
+  reversedAt: 'reversedAt'
+};
+
 exports.Prisma.AdminTokenScalarFieldEnum = {
   id: 'id',
   adminId: 'adminId',
@@ -315,6 +332,12 @@ exports.Role = exports.$Enums.Role = {
   CUSTOMER: 'CUSTOMER'
 };
 
+exports.AffiliateCommissionStatus = exports.$Enums.AffiliateCommissionStatus = {
+  PENDING: 'PENDING',
+  CREDITED: 'CREDITED',
+  REVERSED: 'REVERSED'
+};
+
 exports.Prisma.ModelName = {
   Admin: 'Admin',
   User: 'User',
@@ -328,6 +351,7 @@ exports.Prisma.ModelName = {
   Notification: 'Notification',
   Review: 'Review',
   ActivityLog: 'ActivityLog',
+  AffiliateCommission: 'AffiliateCommission',
   AdminToken: 'AdminToken'
 };
 

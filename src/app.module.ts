@@ -18,6 +18,7 @@ import { CategoryModule } from './category/category.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { NotificationModule } from './notification/notification.module';
+import { AffiliateModule } from './affiliate/affiliate.module';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 import { ImageControllerUser } from './image/image.controller';
 import { ImageService } from './image/image.service';
@@ -53,6 +54,7 @@ dotenv.config();
     FavoriteModule,
     CheckoutModule,
     NotificationModule,
+    AffiliateModule,
   ],
   controllers: [
     AppController,

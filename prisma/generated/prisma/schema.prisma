@@ -51,6 +51,10 @@ model User {
   avatarImageId String?
   avatarImage   Image?  @relation("UserAvatarImage", fields: [avatarImageId], references: [id])
 
+  // Afiliados
+  affiliateCode        String?               @unique
+  affiliateCommissions AffiliateCommission[] @relation("AffiliateCommissionsEarned")
+
   @@map("users")
 }
 
@@ -102,6 +106,7 @@ model Book {
   isActive        Boolean  @default(true)
   isFeatured      Boolean  @default(false)
   isFree          Boolean  @default(false)
+  isAffiliate     Boolean  @default(false)
   maxInstallments Int      @default(12)
   fileSize        String?
   downloadUrl     String?
@@ -112,12 +117,13 @@ model Book {
   createdById     String?
   createdBy       User?    @relation("BooksCreatedByUser", fields: [createdById], references: [id])
 
-  categoryRef Category?   @relation(fields: [categoryId], references: [id])
-  categoryId  Int?
-  favorites   Favorite[]
-  cart        Cart[]
-  orderItems  OrderItem[]
-  reviews     Review[]
+  categoryRef          Category?             @relation(fields: [categoryId], references: [id])
+  categoryId           Int?
+  favorites            Favorite[]
+  cart                 Cart[]
+  orderItems           OrderItem[]
+  reviews              Review[]
+  affiliateCommissions AffiliateCommission[]
 
   @@map("books")
 }
@@ -169,11 +175,13 @@ model Order {
   shippingAddress Json?
   billingAddress  Json?
   notes           String?
+  affiliateCode   String? // Código de afiliado capturado no checkout (?ref=CODE)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems           OrderItem[]
+  affiliateCommissions AffiliateCommission[]
 
   @@map("orders")
 }
@@ -234,6 +242,35 @@ model ActivityLog {
   timestamp DateTime @default(now())
   bookId    Int?
   bookTitle String?
+}
+
+enum AffiliateCommissionStatus {
+  PENDING
+  CREDITED
+  REVERSED
+}
+
+model AffiliateCommission {
+  id               Int                       @id @default(autoincrement())
+  affiliateId      String // admin que possui o código de afiliado (User.id)
+  bookId           Int
+  orderId          Int
+  orderNumber      String
+  grossAmount      Float // valor bruto do pedido usado como base
+  commissionRate   Float // % aplicado no momento (snapshot)
+  commissionAmount Float
+  status           AffiliateCommissionStatus @default(CREDITED)
+  createdAt        DateTime                  @default(now())
+  reversedAt       DateTime?
+
+  affiliate User  @relation("AffiliateCommissionsEarned", fields: [affiliateId], references: [id], onDelete: Cascade)
+  book      Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  order     Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, bookId])
+  @@index([affiliateId])
+  @@index([status])
+  @@map("affiliate_commissions")
 }
 
 model AdminToken {

@@ -107,6 +107,7 @@ export class BookService {
                 readingAge: data.readingAge,
                 maxInstallments: (data as any).maxInstallments ?? 1,
                 isActive: data.isActive ?? true,
+                isAffiliate: (data as any).isAffiliate ?? false,
                 ...(coverImageId ? { coverImageId } : {}),
             },
             include: {
@@ -154,6 +155,7 @@ export class BookService {
             readingAge: book.readingAge ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
+            isAffiliate: (book as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         };
     }
@@ -309,6 +311,7 @@ export class BookService {
             readingAge: book.readingAge ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
+            isAffiliate: (book as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
@@ -399,6 +402,7 @@ export class BookService {
             readingAge: book.readingAge ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
+            isAffiliate: (book as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         };
 
@@ -525,6 +529,7 @@ export class BookService {
             readingAge: book.readingAge ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
+            isAffiliate: (book as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
@@ -638,6 +643,7 @@ export class BookService {
             readingAge: book.readingAge ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
+            isAffiliate: (book as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
@@ -714,6 +720,7 @@ export class BookService {
         if (data.readingAge !== undefined) updateData.readingAge = data.readingAge;
         if ((data as any).maxInstallments !== undefined) updateData.maxInstallments = (data as any).maxInstallments;
         if (data.isActive !== undefined) updateData.isActive = data.isActive;
+        if ((data as any).isAffiliate !== undefined) updateData.isAffiliate = (data as any).isAffiliate;
 
         // Se cover for enviado, buscar ou criar imagem e associar coverImageId
         if (data.cover) {
@@ -776,6 +783,7 @@ export class BookService {
             isFree: updatedBook.isFree ?? false,
             readingAge: updatedBook.readingAge ?? undefined,
             isActive: updatedBook.isActive ?? true,
+            isAffiliate: (updatedBook as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${updatedBook.price}&description=${encodeURIComponent(updatedBook.title)}`,
         };
     }
@@ -825,6 +833,7 @@ export class BookService {
             isFree: deleted.isFree ?? false,
             readingAge: deleted.readingAge ?? undefined,
             isActive: deleted.isActive ?? true,
+            isAffiliate: (deleted as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${deleted.price}&description=${encodeURIComponent(deleted.title)}`,
         };
     }
@@ -874,6 +883,7 @@ export class BookService {
             readingAge: book.readingAge ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
+            isAffiliate: (book as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
         const totalPages = Math.ceil(total / limit);
@@ -917,6 +927,7 @@ export class BookService {
             readingAge: book.readingAge ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
+            isAffiliate: (book as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
     }
@@ -1155,6 +1166,7 @@ export class BookService {
             readingAge: book.readingAge ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
+            isAffiliate: (book as any).isAffiliate ?? false,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 

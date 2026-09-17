@@ -14,6 +14,7 @@ import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import type { PayloadWebhook } from './dom-webhook.service';
 import { WebhookService } from './dom-webhook.service';
 import { CheckoutService } from 'src/checkout/checkout.service';
+import { AffiliateService } from 'src/affiliate/affiliate.service';
 
 @ApiTags('Webhook')
 @Controller('webhook')
@@ -23,7 +24,25 @@ export class WebhookController {
   constructor(
     private readonly webhookService: WebhookService,
     private readonly checkoutService: CheckoutService,
+    private readonly affiliateService: AffiliateService,
   ) { }
+
+  /**
+   * Credita comissão de afiliado para um pedido recém-marcado como pago.
+   * Não bloqueia o fluxo principal do webhook em caso de falha.
+   */
+  private async creditAffiliateCommission(order: {
+    id: number;
+    orderNumber: string;
+    affiliateCode: string | null;
+    orderItems: Array<{ bookId: number; totalPrice: number; book: { isAffiliate: boolean; createdById: string | null } }>;
+  }): Promise<void> {
+    try {
+      await this.affiliateService.creditCommissionForOrder(order);
+    } catch (err: any) {
+      this.logger.error(`[Affiliate] Falha ao processar comissão do pedido ${order.orderNumber}: ${err?.message}`);
+    }
+  }
 
   @Post()
   @ApiOperation({ summary: 'Processa webhooks de pagamento' })
@@ -882,6 +901,8 @@ export class WebhookController {
 
           await this.updateBooksSalesCount(existingOrder.orderItems);
 
+          await this.creditAffiliateCommission(existingOrder);
+
           // Extrair CPF ou CNPJ do dono do livro para a api-machine criar a transaction corretamente
           const ownerCpfFromNotes = String(existingOrder.notes ?? '').match(/\[CPF_DONO:(\d{11})\]/i)?.[1] ?? null;
           const ownerCnpjFromNotes = String(existingOrder.notes ?? '').match(/\[CNPJ_DONO:(\d{14})\]/i)?.[1] ?? null;
@@ -953,6 +974,8 @@ export class WebhookController {
 
             await this.updateBooksSalesCount(mostRecentOrder.orderItems);
 
+            await this.creditAffiliateCommission(mostRecentOrder);
+
             return {
               ok: true,
               message: `Pedido ${mostRecentOrder.orderNumber} atualizado com sucesso`,
@@ -1016,6 +1039,8 @@ export class WebhookController {
                 await this.checkoutService.sendPurchaseConfirmationEmail(orderWithBook.id, data.email || undefined);
 
                 await this.updateBooksSalesCount(orderWithBook.orderItems);
+
+                await this.creditAffiliateCommission(orderWithBook);
 
                 return {
                   ok: true,
@@ -1085,6 +1110,8 @@ export class WebhookController {
               await this.checkoutService.sendPurchaseConfirmationEmail(latestOrder.id, data.email || undefined);
 
               await this.updateBooksSalesCount(latestOrder.orderItems);
+
+              await this.creditAffiliateCommission(latestOrder);
 
               return {
                 ok: true,

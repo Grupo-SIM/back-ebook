@@ -573,6 +573,7 @@ export class CheckoutService {
                 paymentStatus: 'pending' as PaymentStatus,
                 store: 'ebook', // Sempre vem do ebook
                 notes: internalOrderTag ?? null,
+                affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
             }
         });
         // Criar itens do pedido
@@ -656,7 +657,7 @@ export class CheckoutService {
         };
     }
 
-    async createOrderFromBook(userId: string, data: { bookId: number; quantity?: number }): Promise<OrderResponseDto & { checkoutUrl: string }> {
+    async createOrderFromBook(userId: string, data: { bookId: number; quantity?: number; affiliateCode?: string }): Promise<OrderResponseDto & { checkoutUrl: string }> {
         // Buscar o livro
         const book = await this.prisma.book.findUnique({
             where: { id: data.bookId },
@@ -693,6 +694,7 @@ export class CheckoutService {
                 paymentStatus: 'pending',
                 store: 'ebook', // Sempre vem do ebook
                 notes: internalOrderTag ?? null,
+                affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
             }
         });
         // Criar item do pedido
