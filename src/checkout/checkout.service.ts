@@ -1273,7 +1273,7 @@ export class CheckoutService {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <a href="${appUrl}/books" style="display:inline-block;background:linear-gradient(135deg,#10b981,#0891b2);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;">
+                    <a href="${appUrl}/library" style="display:inline-block;background:linear-gradient(135deg,#10b981,#0891b2);color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;">
                       Acessar Minha Biblioteca →
                     </a>
                   </td>

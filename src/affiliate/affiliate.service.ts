@@ -201,6 +201,7 @@ export class AffiliateService {
     async creditCommissionForOrder(order: {
         id: number;
         orderNumber: string;
+        userId?: string;
         affiliateCode: string | null;
         orderItems: Array<{ bookId: number; totalPrice: number; book: { isAffiliate: boolean; createdById: string | null; title?: string } }>;
     }): Promise<void> {
@@ -212,13 +213,14 @@ export class AffiliateService {
             return;
         }
 
+        // Afiliado não ganha comissão comprando com o próprio link (autocompra)
+        if (order.userId && order.userId === affiliate.id) return;
+
         const rate = await this.getCommissionRate();
         if (rate <= 0) return;
 
         for (const item of order.orderItems) {
             if (!item.book?.isAffiliate) continue;
-            // Afiliado não ganha comissão vendendo o próprio livro
-            if (item.book.createdById === affiliate.id) continue;
 
             const grossAmount = item.totalPrice;
             const commissionAmount = parseFloat(((grossAmount * rate) / 100).toFixed(2));

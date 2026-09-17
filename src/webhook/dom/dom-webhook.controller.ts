@@ -34,6 +34,7 @@ export class WebhookController {
   private async creditAffiliateCommission(order: {
     id: number;
     orderNumber: string;
+    userId?: string;
     affiliateCode: string | null;
     orderItems: Array<{ bookId: number; totalPrice: number; book: { isAffiliate: boolean; createdById: string | null } }>;
   }): Promise<void> {
