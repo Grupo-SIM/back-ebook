@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, IsNumber, Min, Max } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class AffiliateMeResponseDto {
     @ApiProperty({ example: 'A1B2C3D4' })
@@ -71,8 +73,17 @@ export class PaginatedAffiliateCommissionResponseDto {
 
 export class AffiliateQueryDto {
     @ApiProperty({ example: 1, default: 1, required: false })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    @Min(1)
     page?: number = 1;
 
     @ApiProperty({ example: 10, default: 10, required: false })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    @Min(1)
+    @Max(100)
     limit?: number = 10;
 }
