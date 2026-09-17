@@ -142,11 +142,12 @@ export class AffiliateService {
             .filter((c) => c.status !== 'REVERSED')
             .reduce((sum, c) => sum + c.commissionAmount, 0);
 
-        const appUrl = process.env.URL_APP || process.env.FRONTEND_URL || 'https://ebooksim.com';
+        // Link deve apontar para a loja (front-ebook), nunca para esta API (URL_APP)
+        const storeUrl = process.env.EBOOK_STORE_URL || process.env.STORE_URL || 'https://ebooksim.com';
 
         return {
             affiliateCode,
-            affiliateLink: `${appUrl}?ref=${affiliateCode}`,
+            affiliateLink: `${storeUrl}?ref=${affiliateCode}`,
             commissionRate: await this.getCommissionRate(),
             totalEarned: parseFloat(totalEarned.toFixed(2)),
             totalCredited: parseFloat(totalCredited.toFixed(2)),
