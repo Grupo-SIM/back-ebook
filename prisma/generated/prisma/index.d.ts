@@ -79,6 +79,11 @@ export type ActivityLog = $Result.DefaultSelection<Prisma.$ActivityLogPayload>
  */
 export type AffiliateCommission = $Result.DefaultSelection<Prisma.$AffiliateCommissionPayload>
 /**
+ * Model AffiliateProductLink
+ * 
+ */
+export type AffiliateProductLink = $Result.DefaultSelection<Prisma.$AffiliateProductLinkPayload>
+/**
  * Model AdminToken
  * 
  */
@@ -361,6 +366,16 @@ export class PrismaClient<
     * ```
     */
   get affiliateCommission(): Prisma.AffiliateCommissionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.affiliateProductLink`: Exposes CRUD operations for the **AffiliateProductLink** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AffiliateProductLinks
+    * const affiliateProductLinks = await prisma.affiliateProductLink.findMany()
+    * ```
+    */
+  get affiliateProductLink(): Prisma.AffiliateProductLinkDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.adminToken`: Exposes CRUD operations for the **AdminToken** model.
@@ -818,6 +833,7 @@ export namespace Prisma {
     Review: 'Review',
     ActivityLog: 'ActivityLog',
     AffiliateCommission: 'AffiliateCommission',
+    AffiliateProductLink: 'AffiliateProductLink',
     AdminToken: 'AdminToken'
   };
 
@@ -834,7 +850,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "admin" | "user" | "image" | "category" | "book" | "favorite" | "cart" | "order" | "orderItem" | "notification" | "review" | "activityLog" | "affiliateCommission" | "adminToken"
+      modelProps: "admin" | "user" | "image" | "category" | "book" | "favorite" | "cart" | "order" | "orderItem" | "notification" | "review" | "activityLog" | "affiliateCommission" | "affiliateProductLink" | "adminToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1800,6 +1816,80 @@ export namespace Prisma {
           }
         }
       }
+      AffiliateProductLink: {
+        payload: Prisma.$AffiliateProductLinkPayload<ExtArgs>
+        fields: Prisma.AffiliateProductLinkFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AffiliateProductLinkFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AffiliateProductLinkFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>
+          }
+          findFirst: {
+            args: Prisma.AffiliateProductLinkFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AffiliateProductLinkFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>
+          }
+          findMany: {
+            args: Prisma.AffiliateProductLinkFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>[]
+          }
+          create: {
+            args: Prisma.AffiliateProductLinkCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>
+          }
+          createMany: {
+            args: Prisma.AffiliateProductLinkCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AffiliateProductLinkCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>[]
+          }
+          delete: {
+            args: Prisma.AffiliateProductLinkDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>
+          }
+          update: {
+            args: Prisma.AffiliateProductLinkUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>
+          }
+          deleteMany: {
+            args: Prisma.AffiliateProductLinkDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AffiliateProductLinkUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AffiliateProductLinkUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>[]
+          }
+          upsert: {
+            args: Prisma.AffiliateProductLinkUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateProductLinkPayload>
+          }
+          aggregate: {
+            args: Prisma.AffiliateProductLinkAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAffiliateProductLink>
+          }
+          groupBy: {
+            args: Prisma.AffiliateProductLinkGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AffiliateProductLinkGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AffiliateProductLinkCountArgs<ExtArgs>
+            result: $Utils.Optional<AffiliateProductLinkCountAggregateOutputType> | number
+          }
+        }
+      }
       AdminToken: {
         payload: Prisma.$AdminTokenPayload<ExtArgs>
         fields: Prisma.AdminTokenFieldRefs
@@ -1995,6 +2085,7 @@ export namespace Prisma {
     review?: ReviewOmit
     activityLog?: ActivityLogOmit
     affiliateCommission?: AffiliateCommissionOmit
+    affiliateProductLink?: AffiliateProductLinkOmit
     adminToken?: AdminTokenOmit
   }
 
@@ -2085,6 +2176,7 @@ export namespace Prisma {
     createdUsers: number
     booksCreated: number
     affiliateCommissions: number
+    affiliateProductLinks: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2097,6 +2189,7 @@ export namespace Prisma {
     createdUsers?: boolean | UserCountOutputTypeCountCreatedUsersArgs
     booksCreated?: boolean | UserCountOutputTypeCountBooksCreatedArgs
     affiliateCommissions?: boolean | UserCountOutputTypeCountAffiliateCommissionsArgs
+    affiliateProductLinks?: boolean | UserCountOutputTypeCountAffiliateProductLinksArgs
   }
 
   // Custom InputTypes
@@ -2171,6 +2264,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAffiliateCommissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AffiliateCommissionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAffiliateProductLinksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AffiliateProductLinkWhereInput
   }
 
 
@@ -2264,6 +2364,7 @@ export namespace Prisma {
     orderItems: number
     reviews: number
     affiliateCommissions: number
+    affiliateProductLinks: number
   }
 
   export type BookCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2272,6 +2373,7 @@ export namespace Prisma {
     orderItems?: boolean | BookCountOutputTypeCountOrderItemsArgs
     reviews?: boolean | BookCountOutputTypeCountReviewsArgs
     affiliateCommissions?: boolean | BookCountOutputTypeCountAffiliateCommissionsArgs
+    affiliateProductLinks?: boolean | BookCountOutputTypeCountAffiliateProductLinksArgs
   }
 
   // Custom InputTypes
@@ -2320,6 +2422,13 @@ export namespace Prisma {
     where?: AffiliateCommissionWhereInput
   }
 
+  /**
+   * BookCountOutputType without action
+   */
+  export type BookCountOutputTypeCountAffiliateProductLinksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AffiliateProductLinkWhereInput
+  }
+
 
   /**
    * Count Type OrderCountOutputType
@@ -2358,6 +2467,37 @@ export namespace Prisma {
    */
   export type OrderCountOutputTypeCountAffiliateCommissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AffiliateCommissionWhereInput
+  }
+
+
+  /**
+   * Count Type AffiliateProductLinkCountOutputType
+   */
+
+  export type AffiliateProductLinkCountOutputType = {
+    orderItems: number
+  }
+
+  export type AffiliateProductLinkCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    orderItems?: boolean | AffiliateProductLinkCountOutputTypeCountOrderItemsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AffiliateProductLinkCountOutputType without action
+   */
+  export type AffiliateProductLinkCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLinkCountOutputType
+     */
+    select?: AffiliateProductLinkCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AffiliateProductLinkCountOutputType without action
+   */
+  export type AffiliateProductLinkCountOutputTypeCountOrderItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OrderItemWhereInput
   }
 
 
@@ -3651,6 +3791,7 @@ export namespace Prisma {
     booksCreated?: boolean | User$booksCreatedArgs<ExtArgs>
     avatarImage?: boolean | User$avatarImageArgs<ExtArgs>
     affiliateCommissions?: boolean | User$affiliateCommissionsArgs<ExtArgs>
+    affiliateProductLinks?: boolean | User$affiliateProductLinksArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3721,6 +3862,7 @@ export namespace Prisma {
     booksCreated?: boolean | User$booksCreatedArgs<ExtArgs>
     avatarImage?: boolean | User$avatarImageArgs<ExtArgs>
     affiliateCommissions?: boolean | User$affiliateCommissionsArgs<ExtArgs>
+    affiliateProductLinks?: boolean | User$affiliateProductLinksArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3748,6 +3890,7 @@ export namespace Prisma {
       booksCreated: Prisma.$BookPayload<ExtArgs>[]
       avatarImage: Prisma.$ImagePayload<ExtArgs> | null
       affiliateCommissions: Prisma.$AffiliateCommissionPayload<ExtArgs>[]
+      affiliateProductLinks: Prisma.$AffiliateProductLinkPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4170,6 +4313,7 @@ export namespace Prisma {
     booksCreated<T extends User$booksCreatedArgs<ExtArgs> = {}>(args?: Subset<T, User$booksCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BookPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     avatarImage<T extends User$avatarImageArgs<ExtArgs> = {}>(args?: Subset<T, User$avatarImageArgs<ExtArgs>>): Prisma__ImageClient<$Result.GetResult<Prisma.$ImagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     affiliateCommissions<T extends User$affiliateCommissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$affiliateCommissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateCommissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    affiliateProductLinks<T extends User$affiliateProductLinksArgs<ExtArgs> = {}>(args?: Subset<T, User$affiliateProductLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4897,6 +5041,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AffiliateCommissionScalarFieldEnum | AffiliateCommissionScalarFieldEnum[]
+  }
+
+  /**
+   * User.affiliateProductLinks
+   */
+  export type User$affiliateProductLinksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    where?: AffiliateProductLinkWhereInput
+    orderBy?: AffiliateProductLinkOrderByWithRelationInput | AffiliateProductLinkOrderByWithRelationInput[]
+    cursor?: AffiliateProductLinkWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AffiliateProductLinkScalarFieldEnum | AffiliateProductLinkScalarFieldEnum[]
   }
 
   /**
@@ -7621,6 +7789,7 @@ export namespace Prisma {
     orderItems?: boolean | Book$orderItemsArgs<ExtArgs>
     reviews?: boolean | Book$reviewsArgs<ExtArgs>
     affiliateCommissions?: boolean | Book$affiliateCommissionsArgs<ExtArgs>
+    affiliateProductLinks?: boolean | Book$affiliateProductLinksArgs<ExtArgs>
     _count?: boolean | BookCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["book"]>
 
@@ -7736,6 +7905,7 @@ export namespace Prisma {
     orderItems?: boolean | Book$orderItemsArgs<ExtArgs>
     reviews?: boolean | Book$reviewsArgs<ExtArgs>
     affiliateCommissions?: boolean | Book$affiliateCommissionsArgs<ExtArgs>
+    affiliateProductLinks?: boolean | Book$affiliateProductLinksArgs<ExtArgs>
     _count?: boolean | BookCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BookIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7760,6 +7930,7 @@ export namespace Prisma {
       orderItems: Prisma.$OrderItemPayload<ExtArgs>[]
       reviews: Prisma.$ReviewPayload<ExtArgs>[]
       affiliateCommissions: Prisma.$AffiliateCommissionPayload<ExtArgs>[]
+      affiliateProductLinks: Prisma.$AffiliateProductLinkPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -8193,6 +8364,7 @@ export namespace Prisma {
     orderItems<T extends Book$orderItemsArgs<ExtArgs> = {}>(args?: Subset<T, Book$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     reviews<T extends Book$reviewsArgs<ExtArgs> = {}>(args?: Subset<T, Book$reviewsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     affiliateCommissions<T extends Book$affiliateCommissionsArgs<ExtArgs> = {}>(args?: Subset<T, Book$affiliateCommissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateCommissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    affiliateProductLinks<T extends Book$affiliateProductLinksArgs<ExtArgs> = {}>(args?: Subset<T, Book$affiliateProductLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8821,6 +8993,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AffiliateCommissionScalarFieldEnum | AffiliateCommissionScalarFieldEnum[]
+  }
+
+  /**
+   * Book.affiliateProductLinks
+   */
+  export type Book$affiliateProductLinksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    where?: AffiliateProductLinkWhereInput
+    orderBy?: AffiliateProductLinkOrderByWithRelationInput | AffiliateProductLinkOrderByWithRelationInput[]
+    cursor?: AffiliateProductLinkWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AffiliateProductLinkScalarFieldEnum | AffiliateProductLinkScalarFieldEnum[]
   }
 
   /**
@@ -12462,6 +12658,7 @@ export namespace Prisma {
     quantity: number | null
     unitPrice: number | null
     totalPrice: number | null
+    affiliateProductLinkId: number | null
   }
 
   export type OrderItemSumAggregateOutputType = {
@@ -12471,6 +12668,7 @@ export namespace Prisma {
     quantity: number | null
     unitPrice: number | null
     totalPrice: number | null
+    affiliateProductLinkId: number | null
   }
 
   export type OrderItemMinAggregateOutputType = {
@@ -12480,6 +12678,7 @@ export namespace Prisma {
     quantity: number | null
     unitPrice: number | null
     totalPrice: number | null
+    affiliateProductLinkId: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -12491,6 +12690,7 @@ export namespace Prisma {
     quantity: number | null
     unitPrice: number | null
     totalPrice: number | null
+    affiliateProductLinkId: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -12502,6 +12702,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    affiliateProductLinkId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -12515,6 +12716,7 @@ export namespace Prisma {
     quantity?: true
     unitPrice?: true
     totalPrice?: true
+    affiliateProductLinkId?: true
   }
 
   export type OrderItemSumAggregateInputType = {
@@ -12524,6 +12726,7 @@ export namespace Prisma {
     quantity?: true
     unitPrice?: true
     totalPrice?: true
+    affiliateProductLinkId?: true
   }
 
   export type OrderItemMinAggregateInputType = {
@@ -12533,6 +12736,7 @@ export namespace Prisma {
     quantity?: true
     unitPrice?: true
     totalPrice?: true
+    affiliateProductLinkId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -12544,6 +12748,7 @@ export namespace Prisma {
     quantity?: true
     unitPrice?: true
     totalPrice?: true
+    affiliateProductLinkId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -12555,6 +12760,7 @@ export namespace Prisma {
     quantity?: true
     unitPrice?: true
     totalPrice?: true
+    affiliateProductLinkId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -12653,6 +12859,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    affiliateProductLinkId: number | null
     createdAt: Date
     updatedAt: Date
     _count: OrderItemCountAggregateOutputType | null
@@ -12683,10 +12890,12 @@ export namespace Prisma {
     quantity?: boolean
     unitPrice?: boolean
     totalPrice?: boolean
+    affiliateProductLinkId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliateProductLink?: boolean | OrderItem$affiliateProductLinkArgs<ExtArgs>
   }, ExtArgs["result"]["orderItem"]>
 
   export type OrderItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12696,10 +12905,12 @@ export namespace Prisma {
     quantity?: boolean
     unitPrice?: boolean
     totalPrice?: boolean
+    affiliateProductLinkId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliateProductLink?: boolean | OrderItem$affiliateProductLinkArgs<ExtArgs>
   }, ExtArgs["result"]["orderItem"]>
 
   export type OrderItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -12709,10 +12920,12 @@ export namespace Prisma {
     quantity?: boolean
     unitPrice?: boolean
     totalPrice?: boolean
+    affiliateProductLinkId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliateProductLink?: boolean | OrderItem$affiliateProductLinkArgs<ExtArgs>
   }, ExtArgs["result"]["orderItem"]>
 
   export type OrderItemSelectScalar = {
@@ -12722,22 +12935,26 @@ export namespace Prisma {
     quantity?: boolean
     unitPrice?: boolean
     totalPrice?: boolean
+    affiliateProductLinkId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OrderItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "bookId" | "quantity" | "unitPrice" | "totalPrice" | "createdAt" | "updatedAt", ExtArgs["result"]["orderItem"]>
+  export type OrderItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "bookId" | "quantity" | "unitPrice" | "totalPrice" | "affiliateProductLinkId" | "createdAt" | "updatedAt", ExtArgs["result"]["orderItem"]>
   export type OrderItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     order?: boolean | OrderDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliateProductLink?: boolean | OrderItem$affiliateProductLinkArgs<ExtArgs>
   }
   export type OrderItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     order?: boolean | OrderDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliateProductLink?: boolean | OrderItem$affiliateProductLinkArgs<ExtArgs>
   }
   export type OrderItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     order?: boolean | OrderDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliateProductLink?: boolean | OrderItem$affiliateProductLinkArgs<ExtArgs>
   }
 
   export type $OrderItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12745,6 +12962,7 @@ export namespace Prisma {
     objects: {
       order: Prisma.$OrderPayload<ExtArgs>
       book: Prisma.$BookPayload<ExtArgs>
+      affiliateProductLink: Prisma.$AffiliateProductLinkPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -12753,6 +12971,7 @@ export namespace Prisma {
       quantity: number
       unitPrice: number
       totalPrice: number
+      affiliateProductLinkId: number | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["orderItem"]>
@@ -13151,6 +13370,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     book<T extends BookDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BookDefaultArgs<ExtArgs>>): Prisma__BookClient<$Result.GetResult<Prisma.$BookPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    affiliateProductLink<T extends OrderItem$affiliateProductLinkArgs<ExtArgs> = {}>(args?: Subset<T, OrderItem$affiliateProductLinkArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13186,6 +13406,7 @@ export namespace Prisma {
     readonly quantity: FieldRef<"OrderItem", 'Int'>
     readonly unitPrice: FieldRef<"OrderItem", 'Float'>
     readonly totalPrice: FieldRef<"OrderItem", 'Float'>
+    readonly affiliateProductLinkId: FieldRef<"OrderItem", 'Int'>
     readonly createdAt: FieldRef<"OrderItem", 'DateTime'>
     readonly updatedAt: FieldRef<"OrderItem", 'DateTime'>
   }
@@ -13581,6 +13802,25 @@ export namespace Prisma {
      * Limit how many OrderItems to delete.
      */
     limit?: number
+  }
+
+  /**
+   * OrderItem.affiliateProductLink
+   */
+  export type OrderItem$affiliateProductLinkArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    where?: AffiliateProductLinkWhereInput
   }
 
   /**
@@ -18108,6 +18348,1140 @@ export namespace Prisma {
 
 
   /**
+   * Model AffiliateProductLink
+   */
+
+  export type AggregateAffiliateProductLink = {
+    _count: AffiliateProductLinkCountAggregateOutputType | null
+    _avg: AffiliateProductLinkAvgAggregateOutputType | null
+    _sum: AffiliateProductLinkSumAggregateOutputType | null
+    _min: AffiliateProductLinkMinAggregateOutputType | null
+    _max: AffiliateProductLinkMaxAggregateOutputType | null
+  }
+
+  export type AffiliateProductLinkAvgAggregateOutputType = {
+    id: number | null
+    bookId: number | null
+  }
+
+  export type AffiliateProductLinkSumAggregateOutputType = {
+    id: number | null
+    bookId: number | null
+  }
+
+  export type AffiliateProductLinkMinAggregateOutputType = {
+    id: number | null
+    bookId: number | null
+    affiliateId: string | null
+    code: string | null
+    createdAt: Date | null
+  }
+
+  export type AffiliateProductLinkMaxAggregateOutputType = {
+    id: number | null
+    bookId: number | null
+    affiliateId: string | null
+    code: string | null
+    createdAt: Date | null
+  }
+
+  export type AffiliateProductLinkCountAggregateOutputType = {
+    id: number
+    bookId: number
+    affiliateId: number
+    code: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AffiliateProductLinkAvgAggregateInputType = {
+    id?: true
+    bookId?: true
+  }
+
+  export type AffiliateProductLinkSumAggregateInputType = {
+    id?: true
+    bookId?: true
+  }
+
+  export type AffiliateProductLinkMinAggregateInputType = {
+    id?: true
+    bookId?: true
+    affiliateId?: true
+    code?: true
+    createdAt?: true
+  }
+
+  export type AffiliateProductLinkMaxAggregateInputType = {
+    id?: true
+    bookId?: true
+    affiliateId?: true
+    code?: true
+    createdAt?: true
+  }
+
+  export type AffiliateProductLinkCountAggregateInputType = {
+    id?: true
+    bookId?: true
+    affiliateId?: true
+    code?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AffiliateProductLinkAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AffiliateProductLink to aggregate.
+     */
+    where?: AffiliateProductLinkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AffiliateProductLinks to fetch.
+     */
+    orderBy?: AffiliateProductLinkOrderByWithRelationInput | AffiliateProductLinkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AffiliateProductLinkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AffiliateProductLinks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AffiliateProductLinks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AffiliateProductLinks
+    **/
+    _count?: true | AffiliateProductLinkCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AffiliateProductLinkAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AffiliateProductLinkSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AffiliateProductLinkMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AffiliateProductLinkMaxAggregateInputType
+  }
+
+  export type GetAffiliateProductLinkAggregateType<T extends AffiliateProductLinkAggregateArgs> = {
+        [P in keyof T & keyof AggregateAffiliateProductLink]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAffiliateProductLink[P]>
+      : GetScalarType<T[P], AggregateAffiliateProductLink[P]>
+  }
+
+
+
+
+  export type AffiliateProductLinkGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AffiliateProductLinkWhereInput
+    orderBy?: AffiliateProductLinkOrderByWithAggregationInput | AffiliateProductLinkOrderByWithAggregationInput[]
+    by: AffiliateProductLinkScalarFieldEnum[] | AffiliateProductLinkScalarFieldEnum
+    having?: AffiliateProductLinkScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AffiliateProductLinkCountAggregateInputType | true
+    _avg?: AffiliateProductLinkAvgAggregateInputType
+    _sum?: AffiliateProductLinkSumAggregateInputType
+    _min?: AffiliateProductLinkMinAggregateInputType
+    _max?: AffiliateProductLinkMaxAggregateInputType
+  }
+
+  export type AffiliateProductLinkGroupByOutputType = {
+    id: number
+    bookId: number
+    affiliateId: string
+    code: string
+    createdAt: Date
+    _count: AffiliateProductLinkCountAggregateOutputType | null
+    _avg: AffiliateProductLinkAvgAggregateOutputType | null
+    _sum: AffiliateProductLinkSumAggregateOutputType | null
+    _min: AffiliateProductLinkMinAggregateOutputType | null
+    _max: AffiliateProductLinkMaxAggregateOutputType | null
+  }
+
+  type GetAffiliateProductLinkGroupByPayload<T extends AffiliateProductLinkGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AffiliateProductLinkGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AffiliateProductLinkGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AffiliateProductLinkGroupByOutputType[P]>
+            : GetScalarType<T[P], AffiliateProductLinkGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AffiliateProductLinkSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bookId?: boolean
+    affiliateId?: boolean
+    code?: boolean
+    createdAt?: boolean
+    book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliate?: boolean | UserDefaultArgs<ExtArgs>
+    orderItems?: boolean | AffiliateProductLink$orderItemsArgs<ExtArgs>
+    _count?: boolean | AffiliateProductLinkCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["affiliateProductLink"]>
+
+  export type AffiliateProductLinkSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bookId?: boolean
+    affiliateId?: boolean
+    code?: boolean
+    createdAt?: boolean
+    book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliate?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["affiliateProductLink"]>
+
+  export type AffiliateProductLinkSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    bookId?: boolean
+    affiliateId?: boolean
+    code?: boolean
+    createdAt?: boolean
+    book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliate?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["affiliateProductLink"]>
+
+  export type AffiliateProductLinkSelectScalar = {
+    id?: boolean
+    bookId?: boolean
+    affiliateId?: boolean
+    code?: boolean
+    createdAt?: boolean
+  }
+
+  export type AffiliateProductLinkOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "bookId" | "affiliateId" | "code" | "createdAt", ExtArgs["result"]["affiliateProductLink"]>
+  export type AffiliateProductLinkInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliate?: boolean | UserDefaultArgs<ExtArgs>
+    orderItems?: boolean | AffiliateProductLink$orderItemsArgs<ExtArgs>
+    _count?: boolean | AffiliateProductLinkCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AffiliateProductLinkIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliate?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AffiliateProductLinkIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    book?: boolean | BookDefaultArgs<ExtArgs>
+    affiliate?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AffiliateProductLinkPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AffiliateProductLink"
+    objects: {
+      book: Prisma.$BookPayload<ExtArgs>
+      affiliate: Prisma.$UserPayload<ExtArgs>
+      orderItems: Prisma.$OrderItemPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      bookId: number
+      affiliateId: string
+      code: string
+      createdAt: Date
+    }, ExtArgs["result"]["affiliateProductLink"]>
+    composites: {}
+  }
+
+  type AffiliateProductLinkGetPayload<S extends boolean | null | undefined | AffiliateProductLinkDefaultArgs> = $Result.GetResult<Prisma.$AffiliateProductLinkPayload, S>
+
+  type AffiliateProductLinkCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AffiliateProductLinkFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AffiliateProductLinkCountAggregateInputType | true
+    }
+
+  export interface AffiliateProductLinkDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AffiliateProductLink'], meta: { name: 'AffiliateProductLink' } }
+    /**
+     * Find zero or one AffiliateProductLink that matches the filter.
+     * @param {AffiliateProductLinkFindUniqueArgs} args - Arguments to find a AffiliateProductLink
+     * @example
+     * // Get one AffiliateProductLink
+     * const affiliateProductLink = await prisma.affiliateProductLink.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AffiliateProductLinkFindUniqueArgs>(args: SelectSubset<T, AffiliateProductLinkFindUniqueArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AffiliateProductLink that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AffiliateProductLinkFindUniqueOrThrowArgs} args - Arguments to find a AffiliateProductLink
+     * @example
+     * // Get one AffiliateProductLink
+     * const affiliateProductLink = await prisma.affiliateProductLink.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AffiliateProductLinkFindUniqueOrThrowArgs>(args: SelectSubset<T, AffiliateProductLinkFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AffiliateProductLink that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateProductLinkFindFirstArgs} args - Arguments to find a AffiliateProductLink
+     * @example
+     * // Get one AffiliateProductLink
+     * const affiliateProductLink = await prisma.affiliateProductLink.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AffiliateProductLinkFindFirstArgs>(args?: SelectSubset<T, AffiliateProductLinkFindFirstArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AffiliateProductLink that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateProductLinkFindFirstOrThrowArgs} args - Arguments to find a AffiliateProductLink
+     * @example
+     * // Get one AffiliateProductLink
+     * const affiliateProductLink = await prisma.affiliateProductLink.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AffiliateProductLinkFindFirstOrThrowArgs>(args?: SelectSubset<T, AffiliateProductLinkFindFirstOrThrowArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AffiliateProductLinks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateProductLinkFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AffiliateProductLinks
+     * const affiliateProductLinks = await prisma.affiliateProductLink.findMany()
+     * 
+     * // Get first 10 AffiliateProductLinks
+     * const affiliateProductLinks = await prisma.affiliateProductLink.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const affiliateProductLinkWithIdOnly = await prisma.affiliateProductLink.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AffiliateProductLinkFindManyArgs>(args?: SelectSubset<T, AffiliateProductLinkFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AffiliateProductLink.
+     * @param {AffiliateProductLinkCreateArgs} args - Arguments to create a AffiliateProductLink.
+     * @example
+     * // Create one AffiliateProductLink
+     * const AffiliateProductLink = await prisma.affiliateProductLink.create({
+     *   data: {
+     *     // ... data to create a AffiliateProductLink
+     *   }
+     * })
+     * 
+     */
+    create<T extends AffiliateProductLinkCreateArgs>(args: SelectSubset<T, AffiliateProductLinkCreateArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AffiliateProductLinks.
+     * @param {AffiliateProductLinkCreateManyArgs} args - Arguments to create many AffiliateProductLinks.
+     * @example
+     * // Create many AffiliateProductLinks
+     * const affiliateProductLink = await prisma.affiliateProductLink.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AffiliateProductLinkCreateManyArgs>(args?: SelectSubset<T, AffiliateProductLinkCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AffiliateProductLinks and returns the data saved in the database.
+     * @param {AffiliateProductLinkCreateManyAndReturnArgs} args - Arguments to create many AffiliateProductLinks.
+     * @example
+     * // Create many AffiliateProductLinks
+     * const affiliateProductLink = await prisma.affiliateProductLink.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AffiliateProductLinks and only return the `id`
+     * const affiliateProductLinkWithIdOnly = await prisma.affiliateProductLink.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AffiliateProductLinkCreateManyAndReturnArgs>(args?: SelectSubset<T, AffiliateProductLinkCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AffiliateProductLink.
+     * @param {AffiliateProductLinkDeleteArgs} args - Arguments to delete one AffiliateProductLink.
+     * @example
+     * // Delete one AffiliateProductLink
+     * const AffiliateProductLink = await prisma.affiliateProductLink.delete({
+     *   where: {
+     *     // ... filter to delete one AffiliateProductLink
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AffiliateProductLinkDeleteArgs>(args: SelectSubset<T, AffiliateProductLinkDeleteArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AffiliateProductLink.
+     * @param {AffiliateProductLinkUpdateArgs} args - Arguments to update one AffiliateProductLink.
+     * @example
+     * // Update one AffiliateProductLink
+     * const affiliateProductLink = await prisma.affiliateProductLink.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AffiliateProductLinkUpdateArgs>(args: SelectSubset<T, AffiliateProductLinkUpdateArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AffiliateProductLinks.
+     * @param {AffiliateProductLinkDeleteManyArgs} args - Arguments to filter AffiliateProductLinks to delete.
+     * @example
+     * // Delete a few AffiliateProductLinks
+     * const { count } = await prisma.affiliateProductLink.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AffiliateProductLinkDeleteManyArgs>(args?: SelectSubset<T, AffiliateProductLinkDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AffiliateProductLinks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateProductLinkUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AffiliateProductLinks
+     * const affiliateProductLink = await prisma.affiliateProductLink.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AffiliateProductLinkUpdateManyArgs>(args: SelectSubset<T, AffiliateProductLinkUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AffiliateProductLinks and returns the data updated in the database.
+     * @param {AffiliateProductLinkUpdateManyAndReturnArgs} args - Arguments to update many AffiliateProductLinks.
+     * @example
+     * // Update many AffiliateProductLinks
+     * const affiliateProductLink = await prisma.affiliateProductLink.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AffiliateProductLinks and only return the `id`
+     * const affiliateProductLinkWithIdOnly = await prisma.affiliateProductLink.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AffiliateProductLinkUpdateManyAndReturnArgs>(args: SelectSubset<T, AffiliateProductLinkUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AffiliateProductLink.
+     * @param {AffiliateProductLinkUpsertArgs} args - Arguments to update or create a AffiliateProductLink.
+     * @example
+     * // Update or create a AffiliateProductLink
+     * const affiliateProductLink = await prisma.affiliateProductLink.upsert({
+     *   create: {
+     *     // ... data to create a AffiliateProductLink
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AffiliateProductLink we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AffiliateProductLinkUpsertArgs>(args: SelectSubset<T, AffiliateProductLinkUpsertArgs<ExtArgs>>): Prisma__AffiliateProductLinkClient<$Result.GetResult<Prisma.$AffiliateProductLinkPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AffiliateProductLinks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateProductLinkCountArgs} args - Arguments to filter AffiliateProductLinks to count.
+     * @example
+     * // Count the number of AffiliateProductLinks
+     * const count = await prisma.affiliateProductLink.count({
+     *   where: {
+     *     // ... the filter for the AffiliateProductLinks we want to count
+     *   }
+     * })
+    **/
+    count<T extends AffiliateProductLinkCountArgs>(
+      args?: Subset<T, AffiliateProductLinkCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AffiliateProductLinkCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AffiliateProductLink.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateProductLinkAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AffiliateProductLinkAggregateArgs>(args: Subset<T, AffiliateProductLinkAggregateArgs>): Prisma.PrismaPromise<GetAffiliateProductLinkAggregateType<T>>
+
+    /**
+     * Group by AffiliateProductLink.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateProductLinkGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AffiliateProductLinkGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AffiliateProductLinkGroupByArgs['orderBy'] }
+        : { orderBy?: AffiliateProductLinkGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AffiliateProductLinkGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAffiliateProductLinkGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AffiliateProductLink model
+   */
+  readonly fields: AffiliateProductLinkFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AffiliateProductLink.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AffiliateProductLinkClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    book<T extends BookDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BookDefaultArgs<ExtArgs>>): Prisma__BookClient<$Result.GetResult<Prisma.$BookPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    affiliate<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    orderItems<T extends AffiliateProductLink$orderItemsArgs<ExtArgs> = {}>(args?: Subset<T, AffiliateProductLink$orderItemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AffiliateProductLink model
+   */
+  interface AffiliateProductLinkFieldRefs {
+    readonly id: FieldRef<"AffiliateProductLink", 'Int'>
+    readonly bookId: FieldRef<"AffiliateProductLink", 'Int'>
+    readonly affiliateId: FieldRef<"AffiliateProductLink", 'String'>
+    readonly code: FieldRef<"AffiliateProductLink", 'String'>
+    readonly createdAt: FieldRef<"AffiliateProductLink", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AffiliateProductLink findUnique
+   */
+  export type AffiliateProductLinkFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateProductLink to fetch.
+     */
+    where: AffiliateProductLinkWhereUniqueInput
+  }
+
+  /**
+   * AffiliateProductLink findUniqueOrThrow
+   */
+  export type AffiliateProductLinkFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateProductLink to fetch.
+     */
+    where: AffiliateProductLinkWhereUniqueInput
+  }
+
+  /**
+   * AffiliateProductLink findFirst
+   */
+  export type AffiliateProductLinkFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateProductLink to fetch.
+     */
+    where?: AffiliateProductLinkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AffiliateProductLinks to fetch.
+     */
+    orderBy?: AffiliateProductLinkOrderByWithRelationInput | AffiliateProductLinkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AffiliateProductLinks.
+     */
+    cursor?: AffiliateProductLinkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AffiliateProductLinks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AffiliateProductLinks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AffiliateProductLinks.
+     */
+    distinct?: AffiliateProductLinkScalarFieldEnum | AffiliateProductLinkScalarFieldEnum[]
+  }
+
+  /**
+   * AffiliateProductLink findFirstOrThrow
+   */
+  export type AffiliateProductLinkFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateProductLink to fetch.
+     */
+    where?: AffiliateProductLinkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AffiliateProductLinks to fetch.
+     */
+    orderBy?: AffiliateProductLinkOrderByWithRelationInput | AffiliateProductLinkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AffiliateProductLinks.
+     */
+    cursor?: AffiliateProductLinkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AffiliateProductLinks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AffiliateProductLinks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AffiliateProductLinks.
+     */
+    distinct?: AffiliateProductLinkScalarFieldEnum | AffiliateProductLinkScalarFieldEnum[]
+  }
+
+  /**
+   * AffiliateProductLink findMany
+   */
+  export type AffiliateProductLinkFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateProductLinks to fetch.
+     */
+    where?: AffiliateProductLinkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AffiliateProductLinks to fetch.
+     */
+    orderBy?: AffiliateProductLinkOrderByWithRelationInput | AffiliateProductLinkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AffiliateProductLinks.
+     */
+    cursor?: AffiliateProductLinkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AffiliateProductLinks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AffiliateProductLinks.
+     */
+    skip?: number
+    distinct?: AffiliateProductLinkScalarFieldEnum | AffiliateProductLinkScalarFieldEnum[]
+  }
+
+  /**
+   * AffiliateProductLink create
+   */
+  export type AffiliateProductLinkCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AffiliateProductLink.
+     */
+    data: XOR<AffiliateProductLinkCreateInput, AffiliateProductLinkUncheckedCreateInput>
+  }
+
+  /**
+   * AffiliateProductLink createMany
+   */
+  export type AffiliateProductLinkCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AffiliateProductLinks.
+     */
+    data: AffiliateProductLinkCreateManyInput | AffiliateProductLinkCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AffiliateProductLink createManyAndReturn
+   */
+  export type AffiliateProductLinkCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * The data used to create many AffiliateProductLinks.
+     */
+    data: AffiliateProductLinkCreateManyInput | AffiliateProductLinkCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AffiliateProductLink update
+   */
+  export type AffiliateProductLinkUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AffiliateProductLink.
+     */
+    data: XOR<AffiliateProductLinkUpdateInput, AffiliateProductLinkUncheckedUpdateInput>
+    /**
+     * Choose, which AffiliateProductLink to update.
+     */
+    where: AffiliateProductLinkWhereUniqueInput
+  }
+
+  /**
+   * AffiliateProductLink updateMany
+   */
+  export type AffiliateProductLinkUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AffiliateProductLinks.
+     */
+    data: XOR<AffiliateProductLinkUpdateManyMutationInput, AffiliateProductLinkUncheckedUpdateManyInput>
+    /**
+     * Filter which AffiliateProductLinks to update
+     */
+    where?: AffiliateProductLinkWhereInput
+    /**
+     * Limit how many AffiliateProductLinks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AffiliateProductLink updateManyAndReturn
+   */
+  export type AffiliateProductLinkUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * The data used to update AffiliateProductLinks.
+     */
+    data: XOR<AffiliateProductLinkUpdateManyMutationInput, AffiliateProductLinkUncheckedUpdateManyInput>
+    /**
+     * Filter which AffiliateProductLinks to update
+     */
+    where?: AffiliateProductLinkWhereInput
+    /**
+     * Limit how many AffiliateProductLinks to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AffiliateProductLink upsert
+   */
+  export type AffiliateProductLinkUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AffiliateProductLink to update in case it exists.
+     */
+    where: AffiliateProductLinkWhereUniqueInput
+    /**
+     * In case the AffiliateProductLink found by the `where` argument doesn't exist, create a new AffiliateProductLink with this data.
+     */
+    create: XOR<AffiliateProductLinkCreateInput, AffiliateProductLinkUncheckedCreateInput>
+    /**
+     * In case the AffiliateProductLink was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AffiliateProductLinkUpdateInput, AffiliateProductLinkUncheckedUpdateInput>
+  }
+
+  /**
+   * AffiliateProductLink delete
+   */
+  export type AffiliateProductLinkDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+    /**
+     * Filter which AffiliateProductLink to delete.
+     */
+    where: AffiliateProductLinkWhereUniqueInput
+  }
+
+  /**
+   * AffiliateProductLink deleteMany
+   */
+  export type AffiliateProductLinkDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AffiliateProductLinks to delete
+     */
+    where?: AffiliateProductLinkWhereInput
+    /**
+     * Limit how many AffiliateProductLinks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AffiliateProductLink.orderItems
+   */
+  export type AffiliateProductLink$orderItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrderItem
+     */
+    select?: OrderItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OrderItem
+     */
+    omit?: OrderItemOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrderItemInclude<ExtArgs> | null
+    where?: OrderItemWhereInput
+    orderBy?: OrderItemOrderByWithRelationInput | OrderItemOrderByWithRelationInput[]
+    cursor?: OrderItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: OrderItemScalarFieldEnum | OrderItemScalarFieldEnum[]
+  }
+
+  /**
+   * AffiliateProductLink without action
+   */
+  export type AffiliateProductLinkDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateProductLink
+     */
+    select?: AffiliateProductLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateProductLink
+     */
+    omit?: AffiliateProductLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateProductLinkInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model AdminToken
    */
 
@@ -19350,6 +20724,7 @@ export namespace Prisma {
     quantity: 'quantity',
     unitPrice: 'unitPrice',
     totalPrice: 'totalPrice',
+    affiliateProductLinkId: 'affiliateProductLinkId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -19413,6 +20788,17 @@ export namespace Prisma {
   };
 
   export type AffiliateCommissionScalarFieldEnum = (typeof AffiliateCommissionScalarFieldEnum)[keyof typeof AffiliateCommissionScalarFieldEnum]
+
+
+  export const AffiliateProductLinkScalarFieldEnum: {
+    id: 'id',
+    bookId: 'bookId',
+    affiliateId: 'affiliateId',
+    code: 'code',
+    createdAt: 'createdAt'
+  };
+
+  export type AffiliateProductLinkScalarFieldEnum = (typeof AffiliateProductLinkScalarFieldEnum)[keyof typeof AffiliateProductLinkScalarFieldEnum]
 
 
   export const AdminTokenScalarFieldEnum: {
@@ -19662,6 +21048,7 @@ export namespace Prisma {
     booksCreated?: BookListRelationFilter
     avatarImage?: XOR<ImageNullableScalarRelationFilter, ImageWhereInput> | null
     affiliateCommissions?: AffiliateCommissionListRelationFilter
+    affiliateProductLinks?: AffiliateProductLinkListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -19691,6 +21078,7 @@ export namespace Prisma {
     booksCreated?: BookOrderByRelationAggregateInput
     avatarImage?: ImageOrderByWithRelationInput
     affiliateCommissions?: AffiliateCommissionOrderByRelationAggregateInput
+    affiliateProductLinks?: AffiliateProductLinkOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -19723,6 +21111,7 @@ export namespace Prisma {
     booksCreated?: BookListRelationFilter
     avatarImage?: XOR<ImageNullableScalarRelationFilter, ImageWhereInput> | null
     affiliateCommissions?: AffiliateCommissionListRelationFilter
+    affiliateProductLinks?: AffiliateProductLinkListRelationFilter
   }, "id" | "cpf" | "cnpj" | "affiliateCode">
 
   export type UserOrderByWithAggregationInput = {
@@ -19937,6 +21326,7 @@ export namespace Prisma {
     orderItems?: OrderItemListRelationFilter
     reviews?: ReviewListRelationFilter
     affiliateCommissions?: AffiliateCommissionListRelationFilter
+    affiliateProductLinks?: AffiliateProductLinkListRelationFilter
   }
 
   export type BookOrderByWithRelationInput = {
@@ -19977,6 +21367,7 @@ export namespace Prisma {
     orderItems?: OrderItemOrderByRelationAggregateInput
     reviews?: ReviewOrderByRelationAggregateInput
     affiliateCommissions?: AffiliateCommissionOrderByRelationAggregateInput
+    affiliateProductLinks?: AffiliateProductLinkOrderByRelationAggregateInput
   }
 
   export type BookWhereUniqueInput = Prisma.AtLeast<{
@@ -20020,6 +21411,7 @@ export namespace Prisma {
     orderItems?: OrderItemListRelationFilter
     reviews?: ReviewListRelationFilter
     affiliateCommissions?: AffiliateCommissionListRelationFilter
+    affiliateProductLinks?: AffiliateProductLinkListRelationFilter
   }, "id">
 
   export type BookOrderByWithAggregationInput = {
@@ -20369,10 +21761,12 @@ export namespace Prisma {
     quantity?: IntFilter<"OrderItem"> | number
     unitPrice?: FloatFilter<"OrderItem"> | number
     totalPrice?: FloatFilter<"OrderItem"> | number
+    affiliateProductLinkId?: IntNullableFilter<"OrderItem"> | number | null
     createdAt?: DateTimeFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeFilter<"OrderItem"> | Date | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
+    affiliateProductLink?: XOR<AffiliateProductLinkNullableScalarRelationFilter, AffiliateProductLinkWhereInput> | null
   }
 
   export type OrderItemOrderByWithRelationInput = {
@@ -20382,10 +21776,12 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    affiliateProductLinkId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     order?: OrderOrderByWithRelationInput
     book?: BookOrderByWithRelationInput
+    affiliateProductLink?: AffiliateProductLinkOrderByWithRelationInput
   }
 
   export type OrderItemWhereUniqueInput = Prisma.AtLeast<{
@@ -20398,10 +21794,12 @@ export namespace Prisma {
     quantity?: IntFilter<"OrderItem"> | number
     unitPrice?: FloatFilter<"OrderItem"> | number
     totalPrice?: FloatFilter<"OrderItem"> | number
+    affiliateProductLinkId?: IntNullableFilter<"OrderItem"> | number | null
     createdAt?: DateTimeFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeFilter<"OrderItem"> | Date | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
+    affiliateProductLink?: XOR<AffiliateProductLinkNullableScalarRelationFilter, AffiliateProductLinkWhereInput> | null
   }, "id">
 
   export type OrderItemOrderByWithAggregationInput = {
@@ -20411,6 +21809,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    affiliateProductLinkId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OrderItemCountOrderByAggregateInput
@@ -20430,6 +21829,7 @@ export namespace Prisma {
     quantity?: IntWithAggregatesFilter<"OrderItem"> | number
     unitPrice?: FloatWithAggregatesFilter<"OrderItem"> | number
     totalPrice?: FloatWithAggregatesFilter<"OrderItem"> | number
+    affiliateProductLinkId?: IntNullableWithAggregatesFilter<"OrderItem"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OrderItem"> | Date | string
   }
@@ -20738,6 +22138,70 @@ export namespace Prisma {
     reversedAt?: DateTimeNullableWithAggregatesFilter<"AffiliateCommission"> | Date | string | null
   }
 
+  export type AffiliateProductLinkWhereInput = {
+    AND?: AffiliateProductLinkWhereInput | AffiliateProductLinkWhereInput[]
+    OR?: AffiliateProductLinkWhereInput[]
+    NOT?: AffiliateProductLinkWhereInput | AffiliateProductLinkWhereInput[]
+    id?: IntFilter<"AffiliateProductLink"> | number
+    bookId?: IntFilter<"AffiliateProductLink"> | number
+    affiliateId?: StringFilter<"AffiliateProductLink"> | string
+    code?: StringFilter<"AffiliateProductLink"> | string
+    createdAt?: DateTimeFilter<"AffiliateProductLink"> | Date | string
+    book?: XOR<BookScalarRelationFilter, BookWhereInput>
+    affiliate?: XOR<UserScalarRelationFilter, UserWhereInput>
+    orderItems?: OrderItemListRelationFilter
+  }
+
+  export type AffiliateProductLinkOrderByWithRelationInput = {
+    id?: SortOrder
+    bookId?: SortOrder
+    affiliateId?: SortOrder
+    code?: SortOrder
+    createdAt?: SortOrder
+    book?: BookOrderByWithRelationInput
+    affiliate?: UserOrderByWithRelationInput
+    orderItems?: OrderItemOrderByRelationAggregateInput
+  }
+
+  export type AffiliateProductLinkWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    code?: string
+    bookId_affiliateId?: AffiliateProductLinkBookIdAffiliateIdCompoundUniqueInput
+    AND?: AffiliateProductLinkWhereInput | AffiliateProductLinkWhereInput[]
+    OR?: AffiliateProductLinkWhereInput[]
+    NOT?: AffiliateProductLinkWhereInput | AffiliateProductLinkWhereInput[]
+    bookId?: IntFilter<"AffiliateProductLink"> | number
+    affiliateId?: StringFilter<"AffiliateProductLink"> | string
+    createdAt?: DateTimeFilter<"AffiliateProductLink"> | Date | string
+    book?: XOR<BookScalarRelationFilter, BookWhereInput>
+    affiliate?: XOR<UserScalarRelationFilter, UserWhereInput>
+    orderItems?: OrderItemListRelationFilter
+  }, "id" | "code" | "bookId_affiliateId">
+
+  export type AffiliateProductLinkOrderByWithAggregationInput = {
+    id?: SortOrder
+    bookId?: SortOrder
+    affiliateId?: SortOrder
+    code?: SortOrder
+    createdAt?: SortOrder
+    _count?: AffiliateProductLinkCountOrderByAggregateInput
+    _avg?: AffiliateProductLinkAvgOrderByAggregateInput
+    _max?: AffiliateProductLinkMaxOrderByAggregateInput
+    _min?: AffiliateProductLinkMinOrderByAggregateInput
+    _sum?: AffiliateProductLinkSumOrderByAggregateInput
+  }
+
+  export type AffiliateProductLinkScalarWhereWithAggregatesInput = {
+    AND?: AffiliateProductLinkScalarWhereWithAggregatesInput | AffiliateProductLinkScalarWhereWithAggregatesInput[]
+    OR?: AffiliateProductLinkScalarWhereWithAggregatesInput[]
+    NOT?: AffiliateProductLinkScalarWhereWithAggregatesInput | AffiliateProductLinkScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"AffiliateProductLink"> | number
+    bookId?: IntWithAggregatesFilter<"AffiliateProductLink"> | number
+    affiliateId?: StringWithAggregatesFilter<"AffiliateProductLink"> | string
+    code?: StringWithAggregatesFilter<"AffiliateProductLink"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"AffiliateProductLink"> | Date | string
+  }
+
   export type AdminTokenWhereInput = {
     AND?: AdminTokenWhereInput | AdminTokenWhereInput[]
     OR?: AdminTokenWhereInput[]
@@ -20876,6 +22340,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -20903,6 +22368,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUpdateInput = {
@@ -20930,6 +22396,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -20957,6 +22424,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -21185,6 +22653,7 @@ export namespace Prisma {
     orderItems?: OrderItemCreateNestedManyWithoutBookInput
     reviews?: ReviewCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateInput = {
@@ -21222,6 +22691,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookUpdateInput = {
@@ -21258,6 +22728,7 @@ export namespace Prisma {
     orderItems?: OrderItemUpdateManyWithoutBookNestedInput
     reviews?: ReviewUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateInput = {
@@ -21295,6 +22766,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
   }
 
   export type BookCreateManyInput = {
@@ -21671,6 +23143,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     order: OrderCreateNestedOneWithoutOrderItemsInput
     book: BookCreateNestedOneWithoutOrderItemsInput
+    affiliateProductLink?: AffiliateProductLinkCreateNestedOneWithoutOrderItemsInput
   }
 
   export type OrderItemUncheckedCreateInput = {
@@ -21680,6 +23153,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21692,6 +23166,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
     book?: BookUpdateOneRequiredWithoutOrderItemsNestedInput
+    affiliateProductLink?: AffiliateProductLinkUpdateOneWithoutOrderItemsNestedInput
   }
 
   export type OrderItemUncheckedUpdateInput = {
@@ -21701,6 +23176,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21712,6 +23188,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -21731,6 +23208,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22042,6 +23520,61 @@ export namespace Prisma {
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type AffiliateProductLinkCreateInput = {
+    code: string
+    createdAt?: Date | string
+    book: BookCreateNestedOneWithoutAffiliateProductLinksInput
+    affiliate: UserCreateNestedOneWithoutAffiliateProductLinksInput
+    orderItems?: OrderItemCreateNestedManyWithoutAffiliateProductLinkInput
+  }
+
+  export type AffiliateProductLinkUncheckedCreateInput = {
+    id?: number
+    bookId: number
+    affiliateId: string
+    code: string
+    createdAt?: Date | string
+    orderItems?: OrderItemUncheckedCreateNestedManyWithoutAffiliateProductLinkInput
+  }
+
+  export type AffiliateProductLinkUpdateInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    book?: BookUpdateOneRequiredWithoutAffiliateProductLinksNestedInput
+    affiliate?: UserUpdateOneRequiredWithoutAffiliateProductLinksNestedInput
+    orderItems?: OrderItemUpdateManyWithoutAffiliateProductLinkNestedInput
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    bookId?: IntFieldUpdateOperationsInput | number
+    affiliateId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderItems?: OrderItemUncheckedUpdateManyWithoutAffiliateProductLinkNestedInput
+  }
+
+  export type AffiliateProductLinkCreateManyInput = {
+    id?: number
+    bookId: number
+    affiliateId: string
+    code: string
+    createdAt?: Date | string
+  }
+
+  export type AffiliateProductLinkUpdateManyMutationInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    bookId?: IntFieldUpdateOperationsInput | number
+    affiliateId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AdminTokenCreateInput = {
     id?: string
     token: string
@@ -22296,6 +23829,12 @@ export namespace Prisma {
     none?: AffiliateCommissionWhereInput
   }
 
+  export type AffiliateProductLinkListRelationFilter = {
+    every?: AffiliateProductLinkWhereInput
+    some?: AffiliateProductLinkWhereInput
+    none?: AffiliateProductLinkWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -22334,6 +23873,10 @@ export namespace Prisma {
   }
 
   export type AffiliateCommissionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AffiliateProductLinkOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -22981,6 +24524,11 @@ export namespace Prisma {
     isNot?: OrderWhereInput
   }
 
+  export type AffiliateProductLinkNullableScalarRelationFilter = {
+    is?: AffiliateProductLinkWhereInput | null
+    isNot?: AffiliateProductLinkWhereInput | null
+  }
+
   export type OrderItemCountOrderByAggregateInput = {
     id?: SortOrder
     orderId?: SortOrder
@@ -22988,6 +24536,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    affiliateProductLinkId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -22999,6 +24548,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    affiliateProductLinkId?: SortOrder
   }
 
   export type OrderItemMaxOrderByAggregateInput = {
@@ -23008,6 +24558,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    affiliateProductLinkId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -23019,6 +24570,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    affiliateProductLinkId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -23030,6 +24582,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    affiliateProductLinkId?: SortOrder
   }
 
   export type NotificationCountOrderByAggregateInput = {
@@ -23235,6 +24788,45 @@ export namespace Prisma {
     _max?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
   }
 
+  export type AffiliateProductLinkBookIdAffiliateIdCompoundUniqueInput = {
+    bookId: number
+    affiliateId: string
+  }
+
+  export type AffiliateProductLinkCountOrderByAggregateInput = {
+    id?: SortOrder
+    bookId?: SortOrder
+    affiliateId?: SortOrder
+    code?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AffiliateProductLinkAvgOrderByAggregateInput = {
+    id?: SortOrder
+    bookId?: SortOrder
+  }
+
+  export type AffiliateProductLinkMaxOrderByAggregateInput = {
+    id?: SortOrder
+    bookId?: SortOrder
+    affiliateId?: SortOrder
+    code?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AffiliateProductLinkMinOrderByAggregateInput = {
+    id?: SortOrder
+    bookId?: SortOrder
+    affiliateId?: SortOrder
+    code?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AffiliateProductLinkSumOrderByAggregateInput = {
+    id?: SortOrder
+    bookId?: SortOrder
+  }
+
   export type AdminTokenCountOrderByAggregateInput = {
     id?: SortOrder
     adminId?: SortOrder
@@ -23373,6 +24965,13 @@ export namespace Prisma {
     connect?: AffiliateCommissionWhereUniqueInput | AffiliateCommissionWhereUniqueInput[]
   }
 
+  export type AffiliateProductLinkCreateNestedManyWithoutAffiliateInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutAffiliateInput, AffiliateProductLinkUncheckedCreateWithoutAffiliateInput> | AffiliateProductLinkCreateWithoutAffiliateInput[] | AffiliateProductLinkUncheckedCreateWithoutAffiliateInput[]
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutAffiliateInput | AffiliateProductLinkCreateOrConnectWithoutAffiliateInput[]
+    createMany?: AffiliateProductLinkCreateManyAffiliateInputEnvelope
+    connect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+  }
+
   export type AdminUncheckedCreateNestedOneWithoutAdminUserInput = {
     create?: XOR<AdminCreateWithoutAdminUserInput, AdminUncheckedCreateWithoutAdminUserInput>
     connectOrCreate?: AdminCreateOrConnectWithoutAdminUserInput
@@ -23445,6 +25044,13 @@ export namespace Prisma {
     connectOrCreate?: AffiliateCommissionCreateOrConnectWithoutAffiliateInput | AffiliateCommissionCreateOrConnectWithoutAffiliateInput[]
     createMany?: AffiliateCommissionCreateManyAffiliateInputEnvelope
     connect?: AffiliateCommissionWhereUniqueInput | AffiliateCommissionWhereUniqueInput[]
+  }
+
+  export type AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutAffiliateInput, AffiliateProductLinkUncheckedCreateWithoutAffiliateInput> | AffiliateProductLinkCreateWithoutAffiliateInput[] | AffiliateProductLinkUncheckedCreateWithoutAffiliateInput[]
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutAffiliateInput | AffiliateProductLinkCreateOrConnectWithoutAffiliateInput[]
+    createMany?: AffiliateProductLinkCreateManyAffiliateInputEnvelope
+    connect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -23624,6 +25230,20 @@ export namespace Prisma {
     deleteMany?: AffiliateCommissionScalarWhereInput | AffiliateCommissionScalarWhereInput[]
   }
 
+  export type AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutAffiliateInput, AffiliateProductLinkUncheckedCreateWithoutAffiliateInput> | AffiliateProductLinkCreateWithoutAffiliateInput[] | AffiliateProductLinkUncheckedCreateWithoutAffiliateInput[]
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutAffiliateInput | AffiliateProductLinkCreateOrConnectWithoutAffiliateInput[]
+    upsert?: AffiliateProductLinkUpsertWithWhereUniqueWithoutAffiliateInput | AffiliateProductLinkUpsertWithWhereUniqueWithoutAffiliateInput[]
+    createMany?: AffiliateProductLinkCreateManyAffiliateInputEnvelope
+    set?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    disconnect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    delete?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    connect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    update?: AffiliateProductLinkUpdateWithWhereUniqueWithoutAffiliateInput | AffiliateProductLinkUpdateWithWhereUniqueWithoutAffiliateInput[]
+    updateMany?: AffiliateProductLinkUpdateManyWithWhereWithoutAffiliateInput | AffiliateProductLinkUpdateManyWithWhereWithoutAffiliateInput[]
+    deleteMany?: AffiliateProductLinkScalarWhereInput | AffiliateProductLinkScalarWhereInput[]
+  }
+
   export type AdminUncheckedUpdateOneWithoutAdminUserNestedInput = {
     create?: XOR<AdminCreateWithoutAdminUserInput, AdminUncheckedCreateWithoutAdminUserInput>
     connectOrCreate?: AdminCreateOrConnectWithoutAdminUserInput
@@ -23767,6 +25387,20 @@ export namespace Prisma {
     update?: AffiliateCommissionUpdateWithWhereUniqueWithoutAffiliateInput | AffiliateCommissionUpdateWithWhereUniqueWithoutAffiliateInput[]
     updateMany?: AffiliateCommissionUpdateManyWithWhereWithoutAffiliateInput | AffiliateCommissionUpdateManyWithWhereWithoutAffiliateInput[]
     deleteMany?: AffiliateCommissionScalarWhereInput | AffiliateCommissionScalarWhereInput[]
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutAffiliateInput, AffiliateProductLinkUncheckedCreateWithoutAffiliateInput> | AffiliateProductLinkCreateWithoutAffiliateInput[] | AffiliateProductLinkUncheckedCreateWithoutAffiliateInput[]
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutAffiliateInput | AffiliateProductLinkCreateOrConnectWithoutAffiliateInput[]
+    upsert?: AffiliateProductLinkUpsertWithWhereUniqueWithoutAffiliateInput | AffiliateProductLinkUpsertWithWhereUniqueWithoutAffiliateInput[]
+    createMany?: AffiliateProductLinkCreateManyAffiliateInputEnvelope
+    set?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    disconnect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    delete?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    connect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    update?: AffiliateProductLinkUpdateWithWhereUniqueWithoutAffiliateInput | AffiliateProductLinkUpdateWithWhereUniqueWithoutAffiliateInput[]
+    updateMany?: AffiliateProductLinkUpdateManyWithWhereWithoutAffiliateInput | AffiliateProductLinkUpdateManyWithWhereWithoutAffiliateInput[]
+    deleteMany?: AffiliateProductLinkScalarWhereInput | AffiliateProductLinkScalarWhereInput[]
   }
 
   export type UserCreateNestedManyWithoutImageInput = {
@@ -23998,6 +25632,13 @@ export namespace Prisma {
     connect?: AffiliateCommissionWhereUniqueInput | AffiliateCommissionWhereUniqueInput[]
   }
 
+  export type AffiliateProductLinkCreateNestedManyWithoutBookInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutBookInput, AffiliateProductLinkUncheckedCreateWithoutBookInput> | AffiliateProductLinkCreateWithoutBookInput[] | AffiliateProductLinkUncheckedCreateWithoutBookInput[]
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutBookInput | AffiliateProductLinkCreateOrConnectWithoutBookInput[]
+    createMany?: AffiliateProductLinkCreateManyBookInputEnvelope
+    connect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+  }
+
   export type FavoriteUncheckedCreateNestedManyWithoutBookInput = {
     create?: XOR<FavoriteCreateWithoutBookInput, FavoriteUncheckedCreateWithoutBookInput> | FavoriteCreateWithoutBookInput[] | FavoriteUncheckedCreateWithoutBookInput[]
     connectOrCreate?: FavoriteCreateOrConnectWithoutBookInput | FavoriteCreateOrConnectWithoutBookInput[]
@@ -24031,6 +25672,13 @@ export namespace Prisma {
     connectOrCreate?: AffiliateCommissionCreateOrConnectWithoutBookInput | AffiliateCommissionCreateOrConnectWithoutBookInput[]
     createMany?: AffiliateCommissionCreateManyBookInputEnvelope
     connect?: AffiliateCommissionWhereUniqueInput | AffiliateCommissionWhereUniqueInput[]
+  }
+
+  export type AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutBookInput, AffiliateProductLinkUncheckedCreateWithoutBookInput> | AffiliateProductLinkCreateWithoutBookInput[] | AffiliateProductLinkUncheckedCreateWithoutBookInput[]
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutBookInput | AffiliateProductLinkCreateOrConnectWithoutBookInput[]
+    createMany?: AffiliateProductLinkCreateManyBookInputEnvelope
+    connect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
   }
 
   export type FloatFieldUpdateOperationsInput = {
@@ -24157,6 +25805,20 @@ export namespace Prisma {
     deleteMany?: AffiliateCommissionScalarWhereInput | AffiliateCommissionScalarWhereInput[]
   }
 
+  export type AffiliateProductLinkUpdateManyWithoutBookNestedInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutBookInput, AffiliateProductLinkUncheckedCreateWithoutBookInput> | AffiliateProductLinkCreateWithoutBookInput[] | AffiliateProductLinkUncheckedCreateWithoutBookInput[]
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutBookInput | AffiliateProductLinkCreateOrConnectWithoutBookInput[]
+    upsert?: AffiliateProductLinkUpsertWithWhereUniqueWithoutBookInput | AffiliateProductLinkUpsertWithWhereUniqueWithoutBookInput[]
+    createMany?: AffiliateProductLinkCreateManyBookInputEnvelope
+    set?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    disconnect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    delete?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    connect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    update?: AffiliateProductLinkUpdateWithWhereUniqueWithoutBookInput | AffiliateProductLinkUpdateWithWhereUniqueWithoutBookInput[]
+    updateMany?: AffiliateProductLinkUpdateManyWithWhereWithoutBookInput | AffiliateProductLinkUpdateManyWithWhereWithoutBookInput[]
+    deleteMany?: AffiliateProductLinkScalarWhereInput | AffiliateProductLinkScalarWhereInput[]
+  }
+
   export type FavoriteUncheckedUpdateManyWithoutBookNestedInput = {
     create?: XOR<FavoriteCreateWithoutBookInput, FavoriteUncheckedCreateWithoutBookInput> | FavoriteCreateWithoutBookInput[] | FavoriteUncheckedCreateWithoutBookInput[]
     connectOrCreate?: FavoriteCreateOrConnectWithoutBookInput | FavoriteCreateOrConnectWithoutBookInput[]
@@ -24225,6 +25887,20 @@ export namespace Prisma {
     update?: AffiliateCommissionUpdateWithWhereUniqueWithoutBookInput | AffiliateCommissionUpdateWithWhereUniqueWithoutBookInput[]
     updateMany?: AffiliateCommissionUpdateManyWithWhereWithoutBookInput | AffiliateCommissionUpdateManyWithWhereWithoutBookInput[]
     deleteMany?: AffiliateCommissionScalarWhereInput | AffiliateCommissionScalarWhereInput[]
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutBookInput, AffiliateProductLinkUncheckedCreateWithoutBookInput> | AffiliateProductLinkCreateWithoutBookInput[] | AffiliateProductLinkUncheckedCreateWithoutBookInput[]
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutBookInput | AffiliateProductLinkCreateOrConnectWithoutBookInput[]
+    upsert?: AffiliateProductLinkUpsertWithWhereUniqueWithoutBookInput | AffiliateProductLinkUpsertWithWhereUniqueWithoutBookInput[]
+    createMany?: AffiliateProductLinkCreateManyBookInputEnvelope
+    set?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    disconnect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    delete?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    connect?: AffiliateProductLinkWhereUniqueInput | AffiliateProductLinkWhereUniqueInput[]
+    update?: AffiliateProductLinkUpdateWithWhereUniqueWithoutBookInput | AffiliateProductLinkUpdateWithWhereUniqueWithoutBookInput[]
+    updateMany?: AffiliateProductLinkUpdateManyWithWhereWithoutBookInput | AffiliateProductLinkUpdateManyWithWhereWithoutBookInput[]
+    deleteMany?: AffiliateProductLinkScalarWhereInput | AffiliateProductLinkScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutFavoritesInput = {
@@ -24395,6 +26071,12 @@ export namespace Prisma {
     connect?: BookWhereUniqueInput
   }
 
+  export type AffiliateProductLinkCreateNestedOneWithoutOrderItemsInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutOrderItemsInput, AffiliateProductLinkUncheckedCreateWithoutOrderItemsInput>
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutOrderItemsInput
+    connect?: AffiliateProductLinkWhereUniqueInput
+  }
+
   export type OrderUpdateOneRequiredWithoutOrderItemsNestedInput = {
     create?: XOR<OrderCreateWithoutOrderItemsInput, OrderUncheckedCreateWithoutOrderItemsInput>
     connectOrCreate?: OrderCreateOrConnectWithoutOrderItemsInput
@@ -24409,6 +26091,16 @@ export namespace Prisma {
     upsert?: BookUpsertWithoutOrderItemsInput
     connect?: BookWhereUniqueInput
     update?: XOR<XOR<BookUpdateToOneWithWhereWithoutOrderItemsInput, BookUpdateWithoutOrderItemsInput>, BookUncheckedUpdateWithoutOrderItemsInput>
+  }
+
+  export type AffiliateProductLinkUpdateOneWithoutOrderItemsNestedInput = {
+    create?: XOR<AffiliateProductLinkCreateWithoutOrderItemsInput, AffiliateProductLinkUncheckedCreateWithoutOrderItemsInput>
+    connectOrCreate?: AffiliateProductLinkCreateOrConnectWithoutOrderItemsInput
+    upsert?: AffiliateProductLinkUpsertWithoutOrderItemsInput
+    disconnect?: AffiliateProductLinkWhereInput | boolean
+    delete?: AffiliateProductLinkWhereInput | boolean
+    connect?: AffiliateProductLinkWhereUniqueInput
+    update?: XOR<XOR<AffiliateProductLinkUpdateToOneWithWhereWithoutOrderItemsInput, AffiliateProductLinkUpdateWithoutOrderItemsInput>, AffiliateProductLinkUncheckedUpdateWithoutOrderItemsInput>
   }
 
   export type UserCreateNestedOneWithoutNotificationsInput = {
@@ -24497,6 +26189,76 @@ export namespace Prisma {
     upsert?: OrderUpsertWithoutAffiliateCommissionsInput
     connect?: OrderWhereUniqueInput
     update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutAffiliateCommissionsInput, OrderUpdateWithoutAffiliateCommissionsInput>, OrderUncheckedUpdateWithoutAffiliateCommissionsInput>
+  }
+
+  export type BookCreateNestedOneWithoutAffiliateProductLinksInput = {
+    create?: XOR<BookCreateWithoutAffiliateProductLinksInput, BookUncheckedCreateWithoutAffiliateProductLinksInput>
+    connectOrCreate?: BookCreateOrConnectWithoutAffiliateProductLinksInput
+    connect?: BookWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutAffiliateProductLinksInput = {
+    create?: XOR<UserCreateWithoutAffiliateProductLinksInput, UserUncheckedCreateWithoutAffiliateProductLinksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAffiliateProductLinksInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type OrderItemCreateNestedManyWithoutAffiliateProductLinkInput = {
+    create?: XOR<OrderItemCreateWithoutAffiliateProductLinkInput, OrderItemUncheckedCreateWithoutAffiliateProductLinkInput> | OrderItemCreateWithoutAffiliateProductLinkInput[] | OrderItemUncheckedCreateWithoutAffiliateProductLinkInput[]
+    connectOrCreate?: OrderItemCreateOrConnectWithoutAffiliateProductLinkInput | OrderItemCreateOrConnectWithoutAffiliateProductLinkInput[]
+    createMany?: OrderItemCreateManyAffiliateProductLinkInputEnvelope
+    connect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+  }
+
+  export type OrderItemUncheckedCreateNestedManyWithoutAffiliateProductLinkInput = {
+    create?: XOR<OrderItemCreateWithoutAffiliateProductLinkInput, OrderItemUncheckedCreateWithoutAffiliateProductLinkInput> | OrderItemCreateWithoutAffiliateProductLinkInput[] | OrderItemUncheckedCreateWithoutAffiliateProductLinkInput[]
+    connectOrCreate?: OrderItemCreateOrConnectWithoutAffiliateProductLinkInput | OrderItemCreateOrConnectWithoutAffiliateProductLinkInput[]
+    createMany?: OrderItemCreateManyAffiliateProductLinkInputEnvelope
+    connect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+  }
+
+  export type BookUpdateOneRequiredWithoutAffiliateProductLinksNestedInput = {
+    create?: XOR<BookCreateWithoutAffiliateProductLinksInput, BookUncheckedCreateWithoutAffiliateProductLinksInput>
+    connectOrCreate?: BookCreateOrConnectWithoutAffiliateProductLinksInput
+    upsert?: BookUpsertWithoutAffiliateProductLinksInput
+    connect?: BookWhereUniqueInput
+    update?: XOR<XOR<BookUpdateToOneWithWhereWithoutAffiliateProductLinksInput, BookUpdateWithoutAffiliateProductLinksInput>, BookUncheckedUpdateWithoutAffiliateProductLinksInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutAffiliateProductLinksNestedInput = {
+    create?: XOR<UserCreateWithoutAffiliateProductLinksInput, UserUncheckedCreateWithoutAffiliateProductLinksInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAffiliateProductLinksInput
+    upsert?: UserUpsertWithoutAffiliateProductLinksInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAffiliateProductLinksInput, UserUpdateWithoutAffiliateProductLinksInput>, UserUncheckedUpdateWithoutAffiliateProductLinksInput>
+  }
+
+  export type OrderItemUpdateManyWithoutAffiliateProductLinkNestedInput = {
+    create?: XOR<OrderItemCreateWithoutAffiliateProductLinkInput, OrderItemUncheckedCreateWithoutAffiliateProductLinkInput> | OrderItemCreateWithoutAffiliateProductLinkInput[] | OrderItemUncheckedCreateWithoutAffiliateProductLinkInput[]
+    connectOrCreate?: OrderItemCreateOrConnectWithoutAffiliateProductLinkInput | OrderItemCreateOrConnectWithoutAffiliateProductLinkInput[]
+    upsert?: OrderItemUpsertWithWhereUniqueWithoutAffiliateProductLinkInput | OrderItemUpsertWithWhereUniqueWithoutAffiliateProductLinkInput[]
+    createMany?: OrderItemCreateManyAffiliateProductLinkInputEnvelope
+    set?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+    disconnect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+    delete?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+    connect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+    update?: OrderItemUpdateWithWhereUniqueWithoutAffiliateProductLinkInput | OrderItemUpdateWithWhereUniqueWithoutAffiliateProductLinkInput[]
+    updateMany?: OrderItemUpdateManyWithWhereWithoutAffiliateProductLinkInput | OrderItemUpdateManyWithWhereWithoutAffiliateProductLinkInput[]
+    deleteMany?: OrderItemScalarWhereInput | OrderItemScalarWhereInput[]
+  }
+
+  export type OrderItemUncheckedUpdateManyWithoutAffiliateProductLinkNestedInput = {
+    create?: XOR<OrderItemCreateWithoutAffiliateProductLinkInput, OrderItemUncheckedCreateWithoutAffiliateProductLinkInput> | OrderItemCreateWithoutAffiliateProductLinkInput[] | OrderItemUncheckedCreateWithoutAffiliateProductLinkInput[]
+    connectOrCreate?: OrderItemCreateOrConnectWithoutAffiliateProductLinkInput | OrderItemCreateOrConnectWithoutAffiliateProductLinkInput[]
+    upsert?: OrderItemUpsertWithWhereUniqueWithoutAffiliateProductLinkInput | OrderItemUpsertWithWhereUniqueWithoutAffiliateProductLinkInput[]
+    createMany?: OrderItemCreateManyAffiliateProductLinkInputEnvelope
+    set?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+    disconnect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+    delete?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+    connect?: OrderItemWhereUniqueInput | OrderItemWhereUniqueInput[]
+    update?: OrderItemUpdateWithWhereUniqueWithoutAffiliateProductLinkInput | OrderItemUpdateWithWhereUniqueWithoutAffiliateProductLinkInput[]
+    updateMany?: OrderItemUpdateManyWithWhereWithoutAffiliateProductLinkInput | OrderItemUpdateManyWithWhereWithoutAffiliateProductLinkInput[]
+    deleteMany?: OrderItemScalarWhereInput | OrderItemScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutAdminTokenInput = {
@@ -24827,6 +26589,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutAdminInput = {
@@ -24853,6 +26616,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutAdminInput = {
@@ -24895,6 +26659,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminInput = {
@@ -24921,6 +26686,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type AdminCreateWithoutAdminUserInput = {
@@ -25176,6 +26942,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutCreatedUsersInput = {
@@ -25202,6 +26969,7 @@ export namespace Prisma {
     reviews?: ReviewUncheckedCreateNestedManyWithoutUserInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutCreatedUsersInput = {
@@ -25233,6 +27001,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutCreatedByInput = {
@@ -25259,6 +27028,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutCreatedByInput = {
@@ -25304,6 +27074,7 @@ export namespace Prisma {
     orderItems?: OrderItemCreateNestedManyWithoutBookInput
     reviews?: ReviewCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateWithoutCreatedByInput = {
@@ -25340,6 +27111,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookCreateOrConnectWithoutCreatedByInput = {
@@ -25409,6 +27181,31 @@ export namespace Prisma {
 
   export type AffiliateCommissionCreateManyAffiliateInputEnvelope = {
     data: AffiliateCommissionCreateManyAffiliateInput | AffiliateCommissionCreateManyAffiliateInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AffiliateProductLinkCreateWithoutAffiliateInput = {
+    code: string
+    createdAt?: Date | string
+    book: BookCreateNestedOneWithoutAffiliateProductLinksInput
+    orderItems?: OrderItemCreateNestedManyWithoutAffiliateProductLinkInput
+  }
+
+  export type AffiliateProductLinkUncheckedCreateWithoutAffiliateInput = {
+    id?: number
+    bookId: number
+    code: string
+    createdAt?: Date | string
+    orderItems?: OrderItemUncheckedCreateNestedManyWithoutAffiliateProductLinkInput
+  }
+
+  export type AffiliateProductLinkCreateOrConnectWithoutAffiliateInput = {
+    where: AffiliateProductLinkWhereUniqueInput
+    create: XOR<AffiliateProductLinkCreateWithoutAffiliateInput, AffiliateProductLinkUncheckedCreateWithoutAffiliateInput>
+  }
+
+  export type AffiliateProductLinkCreateManyAffiliateInputEnvelope = {
+    data: AffiliateProductLinkCreateManyAffiliateInput | AffiliateProductLinkCreateManyAffiliateInput[]
     skipDuplicates?: boolean
   }
 
@@ -25683,6 +27480,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedUsersInput = {
@@ -25709,6 +27507,7 @@ export namespace Prisma {
     reviews?: ReviewUncheckedUpdateManyWithoutUserNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -25861,6 +27660,33 @@ export namespace Prisma {
     reversedAt?: DateTimeNullableFilter<"AffiliateCommission"> | Date | string | null
   }
 
+  export type AffiliateProductLinkUpsertWithWhereUniqueWithoutAffiliateInput = {
+    where: AffiliateProductLinkWhereUniqueInput
+    update: XOR<AffiliateProductLinkUpdateWithoutAffiliateInput, AffiliateProductLinkUncheckedUpdateWithoutAffiliateInput>
+    create: XOR<AffiliateProductLinkCreateWithoutAffiliateInput, AffiliateProductLinkUncheckedCreateWithoutAffiliateInput>
+  }
+
+  export type AffiliateProductLinkUpdateWithWhereUniqueWithoutAffiliateInput = {
+    where: AffiliateProductLinkWhereUniqueInput
+    data: XOR<AffiliateProductLinkUpdateWithoutAffiliateInput, AffiliateProductLinkUncheckedUpdateWithoutAffiliateInput>
+  }
+
+  export type AffiliateProductLinkUpdateManyWithWhereWithoutAffiliateInput = {
+    where: AffiliateProductLinkScalarWhereInput
+    data: XOR<AffiliateProductLinkUpdateManyMutationInput, AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateInput>
+  }
+
+  export type AffiliateProductLinkScalarWhereInput = {
+    AND?: AffiliateProductLinkScalarWhereInput | AffiliateProductLinkScalarWhereInput[]
+    OR?: AffiliateProductLinkScalarWhereInput[]
+    NOT?: AffiliateProductLinkScalarWhereInput | AffiliateProductLinkScalarWhereInput[]
+    id?: IntFilter<"AffiliateProductLink"> | number
+    bookId?: IntFilter<"AffiliateProductLink"> | number
+    affiliateId?: StringFilter<"AffiliateProductLink"> | string
+    code?: StringFilter<"AffiliateProductLink"> | string
+    createdAt?: DateTimeFilter<"AffiliateProductLink"> | Date | string
+  }
+
   export type UserCreateWithoutImageInput = {
     id?: string
     email: string
@@ -25885,6 +27711,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutImageInput = {
@@ -25911,6 +27738,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutImageInput = {
@@ -25942,6 +27770,7 @@ export namespace Prisma {
     createdUsers?: UserCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutAvatarImageInput = {
@@ -25968,6 +27797,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutAvatarImageInput = {
@@ -26013,6 +27843,7 @@ export namespace Prisma {
     orderItems?: OrderItemCreateNestedManyWithoutBookInput
     reviews?: ReviewCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateWithoutCoverImageInput = {
@@ -26049,6 +27880,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookCreateOrConnectWithoutCoverImageInput = {
@@ -26142,6 +27974,7 @@ export namespace Prisma {
     orderItems?: OrderItemCreateNestedManyWithoutBookInput
     reviews?: ReviewCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateWithoutCategoryRefInput = {
@@ -26178,6 +28011,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookCreateOrConnectWithoutCategoryRefInput = {
@@ -26255,6 +28089,7 @@ export namespace Prisma {
     createdUsers?: UserCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutBooksCreatedInput = {
@@ -26281,6 +28116,7 @@ export namespace Prisma {
     reviews?: ReviewUncheckedCreateNestedManyWithoutUserInput
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutBooksCreatedInput = {
@@ -26373,6 +28209,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     order: OrderCreateNestedOneWithoutOrderItemsInput
+    affiliateProductLink?: AffiliateProductLinkCreateNestedOneWithoutOrderItemsInput
   }
 
   export type OrderItemUncheckedCreateWithoutBookInput = {
@@ -26381,6 +28218,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26457,6 +28295,31 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AffiliateProductLinkCreateWithoutBookInput = {
+    code: string
+    createdAt?: Date | string
+    affiliate: UserCreateNestedOneWithoutAffiliateProductLinksInput
+    orderItems?: OrderItemCreateNestedManyWithoutAffiliateProductLinkInput
+  }
+
+  export type AffiliateProductLinkUncheckedCreateWithoutBookInput = {
+    id?: number
+    affiliateId: string
+    code: string
+    createdAt?: Date | string
+    orderItems?: OrderItemUncheckedCreateNestedManyWithoutAffiliateProductLinkInput
+  }
+
+  export type AffiliateProductLinkCreateOrConnectWithoutBookInput = {
+    where: AffiliateProductLinkWhereUniqueInput
+    create: XOR<AffiliateProductLinkCreateWithoutBookInput, AffiliateProductLinkUncheckedCreateWithoutBookInput>
+  }
+
+  export type AffiliateProductLinkCreateManyBookInputEnvelope = {
+    data: AffiliateProductLinkCreateManyBookInput | AffiliateProductLinkCreateManyBookInput[]
+    skipDuplicates?: boolean
+  }
+
   export type ImageUpsertWithoutCoverOfBooksInput = {
     update: XOR<ImageUpdateWithoutCoverOfBooksInput, ImageUncheckedUpdateWithoutCoverOfBooksInput>
     create: XOR<ImageCreateWithoutCoverOfBooksInput, ImageUncheckedCreateWithoutCoverOfBooksInput>
@@ -26523,6 +28386,7 @@ export namespace Prisma {
     createdUsers?: UserUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBooksCreatedInput = {
@@ -26549,6 +28413,7 @@ export namespace Prisma {
     reviews?: ReviewUncheckedUpdateManyWithoutUserNestedInput
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type CategoryUpsertWithoutBooksInput = {
@@ -26641,6 +28506,7 @@ export namespace Prisma {
     quantity?: IntFilter<"OrderItem"> | number
     unitPrice?: FloatFilter<"OrderItem"> | number
     totalPrice?: FloatFilter<"OrderItem"> | number
+    affiliateProductLinkId?: IntNullableFilter<"OrderItem"> | number | null
     createdAt?: DateTimeFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeFilter<"OrderItem"> | Date | string
   }
@@ -26677,6 +28543,22 @@ export namespace Prisma {
     data: XOR<AffiliateCommissionUpdateManyMutationInput, AffiliateCommissionUncheckedUpdateManyWithoutBookInput>
   }
 
+  export type AffiliateProductLinkUpsertWithWhereUniqueWithoutBookInput = {
+    where: AffiliateProductLinkWhereUniqueInput
+    update: XOR<AffiliateProductLinkUpdateWithoutBookInput, AffiliateProductLinkUncheckedUpdateWithoutBookInput>
+    create: XOR<AffiliateProductLinkCreateWithoutBookInput, AffiliateProductLinkUncheckedCreateWithoutBookInput>
+  }
+
+  export type AffiliateProductLinkUpdateWithWhereUniqueWithoutBookInput = {
+    where: AffiliateProductLinkWhereUniqueInput
+    data: XOR<AffiliateProductLinkUpdateWithoutBookInput, AffiliateProductLinkUncheckedUpdateWithoutBookInput>
+  }
+
+  export type AffiliateProductLinkUpdateManyWithWhereWithoutBookInput = {
+    where: AffiliateProductLinkScalarWhereInput
+    data: XOR<AffiliateProductLinkUpdateManyMutationInput, AffiliateProductLinkUncheckedUpdateManyWithoutBookInput>
+  }
+
   export type UserCreateWithoutFavoritesInput = {
     id?: string
     email: string
@@ -26701,6 +28583,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutFavoritesInput = {
@@ -26727,6 +28610,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutFavoritesInput = {
@@ -26767,6 +28651,7 @@ export namespace Prisma {
     orderItems?: OrderItemCreateNestedManyWithoutBookInput
     reviews?: ReviewCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateWithoutFavoritesInput = {
@@ -26803,6 +28688,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookCreateOrConnectWithoutFavoritesInput = {
@@ -26845,6 +28731,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFavoritesInput = {
@@ -26871,6 +28758,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type BookUpsertWithoutFavoritesInput = {
@@ -26917,6 +28805,7 @@ export namespace Prisma {
     orderItems?: OrderItemUpdateManyWithoutBookNestedInput
     reviews?: ReviewUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateWithoutFavoritesInput = {
@@ -26953,6 +28842,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
   }
 
   export type UserCreateWithoutCartInput = {
@@ -26979,6 +28869,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutCartInput = {
@@ -27005,6 +28896,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutCartInput = {
@@ -27045,6 +28937,7 @@ export namespace Prisma {
     orderItems?: OrderItemCreateNestedManyWithoutBookInput
     reviews?: ReviewCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateWithoutCartInput = {
@@ -27081,6 +28974,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookCreateOrConnectWithoutCartInput = {
@@ -27123,6 +29017,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCartInput = {
@@ -27149,6 +29044,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type BookUpsertWithoutCartInput = {
@@ -27195,6 +29091,7 @@ export namespace Prisma {
     orderItems?: OrderItemUpdateManyWithoutBookNestedInput
     reviews?: ReviewUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateWithoutCartInput = {
@@ -27231,6 +29128,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
   }
 
   export type UserCreateWithoutOrdersInput = {
@@ -27257,6 +29155,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutOrdersInput = {
@@ -27283,6 +29182,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutOrdersInput = {
@@ -27297,6 +29197,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     book: BookCreateNestedOneWithoutOrderItemsInput
+    affiliateProductLink?: AffiliateProductLinkCreateNestedOneWithoutOrderItemsInput
   }
 
   export type OrderItemUncheckedCreateWithoutOrderInput = {
@@ -27305,6 +29206,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -27389,6 +29291,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrdersInput = {
@@ -27415,6 +29318,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type OrderItemUpsertWithWhereUniqueWithoutOrderInput = {
@@ -27530,6 +29434,7 @@ export namespace Prisma {
     cart?: CartCreateNestedManyWithoutBookInput
     reviews?: ReviewCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateWithoutOrderItemsInput = {
@@ -27566,11 +29471,32 @@ export namespace Prisma {
     cart?: CartUncheckedCreateNestedManyWithoutBookInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookCreateOrConnectWithoutOrderItemsInput = {
     where: BookWhereUniqueInput
     create: XOR<BookCreateWithoutOrderItemsInput, BookUncheckedCreateWithoutOrderItemsInput>
+  }
+
+  export type AffiliateProductLinkCreateWithoutOrderItemsInput = {
+    code: string
+    createdAt?: Date | string
+    book: BookCreateNestedOneWithoutAffiliateProductLinksInput
+    affiliate: UserCreateNestedOneWithoutAffiliateProductLinksInput
+  }
+
+  export type AffiliateProductLinkUncheckedCreateWithoutOrderItemsInput = {
+    id?: number
+    bookId: number
+    affiliateId: string
+    code: string
+    createdAt?: Date | string
+  }
+
+  export type AffiliateProductLinkCreateOrConnectWithoutOrderItemsInput = {
+    where: AffiliateProductLinkWhereUniqueInput
+    create: XOR<AffiliateProductLinkCreateWithoutOrderItemsInput, AffiliateProductLinkUncheckedCreateWithoutOrderItemsInput>
   }
 
   export type OrderUpsertWithoutOrderItemsInput = {
@@ -27671,6 +29597,7 @@ export namespace Prisma {
     cart?: CartUpdateManyWithoutBookNestedInput
     reviews?: ReviewUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateWithoutOrderItemsInput = {
@@ -27707,6 +29634,33 @@ export namespace Prisma {
     cart?: CartUncheckedUpdateManyWithoutBookNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
+  }
+
+  export type AffiliateProductLinkUpsertWithoutOrderItemsInput = {
+    update: XOR<AffiliateProductLinkUpdateWithoutOrderItemsInput, AffiliateProductLinkUncheckedUpdateWithoutOrderItemsInput>
+    create: XOR<AffiliateProductLinkCreateWithoutOrderItemsInput, AffiliateProductLinkUncheckedCreateWithoutOrderItemsInput>
+    where?: AffiliateProductLinkWhereInput
+  }
+
+  export type AffiliateProductLinkUpdateToOneWithWhereWithoutOrderItemsInput = {
+    where?: AffiliateProductLinkWhereInput
+    data: XOR<AffiliateProductLinkUpdateWithoutOrderItemsInput, AffiliateProductLinkUncheckedUpdateWithoutOrderItemsInput>
+  }
+
+  export type AffiliateProductLinkUpdateWithoutOrderItemsInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    book?: BookUpdateOneRequiredWithoutAffiliateProductLinksNestedInput
+    affiliate?: UserUpdateOneRequiredWithoutAffiliateProductLinksNestedInput
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateWithoutOrderItemsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    bookId?: IntFieldUpdateOperationsInput | number
+    affiliateId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -27733,6 +29687,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -27759,6 +29714,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -27801,6 +29757,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -27827,6 +29784,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserCreateWithoutReviewsInput = {
@@ -27853,6 +29811,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutReviewsInput = {
@@ -27879,6 +29838,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutReviewsInput = {
@@ -27919,6 +29879,7 @@ export namespace Prisma {
     cart?: CartCreateNestedManyWithoutBookInput
     orderItems?: OrderItemCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateWithoutReviewsInput = {
@@ -27955,6 +29916,7 @@ export namespace Prisma {
     cart?: CartUncheckedCreateNestedManyWithoutBookInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookCreateOrConnectWithoutReviewsInput = {
@@ -27997,6 +29959,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewsInput = {
@@ -28023,6 +29986,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type BookUpsertWithoutReviewsInput = {
@@ -28069,6 +30033,7 @@ export namespace Prisma {
     cart?: CartUpdateManyWithoutBookNestedInput
     orderItems?: OrderItemUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateWithoutReviewsInput = {
@@ -28105,6 +30070,7 @@ export namespace Prisma {
     cart?: CartUncheckedUpdateManyWithoutBookNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
   }
 
   export type UserCreateWithoutAffiliateCommissionsInput = {
@@ -28131,6 +30097,7 @@ export namespace Prisma {
     createdUsers?: UserCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutAffiliateCommissionsInput = {
@@ -28157,6 +30124,7 @@ export namespace Prisma {
     reviews?: ReviewUncheckedCreateNestedManyWithoutUserInput
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutAffiliateCommissionsInput = {
@@ -28197,6 +30165,7 @@ export namespace Prisma {
     cart?: CartCreateNestedManyWithoutBookInput
     orderItems?: OrderItemCreateNestedManyWithoutBookInput
     reviews?: ReviewCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutBookInput
   }
 
   export type BookUncheckedCreateWithoutAffiliateCommissionsInput = {
@@ -28233,6 +30202,7 @@ export namespace Prisma {
     cart?: CartUncheckedCreateNestedManyWithoutBookInput
     orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
     reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutBookInput
   }
 
   export type BookCreateOrConnectWithoutAffiliateCommissionsInput = {
@@ -28323,6 +30293,7 @@ export namespace Prisma {
     createdUsers?: UserUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAffiliateCommissionsInput = {
@@ -28349,6 +30320,7 @@ export namespace Prisma {
     reviews?: ReviewUncheckedUpdateManyWithoutUserNestedInput
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type BookUpsertWithoutAffiliateCommissionsInput = {
@@ -28395,6 +30367,7 @@ export namespace Prisma {
     cart?: CartUpdateManyWithoutBookNestedInput
     orderItems?: OrderItemUpdateManyWithoutBookNestedInput
     reviews?: ReviewUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateWithoutAffiliateCommissionsInput = {
@@ -28431,6 +30404,7 @@ export namespace Prisma {
     cart?: CartUncheckedUpdateManyWithoutBookNestedInput
     orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
   }
 
   export type OrderUpsertWithoutAffiliateCommissionsInput = {
@@ -28487,6 +30461,339 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
   }
 
+  export type BookCreateWithoutAffiliateProductLinksInput = {
+    title: string
+    author: string
+    description: string
+    price: number
+    originalPrice?: number | null
+    category: string
+    cover: string
+    language?: string | null
+    printLength?: number | null
+    publisher?: string | null
+    publishedDate?: string | null
+    rating?: number
+    reviewCount?: number
+    sales?: number
+    isActive?: boolean
+    isFeatured?: boolean
+    isFree?: boolean
+    isAffiliate?: boolean
+    maxInstallments?: number
+    fileSize?: string | null
+    downloadUrl?: string | null
+    downloadCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    readingAge?: string | null
+    coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
+    createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
+    categoryRef?: CategoryCreateNestedOneWithoutBooksInput
+    favorites?: FavoriteCreateNestedManyWithoutBookInput
+    cart?: CartCreateNestedManyWithoutBookInput
+    orderItems?: OrderItemCreateNestedManyWithoutBookInput
+    reviews?: ReviewCreateNestedManyWithoutBookInput
+    affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutBookInput
+  }
+
+  export type BookUncheckedCreateWithoutAffiliateProductLinksInput = {
+    id?: number
+    title: string
+    author: string
+    description: string
+    price: number
+    originalPrice?: number | null
+    category: string
+    cover: string
+    coverImageId?: string | null
+    language?: string | null
+    printLength?: number | null
+    publisher?: string | null
+    publishedDate?: string | null
+    rating?: number
+    reviewCount?: number
+    sales?: number
+    isActive?: boolean
+    isFeatured?: boolean
+    isFree?: boolean
+    isAffiliate?: boolean
+    maxInstallments?: number
+    fileSize?: string | null
+    downloadUrl?: string | null
+    downloadCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    readingAge?: string | null
+    createdById?: string | null
+    categoryId?: number | null
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
+    cart?: CartUncheckedCreateNestedManyWithoutBookInput
+    orderItems?: OrderItemUncheckedCreateNestedManyWithoutBookInput
+    reviews?: ReviewUncheckedCreateNestedManyWithoutBookInput
+    affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutBookInput
+  }
+
+  export type BookCreateOrConnectWithoutAffiliateProductLinksInput = {
+    where: BookWhereUniqueInput
+    create: XOR<BookCreateWithoutAffiliateProductLinksInput, BookUncheckedCreateWithoutAffiliateProductLinksInput>
+  }
+
+  export type UserCreateWithoutAffiliateProductLinksInput = {
+    id?: string
+    email: string
+    cpf?: string | null
+    cnpj?: string | null
+    name?: string | null
+    password: string
+    role: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isActive?: boolean
+    affiliateCode?: string | null
+    admin?: AdminCreateNestedOneWithoutAdminUserInput
+    adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
+    Image?: ImageCreateNestedManyWithoutUsersInput
+    favorites?: FavoriteCreateNestedManyWithoutUserInput
+    cart?: CartCreateNestedManyWithoutUserInput
+    orders?: OrderCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    reviews?: ReviewCreateNestedManyWithoutUserInput
+    createdBy?: UserCreateNestedOneWithoutCreatedUsersInput
+    createdUsers?: UserCreateNestedManyWithoutCreatedByInput
+    booksCreated?: BookCreateNestedManyWithoutCreatedByInput
+    avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
+    affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+  }
+
+  export type UserUncheckedCreateWithoutAffiliateProductLinksInput = {
+    id?: string
+    email: string
+    cpf?: string | null
+    cnpj?: string | null
+    name?: string | null
+    password: string
+    role: $Enums.Role
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isActive?: boolean
+    createdById?: string | null
+    avatarImageId?: string | null
+    affiliateCode?: string | null
+    admin?: AdminUncheckedCreateNestedOneWithoutAdminUserInput
+    adminToken?: AdminTokenUncheckedCreateNestedOneWithoutAdminInput
+    Image?: ImageUncheckedCreateNestedManyWithoutUsersInput
+    favorites?: FavoriteUncheckedCreateNestedManyWithoutUserInput
+    cart?: CartUncheckedCreateNestedManyWithoutUserInput
+    orders?: OrderUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    reviews?: ReviewUncheckedCreateNestedManyWithoutUserInput
+    createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
+    booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
+    affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+  }
+
+  export type UserCreateOrConnectWithoutAffiliateProductLinksInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAffiliateProductLinksInput, UserUncheckedCreateWithoutAffiliateProductLinksInput>
+  }
+
+  export type OrderItemCreateWithoutAffiliateProductLinkInput = {
+    quantity: number
+    unitPrice: number
+    totalPrice: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    order: OrderCreateNestedOneWithoutOrderItemsInput
+    book: BookCreateNestedOneWithoutOrderItemsInput
+  }
+
+  export type OrderItemUncheckedCreateWithoutAffiliateProductLinkInput = {
+    id?: number
+    orderId: number
+    bookId: number
+    quantity: number
+    unitPrice: number
+    totalPrice: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrderItemCreateOrConnectWithoutAffiliateProductLinkInput = {
+    where: OrderItemWhereUniqueInput
+    create: XOR<OrderItemCreateWithoutAffiliateProductLinkInput, OrderItemUncheckedCreateWithoutAffiliateProductLinkInput>
+  }
+
+  export type OrderItemCreateManyAffiliateProductLinkInputEnvelope = {
+    data: OrderItemCreateManyAffiliateProductLinkInput | OrderItemCreateManyAffiliateProductLinkInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BookUpsertWithoutAffiliateProductLinksInput = {
+    update: XOR<BookUpdateWithoutAffiliateProductLinksInput, BookUncheckedUpdateWithoutAffiliateProductLinksInput>
+    create: XOR<BookCreateWithoutAffiliateProductLinksInput, BookUncheckedCreateWithoutAffiliateProductLinksInput>
+    where?: BookWhereInput
+  }
+
+  export type BookUpdateToOneWithWhereWithoutAffiliateProductLinksInput = {
+    where?: BookWhereInput
+    data: XOR<BookUpdateWithoutAffiliateProductLinksInput, BookUncheckedUpdateWithoutAffiliateProductLinksInput>
+  }
+
+  export type BookUpdateWithoutAffiliateProductLinksInput = {
+    title?: StringFieldUpdateOperationsInput | string
+    author?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    originalPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    category?: StringFieldUpdateOperationsInput | string
+    cover?: StringFieldUpdateOperationsInput | string
+    language?: NullableStringFieldUpdateOperationsInput | string | null
+    printLength?: NullableIntFieldUpdateOperationsInput | number | null
+    publisher?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedDate?: NullableStringFieldUpdateOperationsInput | string | null
+    rating?: FloatFieldUpdateOperationsInput | number
+    reviewCount?: IntFieldUpdateOperationsInput | number
+    sales?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isFeatured?: BoolFieldUpdateOperationsInput | boolean
+    isFree?: BoolFieldUpdateOperationsInput | boolean
+    isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
+    fileSize?: NullableStringFieldUpdateOperationsInput | string | null
+    downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    downloadCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
+    createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
+    categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
+    favorites?: FavoriteUpdateManyWithoutBookNestedInput
+    cart?: CartUpdateManyWithoutBookNestedInput
+    orderItems?: OrderItemUpdateManyWithoutBookNestedInput
+    reviews?: ReviewUpdateManyWithoutBookNestedInput
+    affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+  }
+
+  export type BookUncheckedUpdateWithoutAffiliateProductLinksInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    title?: StringFieldUpdateOperationsInput | string
+    author?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    originalPrice?: NullableFloatFieldUpdateOperationsInput | number | null
+    category?: StringFieldUpdateOperationsInput | string
+    cover?: StringFieldUpdateOperationsInput | string
+    coverImageId?: NullableStringFieldUpdateOperationsInput | string | null
+    language?: NullableStringFieldUpdateOperationsInput | string | null
+    printLength?: NullableIntFieldUpdateOperationsInput | number | null
+    publisher?: NullableStringFieldUpdateOperationsInput | string | null
+    publishedDate?: NullableStringFieldUpdateOperationsInput | string | null
+    rating?: FloatFieldUpdateOperationsInput | number
+    reviewCount?: IntFieldUpdateOperationsInput | number
+    sales?: IntFieldUpdateOperationsInput | number
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    isFeatured?: BoolFieldUpdateOperationsInput | boolean
+    isFree?: BoolFieldUpdateOperationsInput | boolean
+    isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    maxInstallments?: IntFieldUpdateOperationsInput | number
+    fileSize?: NullableStringFieldUpdateOperationsInput | string | null
+    downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    downloadCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: NullableIntFieldUpdateOperationsInput | number | null
+    favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
+    cart?: CartUncheckedUpdateManyWithoutBookNestedInput
+    orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
+    reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
+    affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+  }
+
+  export type UserUpsertWithoutAffiliateProductLinksInput = {
+    update: XOR<UserUpdateWithoutAffiliateProductLinksInput, UserUncheckedUpdateWithoutAffiliateProductLinksInput>
+    create: XOR<UserCreateWithoutAffiliateProductLinksInput, UserUncheckedCreateWithoutAffiliateProductLinksInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAffiliateProductLinksInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAffiliateProductLinksInput, UserUncheckedUpdateWithoutAffiliateProductLinksInput>
+  }
+
+  export type UserUpdateWithoutAffiliateProductLinksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
+    admin?: AdminUpdateOneWithoutAdminUserNestedInput
+    adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
+    Image?: ImageUpdateManyWithoutUsersNestedInput
+    favorites?: FavoriteUpdateManyWithoutUserNestedInput
+    cart?: CartUpdateManyWithoutUserNestedInput
+    orders?: OrderUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    reviews?: ReviewUpdateManyWithoutUserNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedUsersNestedInput
+    createdUsers?: UserUpdateManyWithoutCreatedByNestedInput
+    booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
+    avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
+    affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAffiliateProductLinksInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
+    affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
+    admin?: AdminUncheckedUpdateOneWithoutAdminUserNestedInput
+    adminToken?: AdminTokenUncheckedUpdateOneWithoutAdminNestedInput
+    Image?: ImageUncheckedUpdateManyWithoutUsersNestedInput
+    favorites?: FavoriteUncheckedUpdateManyWithoutUserNestedInput
+    cart?: CartUncheckedUpdateManyWithoutUserNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    reviews?: ReviewUncheckedUpdateManyWithoutUserNestedInput
+    createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
+    booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
+    affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+  }
+
+  export type OrderItemUpsertWithWhereUniqueWithoutAffiliateProductLinkInput = {
+    where: OrderItemWhereUniqueInput
+    update: XOR<OrderItemUpdateWithoutAffiliateProductLinkInput, OrderItemUncheckedUpdateWithoutAffiliateProductLinkInput>
+    create: XOR<OrderItemCreateWithoutAffiliateProductLinkInput, OrderItemUncheckedCreateWithoutAffiliateProductLinkInput>
+  }
+
+  export type OrderItemUpdateWithWhereUniqueWithoutAffiliateProductLinkInput = {
+    where: OrderItemWhereUniqueInput
+    data: XOR<OrderItemUpdateWithoutAffiliateProductLinkInput, OrderItemUncheckedUpdateWithoutAffiliateProductLinkInput>
+  }
+
+  export type OrderItemUpdateManyWithWhereWithoutAffiliateProductLinkInput = {
+    where: OrderItemScalarWhereInput
+    data: XOR<OrderItemUpdateManyMutationInput, OrderItemUncheckedUpdateManyWithoutAffiliateProductLinkInput>
+  }
+
   export type UserCreateWithoutAdminTokenInput = {
     id?: string
     email: string
@@ -28511,6 +30818,7 @@ export namespace Prisma {
     booksCreated?: BookCreateNestedManyWithoutCreatedByInput
     avatarImage?: ImageCreateNestedOneWithoutAvatarOfInput
     affiliateCommissions?: AffiliateCommissionCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserUncheckedCreateWithoutAdminTokenInput = {
@@ -28537,6 +30845,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedCreateNestedManyWithoutCreatedByInput
     booksCreated?: BookUncheckedCreateNestedManyWithoutCreatedByInput
     affiliateCommissions?: AffiliateCommissionUncheckedCreateNestedManyWithoutAffiliateInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedCreateNestedManyWithoutAffiliateInput
   }
 
   export type UserCreateOrConnectWithoutAdminTokenInput = {
@@ -28579,6 +30888,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAdminTokenInput = {
@@ -28605,6 +30915,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type FavoriteCreateManyUserInput = {
@@ -28721,6 +31032,13 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+  }
+
+  export type AffiliateProductLinkCreateManyAffiliateInput = {
+    id?: number
+    bookId: number
+    code: string
+    createdAt?: Date | string
   }
 
   export type ImageUpdateWithoutUsersInput = {
@@ -28946,6 +31264,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedByInput = {
@@ -28972,6 +31291,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutCreatedByInput = {
@@ -29022,6 +31342,7 @@ export namespace Prisma {
     orderItems?: OrderItemUpdateManyWithoutBookNestedInput
     reviews?: ReviewUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateWithoutCreatedByInput = {
@@ -29058,6 +31379,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateManyWithoutCreatedByInput = {
@@ -29127,6 +31449,28 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AffiliateProductLinkUpdateWithoutAffiliateInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    book?: BookUpdateOneRequiredWithoutAffiliateProductLinksNestedInput
+    orderItems?: OrderItemUpdateManyWithoutAffiliateProductLinkNestedInput
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateWithoutAffiliateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    bookId?: IntFieldUpdateOperationsInput | number
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderItems?: OrderItemUncheckedUpdateManyWithoutAffiliateProductLinkNestedInput
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    bookId?: IntFieldUpdateOperationsInput | number
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateManyAvatarImageInput = {
@@ -29199,6 +31543,7 @@ export namespace Prisma {
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     avatarImage?: ImageUpdateOneWithoutAvatarOfNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutImageInput = {
@@ -29225,6 +31570,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutImageInput = {
@@ -29267,6 +31613,7 @@ export namespace Prisma {
     createdUsers?: UserUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAvatarImageInput = {
@@ -29293,6 +31640,7 @@ export namespace Prisma {
     createdUsers?: UserUncheckedUpdateManyWithoutCreatedByNestedInput
     booksCreated?: BookUncheckedUpdateManyWithoutCreatedByNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutAffiliateNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutAffiliateNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutAvatarImageInput = {
@@ -29343,6 +31691,7 @@ export namespace Prisma {
     orderItems?: OrderItemUpdateManyWithoutBookNestedInput
     reviews?: ReviewUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateWithoutCoverImageInput = {
@@ -29379,6 +31728,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateManyWithoutCoverImageInput = {
@@ -29476,6 +31826,7 @@ export namespace Prisma {
     orderItems?: OrderItemUpdateManyWithoutBookNestedInput
     reviews?: ReviewUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateWithoutCategoryRefInput = {
@@ -29512,6 +31863,7 @@ export namespace Prisma {
     orderItems?: OrderItemUncheckedUpdateManyWithoutBookNestedInput
     reviews?: ReviewUncheckedUpdateManyWithoutBookNestedInput
     affiliateCommissions?: AffiliateCommissionUncheckedUpdateManyWithoutBookNestedInput
+    affiliateProductLinks?: AffiliateProductLinkUncheckedUpdateManyWithoutBookNestedInput
   }
 
   export type BookUncheckedUpdateManyWithoutCategoryRefInput = {
@@ -29568,6 +31920,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -29592,6 +31945,13 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+  }
+
+  export type AffiliateProductLinkCreateManyBookInput = {
+    id?: number
+    affiliateId: string
+    code: string
+    createdAt?: Date | string
   }
 
   export type FavoriteUpdateWithoutBookInput = {
@@ -29650,6 +32010,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
+    affiliateProductLink?: AffiliateProductLinkUpdateOneWithoutOrderItemsNestedInput
   }
 
   export type OrderItemUncheckedUpdateWithoutBookInput = {
@@ -29658,6 +32019,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29668,6 +32030,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29736,12 +32099,35 @@ export namespace Prisma {
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type AffiliateProductLinkUpdateWithoutBookInput = {
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    affiliate?: UserUpdateOneRequiredWithoutAffiliateProductLinksNestedInput
+    orderItems?: OrderItemUpdateManyWithoutAffiliateProductLinkNestedInput
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateWithoutBookInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    affiliateId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orderItems?: OrderItemUncheckedUpdateManyWithoutAffiliateProductLinkNestedInput
+  }
+
+  export type AffiliateProductLinkUncheckedUpdateManyWithoutBookInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    affiliateId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrderItemCreateManyOrderInput = {
     id?: number
     bookId: number
     quantity: number
     unitPrice: number
     totalPrice: number
+    affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -29766,6 +32152,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     book?: BookUpdateOneRequiredWithoutOrderItemsNestedInput
+    affiliateProductLink?: AffiliateProductLinkUpdateOneWithoutOrderItemsNestedInput
   }
 
   export type OrderItemUncheckedUpdateWithoutOrderInput = {
@@ -29774,6 +32161,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29784,6 +32172,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29824,6 +32213,49 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type OrderItemCreateManyAffiliateProductLinkInput = {
+    id?: number
+    orderId: number
+    bookId: number
+    quantity: number
+    unitPrice: number
+    totalPrice: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrderItemUpdateWithoutAffiliateProductLinkInput = {
+    quantity?: IntFieldUpdateOperationsInput | number
+    unitPrice?: FloatFieldUpdateOperationsInput | number
+    totalPrice?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
+    book?: BookUpdateOneRequiredWithoutOrderItemsNestedInput
+  }
+
+  export type OrderItemUncheckedUpdateWithoutAffiliateProductLinkInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderId?: IntFieldUpdateOperationsInput | number
+    bookId?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    unitPrice?: FloatFieldUpdateOperationsInput | number
+    totalPrice?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrderItemUncheckedUpdateManyWithoutAffiliateProductLinkInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderId?: IntFieldUpdateOperationsInput | number
+    bookId?: IntFieldUpdateOperationsInput | number
+    quantity?: IntFieldUpdateOperationsInput | number
+    unitPrice?: FloatFieldUpdateOperationsInput | number
+    totalPrice?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

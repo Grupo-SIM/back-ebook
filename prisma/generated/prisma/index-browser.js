@@ -241,6 +241,7 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   quantity: 'quantity',
   unitPrice: 'unitPrice',
   totalPrice: 'totalPrice',
+  affiliateProductLinkId: 'affiliateProductLinkId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -289,6 +290,14 @@ exports.Prisma.AffiliateCommissionScalarFieldEnum = {
   status: 'status',
   createdAt: 'createdAt',
   reversedAt: 'reversedAt'
+};
+
+exports.Prisma.AffiliateProductLinkScalarFieldEnum = {
+  id: 'id',
+  bookId: 'bookId',
+  affiliateId: 'affiliateId',
+  code: 'code',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.AdminTokenScalarFieldEnum = {
@@ -352,6 +361,7 @@ exports.Prisma.ModelName = {
   Review: 'Review',
   ActivityLog: 'ActivityLog',
   AffiliateCommission: 'AffiliateCommission',
+  AffiliateProductLink: 'AffiliateProductLink',
   AdminToken: 'AdminToken'
 };
 

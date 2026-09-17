@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsBoolean, IsEnum, IsObject, Min, Max } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsBoolean, IsEnum, IsObject, IsArray, ValidateNested, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export type CheckoutStep = 'selection' | 'payment' | 'confirmation';
@@ -190,13 +190,40 @@ export class OrderItemDto {
     totalPrice: number;
 }
 
+export class CartItemAffiliateDto {
+    @ApiProperty({ example: 12, description: 'ID do item do carrinho (Cart.id)' })
+    @IsNumber()
+    @Type(() => Number)
+    cartItemId: number;
+
+    @ApiProperty({ example: 'A1B2C3D4', description: 'Código do link de afiliado por produto (?refp=CODE)' })
+    @IsString()
+    affiliateCode: string;
+}
+
 export class CreateOrderDto {
     @ApiProperty({ example: [1, 2, 3], description: 'IDs dos itens do carrinho' })
     @IsNumber({}, { each: true })
     @Type(() => Number)
     cartItemIds: number[];
 
-    @ApiProperty({ example: 'A1B2C3D4', required: false, description: 'Código de afiliado capturado no link (?ref=CODE)' })
+    @ApiProperty({
+        type: [CartItemAffiliateDto],
+        required: false,
+        description: 'Códigos de afiliado por item do carrinho (link específico por livro)',
+    })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CartItemAffiliateDto)
+    itemAffiliateCodes?: CartItemAffiliateDto[];
+
+    @ApiProperty({
+        example: 'A1B2C3D4',
+        required: false,
+        deprecated: true,
+        description: 'Código de afiliado genérico legado (?ref=CODE) — mantido para compatibilidade, não usado para crédito de comissão por produto',
+    })
     @IsOptional()
     @IsString()
     affiliateCode?: string;

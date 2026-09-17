@@ -372,6 +372,20 @@ export class PaymentsController {
     const startIdx = (pageNum - 1) * limitNum;
     const endIdx = startIdx + limitNum;
 
+    const commissionWhere: any = { affiliateId: user.id, status: 'CREDITED' };
+    if (startDate || endDate) {
+      commissionWhere.createdAt = {};
+      const start = this.parseDateOnlyStart(startDate);
+      const end = this.parseDateOnlyEnd(endDate);
+      if (start) commissionWhere.createdAt.gte = start;
+      if (end) commissionWhere.createdAt.lte = end;
+    }
+    const commissionAgg = await this.prisma.affiliateCommission.aggregate({
+      where: commissionWhere,
+      _sum: { commissionAmount: true },
+    });
+    const totalAffiliateCommissions = Number((commissionAgg._sum.commissionAmount ?? 0).toFixed(2));
+
     return {
       transactions: mergedSorted.slice(startIdx, endIdx),
       meta: {
@@ -379,6 +393,7 @@ export class PaymentsController {
         itemsPerPage: limitNum,
         totalItems,
         totalPages,
+        totalAffiliateCommissions,
       },
     };
   }
@@ -479,6 +494,8 @@ export class PaymentsController {
     const totalDomFees = txs.reduce((s: number, t: any) => s + Number(t.dom_fee || 0), 0);
     const totalTx = txs.length;
 
+    const totalAffiliateCommissions = await this.getAffiliateCommissionsEarned(user.id, start, end);
+
     const monthName = new Date(y, m - 1, 1).toLocaleDateString('pt-BR', { month: 'long' });
 
     return {
@@ -495,12 +512,29 @@ export class PaymentsController {
         totalNet: Number(totalNet.toFixed(2)),
         totalFees: Number(totalFees.toFixed(2)),
         totalDomFees: Number(totalDomFees.toFixed(2)),
-        totalAffiliateCommissions: 0,
+        totalAffiliateCommissions,
         averageTransactionValue: totalTx > 0 ? Number((totalGross / totalTx).toFixed(2)) : 0,
         averageNetValue: totalTx > 0 ? Number((totalNet / totalTx).toFixed(2)) : 0,
       },
       transactions: txs,
     };
+  }
+
+  /**
+   * Soma das comissões de afiliado (CREDITED) ganhas pelo admin no período,
+   * já incluídas fisicamente no saldo sacável via creditOnSimintpay — aqui é
+   * só para exibição/conferência no relatório, não afeta o saldo real.
+   */
+  private async getAffiliateCommissionsEarned(userId: string, start: Date, end: Date): Promise<number> {
+    const result = await this.prisma.affiliateCommission.aggregate({
+      where: {
+        affiliateId: userId,
+        status: 'CREDITED',
+        createdAt: { gte: start, lte: end },
+      },
+      _sum: { commissionAmount: true },
+    });
+    return Number((result._sum.commissionAmount ?? 0).toFixed(2));
   }
 }
 

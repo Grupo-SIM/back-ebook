@@ -52,8 +52,9 @@ model User {
   avatarImage   Image?  @relation("UserAvatarImage", fields: [avatarImageId], references: [id])
 
   // Afiliados
-  affiliateCode        String?               @unique
-  affiliateCommissions AffiliateCommission[] @relation("AffiliateCommissionsEarned")
+  affiliateCode         String?                @unique
+  affiliateCommissions  AffiliateCommission[]  @relation("AffiliateCommissionsEarned")
+  affiliateProductLinks AffiliateProductLink[] @relation("AffiliateProductLinksByUser")
 
   @@map("users")
 }
@@ -117,13 +118,14 @@ model Book {
   createdById     String?
   createdBy       User?    @relation("BooksCreatedByUser", fields: [createdById], references: [id])
 
-  categoryRef          Category?             @relation(fields: [categoryId], references: [id])
-  categoryId           Int?
-  favorites            Favorite[]
-  cart                 Cart[]
-  orderItems           OrderItem[]
-  reviews              Review[]
-  affiliateCommissions AffiliateCommission[]
+  categoryRef           Category?              @relation(fields: [categoryId], references: [id])
+  categoryId            Int?
+  favorites             Favorite[]
+  cart                  Cart[]
+  orderItems            OrderItem[]
+  reviews               Review[]
+  affiliateCommissions  AffiliateCommission[]
+  affiliateProductLinks AffiliateProductLink[] @relation("AffiliateProductLinksForBook")
 
   @@map("books")
 }
@@ -187,17 +189,19 @@ model Order {
 }
 
 model OrderItem {
-  id         Int      @id @default(autoincrement())
-  orderId    Int
-  bookId     Int
-  quantity   Int
-  unitPrice  Float
-  totalPrice Float
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                     Int      @id @default(autoincrement())
+  orderId                Int
+  bookId                 Int
+  quantity               Int
+  unitPrice              Float
+  totalPrice             Float
+  affiliateProductLinkId Int?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  book  Book  @relation(fields: [bookId], references: [id])
+  order                Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  book                 Book                  @relation(fields: [bookId], references: [id])
+  affiliateProductLink AffiliateProductLink? @relation(fields: [affiliateProductLinkId], references: [id])
 
   @@map("order_items")
 }
@@ -271,6 +275,23 @@ model AffiliateCommission {
   @@index([affiliateId])
   @@index([status])
   @@map("affiliate_commissions")
+}
+
+model AffiliateProductLink {
+  id          Int      @id @default(autoincrement())
+  bookId      Int
+  affiliateId String // User.id de quem gerou o link (nao pode ser o dono do livro)
+  code        String   @unique
+  createdAt   DateTime @default(now())
+
+  book       Book        @relation("AffiliateProductLinksForBook", fields: [bookId], references: [id], onDelete: Cascade)
+  affiliate  User        @relation("AffiliateProductLinksByUser", fields: [affiliateId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@unique([bookId, affiliateId])
+  @@index([code])
+  @@index([affiliateId])
+  @@map("affiliate_product_links")
 }
 
 model AdminToken {

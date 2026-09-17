@@ -576,19 +576,37 @@ export class CheckoutService {
                 affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
             }
         });
+        // Resolver links de afiliado por item (code específico por par livro+afiliado)
+        console.log('[affiliate][createOrder] data.itemAffiliateCodes recebido:', JSON.stringify(data.itemAffiliateCodes));
+        console.log('[affiliate][createOrder] data.affiliateCode (legado) recebido:', data.affiliateCode);
+        const codeByCartItemId = new Map(
+            (data.itemAffiliateCodes ?? []).map(entry => [entry.cartItemId, entry.affiliateCode?.trim().toUpperCase()]),
+        );
+        const codesToResolve = [...new Set([...codeByCartItemId.values()].filter((c): c is string => Boolean(c)))];
+        const resolvedLinks = codesToResolve.length
+            ? await this.prisma.affiliateProductLink.findMany({ where: { code: { in: codesToResolve } } })
+            : [];
+        console.log('[affiliate][createOrder] codesToResolve:', codesToResolve, '| resolvedLinks:', JSON.stringify(resolvedLinks));
+        const linkByCode = new Map(resolvedLinks.map(link => [link.code, link]));
+
         // Criar itens do pedido
         await Promise.all(
-            cartItems.map(item =>
-                this.prisma.orderItem.create({
+            cartItems.map(item => {
+                const code = codeByCartItemId.get(item.id);
+                const link = code ? linkByCode.get(code) : undefined;
+                const affiliateProductLinkId = link && link.bookId === item.bookId ? link.id : null;
+                console.log('[affiliate][createOrder] item', item.id, 'bookId', item.bookId, 'code', code, 'link', link?.id, 'affiliateProductLinkId', affiliateProductLinkId);
+                return this.prisma.orderItem.create({
                     data: {
                         orderId: order.id,
                         bookId: item.bookId,
                         quantity: item.quantity,
                         unitPrice: item.book.price,
-                        totalPrice: item.book.price * item.quantity
+                        totalPrice: item.book.price * item.quantity,
+                        affiliateProductLinkId,
                     }
-                })
-            )
+                });
+            })
         );
         // Remover itens do carrinho
         await this.prisma.cart.deleteMany({
@@ -697,6 +715,14 @@ export class CheckoutService {
                 affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
             }
         });
+        // Resolver link de afiliado por produto (code específico do par livro+afiliado)
+        console.log('[affiliate][createOrderFromBook] data.affiliateCode recebido:', data.affiliateCode, '| bookId:', book.id);
+        const affiliateCode = data.affiliateCode?.trim().toUpperCase();
+        const productLink = affiliateCode
+            ? await this.prisma.affiliateProductLink.findUnique({ where: { code: affiliateCode } })
+            : null;
+        const affiliateProductLinkId = productLink && productLink.bookId === book.id ? productLink.id : null;
+        console.log('[affiliate][createOrderFromBook] productLink:', JSON.stringify(productLink), '| affiliateProductLinkId:', affiliateProductLinkId);
         // Criar item do pedido
         await this.prisma.orderItem.create({
             data: {
@@ -704,7 +730,8 @@ export class CheckoutService {
                 bookId: book.id,
                 quantity,
                 unitPrice: book.price,
-                totalPrice: book.price * quantity
+                totalPrice: book.price * quantity,
+                affiliateProductLinkId,
             }
         });
         // Notificar api-machine sobre pedido pendente

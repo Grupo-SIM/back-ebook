@@ -35,8 +35,12 @@ export class WebhookController {
     id: number;
     orderNumber: string;
     userId?: string;
-    affiliateCode: string | null;
-    orderItems: Array<{ bookId: number; totalPrice: number; book: { isAffiliate: boolean; createdById: string | null } }>;
+    orderItems: Array<{
+      bookId: number;
+      totalPrice: number;
+      affiliateProductLink: { affiliateId: string; code: string } | null;
+      book: { isAffiliate: boolean; createdById: string | null };
+    }>;
   }): Promise<void> {
     try {
       await this.affiliateService.creditCommissionForOrder(order);
@@ -872,7 +876,7 @@ export class WebhookController {
         let existingOrder = await prisma.order.findUnique({
           where: { orderNumber: normalizedOrderNumber },
           include: {
-            orderItems: { include: { book: { include: { createdBy: { select: { cpf: true, name: true } } } } } },
+            orderItems: { include: { book: { include: { createdBy: { select: { cpf: true, name: true } } } }, affiliateProductLink: true } },
             user: true
           }
         });
@@ -941,7 +945,7 @@ export class WebhookController {
               status: 'pending'
             },
             include: {
-              orderItems: { include: { book: true } },
+              orderItems: { include: { book: true, affiliateProductLink: true } },
               user: true
             },
             orderBy: { createdAt: 'desc' }
@@ -1012,7 +1016,7 @@ export class WebhookController {
                 status: { in: ['pending', 'paid'] } 
               },
               include: {
-                orderItems: { include: { book: true } },
+                orderItems: { include: { book: true, affiliateProductLink: true } },
                 user: true
               },
               orderBy: { createdAt: 'desc' }
@@ -1073,7 +1077,7 @@ export class WebhookController {
               user: { email: data.email.toLowerCase().trim() }
             },
             include: {
-              orderItems: { include: { book: true } },
+              orderItems: { include: { book: true, affiliateProductLink: true } },
               user: true
             },
             orderBy: { createdAt: 'desc' }
