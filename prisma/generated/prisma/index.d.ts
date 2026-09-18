@@ -7375,6 +7375,7 @@ export namespace Prisma {
     rating: number | null
     reviewCount: number | null
     sales: number | null
+    commissionRate: number | null
     maxInstallments: number | null
     downloadCount: number | null
     categoryId: number | null
@@ -7388,6 +7389,7 @@ export namespace Prisma {
     rating: number | null
     reviewCount: number | null
     sales: number | null
+    commissionRate: number | null
     maxInstallments: number | null
     downloadCount: number | null
     categoryId: number | null
@@ -7414,6 +7416,7 @@ export namespace Prisma {
     isFeatured: boolean | null
     isFree: boolean | null
     isAffiliate: boolean | null
+    commissionRate: number | null
     maxInstallments: number | null
     fileSize: string | null
     downloadUrl: string | null
@@ -7446,6 +7449,7 @@ export namespace Prisma {
     isFeatured: boolean | null
     isFree: boolean | null
     isAffiliate: boolean | null
+    commissionRate: number | null
     maxInstallments: number | null
     fileSize: string | null
     downloadUrl: string | null
@@ -7478,6 +7482,7 @@ export namespace Prisma {
     isFeatured: number
     isFree: number
     isAffiliate: number
+    commissionRate: number
     maxInstallments: number
     fileSize: number
     downloadUrl: number
@@ -7499,6 +7504,7 @@ export namespace Prisma {
     rating?: true
     reviewCount?: true
     sales?: true
+    commissionRate?: true
     maxInstallments?: true
     downloadCount?: true
     categoryId?: true
@@ -7512,6 +7518,7 @@ export namespace Prisma {
     rating?: true
     reviewCount?: true
     sales?: true
+    commissionRate?: true
     maxInstallments?: true
     downloadCount?: true
     categoryId?: true
@@ -7538,6 +7545,7 @@ export namespace Prisma {
     isFeatured?: true
     isFree?: true
     isAffiliate?: true
+    commissionRate?: true
     maxInstallments?: true
     fileSize?: true
     downloadUrl?: true
@@ -7570,6 +7578,7 @@ export namespace Prisma {
     isFeatured?: true
     isFree?: true
     isAffiliate?: true
+    commissionRate?: true
     maxInstallments?: true
     fileSize?: true
     downloadUrl?: true
@@ -7602,6 +7611,7 @@ export namespace Prisma {
     isFeatured?: true
     isFree?: true
     isAffiliate?: true
+    commissionRate?: true
     maxInstallments?: true
     fileSize?: true
     downloadUrl?: true
@@ -7721,6 +7731,7 @@ export namespace Prisma {
     isFeatured: boolean
     isFree: boolean
     isAffiliate: boolean
+    commissionRate: number | null
     maxInstallments: number
     fileSize: string | null
     downloadUrl: string | null
@@ -7772,6 +7783,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: boolean
     maxInstallments?: boolean
     fileSize?: boolean
     downloadUrl?: boolean
@@ -7814,6 +7826,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: boolean
     maxInstallments?: boolean
     fileSize?: boolean
     downloadUrl?: boolean
@@ -7849,6 +7862,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: boolean
     maxInstallments?: boolean
     fileSize?: boolean
     downloadUrl?: boolean
@@ -7884,6 +7898,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: boolean
     maxInstallments?: boolean
     fileSize?: boolean
     downloadUrl?: boolean
@@ -7895,7 +7910,7 @@ export namespace Prisma {
     categoryId?: boolean
   }
 
-  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "author" | "description" | "price" | "originalPrice" | "category" | "cover" | "coverImageId" | "language" | "printLength" | "publisher" | "publishedDate" | "rating" | "reviewCount" | "sales" | "isActive" | "isFeatured" | "isFree" | "isAffiliate" | "maxInstallments" | "fileSize" | "downloadUrl" | "downloadCount" | "createdAt" | "updatedAt" | "readingAge" | "createdById" | "categoryId", ExtArgs["result"]["book"]>
+  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "author" | "description" | "price" | "originalPrice" | "category" | "cover" | "coverImageId" | "language" | "printLength" | "publisher" | "publishedDate" | "rating" | "reviewCount" | "sales" | "isActive" | "isFeatured" | "isFree" | "isAffiliate" | "commissionRate" | "maxInstallments" | "fileSize" | "downloadUrl" | "downloadCount" | "createdAt" | "updatedAt" | "readingAge" | "createdById" | "categoryId", ExtArgs["result"]["book"]>
   export type BookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     coverImage?: boolean | Book$coverImageArgs<ExtArgs>
     createdBy?: boolean | Book$createdByArgs<ExtArgs>
@@ -7953,6 +7968,7 @@ export namespace Prisma {
       isFeatured: boolean
       isFree: boolean
       isAffiliate: boolean
+      commissionRate: number | null
       maxInstallments: number
       fileSize: string | null
       downloadUrl: string | null
@@ -8414,6 +8430,7 @@ export namespace Prisma {
     readonly isFeatured: FieldRef<"Book", 'Boolean'>
     readonly isFree: FieldRef<"Book", 'Boolean'>
     readonly isAffiliate: FieldRef<"Book", 'Boolean'>
+    readonly commissionRate: FieldRef<"Book", 'Float'>
     readonly maxInstallments: FieldRef<"Book", 'Int'>
     readonly fileSize: FieldRef<"Book", 'String'>
     readonly downloadUrl: FieldRef<"Book", 'String'>
@@ -20654,6 +20671,7 @@ export namespace Prisma {
     isFeatured: 'isFeatured',
     isFree: 'isFree',
     isAffiliate: 'isAffiliate',
+    commissionRate: 'commissionRate',
     maxInstallments: 'maxInstallments',
     fileSize: 'fileSize',
     downloadUrl: 'downloadUrl',
@@ -21309,6 +21327,7 @@ export namespace Prisma {
     isFeatured?: BoolFilter<"Book"> | boolean
     isFree?: BoolFilter<"Book"> | boolean
     isAffiliate?: BoolFilter<"Book"> | boolean
+    commissionRate?: FloatNullableFilter<"Book"> | number | null
     maxInstallments?: IntFilter<"Book"> | number
     fileSize?: StringNullableFilter<"Book"> | string | null
     downloadUrl?: StringNullableFilter<"Book"> | string | null
@@ -21350,6 +21369,7 @@ export namespace Prisma {
     isFeatured?: SortOrder
     isFree?: SortOrder
     isAffiliate?: SortOrder
+    commissionRate?: SortOrderInput | SortOrder
     maxInstallments?: SortOrder
     fileSize?: SortOrderInput | SortOrder
     downloadUrl?: SortOrderInput | SortOrder
@@ -21394,6 +21414,7 @@ export namespace Prisma {
     isFeatured?: BoolFilter<"Book"> | boolean
     isFree?: BoolFilter<"Book"> | boolean
     isAffiliate?: BoolFilter<"Book"> | boolean
+    commissionRate?: FloatNullableFilter<"Book"> | number | null
     maxInstallments?: IntFilter<"Book"> | number
     fileSize?: StringNullableFilter<"Book"> | string | null
     downloadUrl?: StringNullableFilter<"Book"> | string | null
@@ -21435,6 +21456,7 @@ export namespace Prisma {
     isFeatured?: SortOrder
     isFree?: SortOrder
     isAffiliate?: SortOrder
+    commissionRate?: SortOrderInput | SortOrder
     maxInstallments?: SortOrder
     fileSize?: SortOrderInput | SortOrder
     downloadUrl?: SortOrderInput | SortOrder
@@ -21475,6 +21497,7 @@ export namespace Prisma {
     isFeatured?: BoolWithAggregatesFilter<"Book"> | boolean
     isFree?: BoolWithAggregatesFilter<"Book"> | boolean
     isAffiliate?: BoolWithAggregatesFilter<"Book"> | boolean
+    commissionRate?: FloatNullableWithAggregatesFilter<"Book"> | number | null
     maxInstallments?: IntWithAggregatesFilter<"Book"> | number
     fileSize?: StringNullableWithAggregatesFilter<"Book"> | string | null
     downloadUrl?: StringNullableWithAggregatesFilter<"Book"> | string | null
@@ -22638,6 +22661,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -22677,6 +22701,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -22713,6 +22738,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22752,6 +22778,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22790,6 +22817,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -22820,6 +22848,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -22850,6 +22879,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24150,6 +24180,7 @@ export namespace Prisma {
     isFeatured?: SortOrder
     isFree?: SortOrder
     isAffiliate?: SortOrder
+    commissionRate?: SortOrder
     maxInstallments?: SortOrder
     fileSize?: SortOrder
     downloadUrl?: SortOrder
@@ -24169,6 +24200,7 @@ export namespace Prisma {
     rating?: SortOrder
     reviewCount?: SortOrder
     sales?: SortOrder
+    commissionRate?: SortOrder
     maxInstallments?: SortOrder
     downloadCount?: SortOrder
     categoryId?: SortOrder
@@ -24195,6 +24227,7 @@ export namespace Prisma {
     isFeatured?: SortOrder
     isFree?: SortOrder
     isAffiliate?: SortOrder
+    commissionRate?: SortOrder
     maxInstallments?: SortOrder
     fileSize?: SortOrder
     downloadUrl?: SortOrder
@@ -24227,6 +24260,7 @@ export namespace Prisma {
     isFeatured?: SortOrder
     isFree?: SortOrder
     isAffiliate?: SortOrder
+    commissionRate?: SortOrder
     maxInstallments?: SortOrder
     fileSize?: SortOrder
     downloadUrl?: SortOrder
@@ -24246,6 +24280,7 @@ export namespace Prisma {
     rating?: SortOrder
     reviewCount?: SortOrder
     sales?: SortOrder
+    commissionRate?: SortOrder
     maxInstallments?: SortOrder
     downloadCount?: SortOrder
     categoryId?: SortOrder
@@ -27060,6 +27095,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -27098,6 +27134,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -27585,6 +27622,7 @@ export namespace Prisma {
     isFeatured?: BoolFilter<"Book"> | boolean
     isFree?: BoolFilter<"Book"> | boolean
     isAffiliate?: BoolFilter<"Book"> | boolean
+    commissionRate?: FloatNullableFilter<"Book"> | number | null
     maxInstallments?: IntFilter<"Book"> | number
     fileSize?: StringNullableFilter<"Book"> | string | null
     downloadUrl?: StringNullableFilter<"Book"> | string | null
@@ -27829,6 +27867,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -27866,6 +27905,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -27960,6 +28000,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -27998,6 +28039,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -28637,6 +28679,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -28675,6 +28718,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -28791,6 +28835,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28829,6 +28874,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28923,6 +28969,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -28961,6 +29008,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -29077,6 +29125,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29115,6 +29164,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29420,6 +29470,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -29458,6 +29509,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -29583,6 +29635,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29621,6 +29674,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29865,6 +29919,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -29903,6 +29958,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -30019,6 +30075,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30057,6 +30114,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30151,6 +30209,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -30189,6 +30248,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -30353,6 +30413,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30391,6 +30452,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30480,6 +30542,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -30518,6 +30581,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -30659,6 +30723,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30697,6 +30762,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31011,6 +31077,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -31328,6 +31395,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31366,6 +31434,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31403,6 +31472,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31508,6 +31578,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -31677,6 +31748,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31714,6 +31786,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31751,6 +31824,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31783,6 +31857,7 @@ export namespace Prisma {
     isFeatured?: boolean
     isFree?: boolean
     isAffiliate?: boolean
+    commissionRate?: number | null
     maxInstallments?: number
     fileSize?: string | null
     downloadUrl?: string | null
@@ -31812,6 +31887,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31850,6 +31926,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31887,6 +31964,7 @@ export namespace Prisma {
     isFeatured?: BoolFieldUpdateOperationsInput | boolean
     isFree?: BoolFieldUpdateOperationsInput | boolean
     isAffiliate?: BoolFieldUpdateOperationsInput | boolean
+    commissionRate?: NullableFloatFieldUpdateOperationsInput | number | null
     maxInstallments?: IntFieldUpdateOperationsInput | number
     fileSize?: NullableStringFieldUpdateOperationsInput | string | null
     downloadUrl?: NullableStringFieldUpdateOperationsInput | string | null

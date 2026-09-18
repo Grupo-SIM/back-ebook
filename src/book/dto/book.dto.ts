@@ -211,6 +211,14 @@ export class CreateBookDto {
     @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados', default: false, required: false })
     @IsOptional()
     isAffiliate?: boolean = false;
+
+    @ApiProperty({ example: 10, minimum: 5, maximum: 100, required: false, description: 'Percentual de comissão de afiliado (5 a 100), obrigatório se isAffiliate=true' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    @Min(5)
+    @Max(100)
+    commissionRate?: number;
 }
 
 export class UpdateBookDto {
@@ -330,6 +338,14 @@ export class UpdateBookDto {
     @IsOptional()
     @Type(() => Boolean)
     isAffiliate?: boolean;
+
+    @ApiProperty({ example: 10, minimum: 5, maximum: 100, required: false, description: 'Percentual de comissão de afiliado (5 a 100), obrigatório se isAffiliate=true' })
+    @IsOptional()
+    @Type(() => Number)
+    @IsNumber()
+    @Min(5)
+    @Max(100)
+    commissionRate?: number;
 }
 
 export class ReviewResponseDto {
@@ -428,6 +444,9 @@ export class BookResponseDto {
 
     @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados' })
     isAffiliate: boolean;
+
+    @ApiProperty({ example: 10, required: false, nullable: true, description: 'Percentual de comissão de afiliado definido pelo criador do livro' })
+    commissionRate?: number | null;
 }
 
 export class PaginatedBookResponseDto {

@@ -18,9 +18,6 @@ export class AffiliateService {
 
     constructor(private readonly prisma: PrismaService) { }
 
-    private _rateCache: number | null = null;
-    private _rateCacheFetchedAt = 0;
-
     private getApiMachineBaseUrl(): string | null {
         const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL || null;
         if (!base) return null;
@@ -29,43 +26,6 @@ export class AffiliateService {
 
     private getInternalToken(): string | undefined {
         return process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
-    }
-
-    /**
-     * Taxa de comissão de afiliado (%). Busca da aba Taxas do simintpay
-     * (config global do produto ebooksim, editável pelo master), com cache de 30s
-     * e fallback pra env var local caso o simintpay esteja indisponível.
-     */
-    async getCommissionRate(): Promise<number> {
-        const now = Date.now();
-        if (this._rateCache !== null && now - this._rateCacheFetchedAt < 30 * 1000) {
-            return this._rateCache;
-        }
-        const base = this.getApiMachineBaseUrl();
-        const token = this.getInternalToken();
-        if (base && token) {
-            try {
-                const res = await fetch(`${base}/internal/ebook/finance/config`, {
-                    headers: { 'x-internal-token': token },
-                });
-                if (res.ok) {
-                    const body = (await res.json()) as { affiliateCommissionRate?: number };
-                    const v = body?.affiliateCommissionRate;
-                    if (typeof v === 'number' && Number.isFinite(v) && v >= 0) {
-                        this._rateCache = v;
-                        this._rateCacheFetchedAt = now;
-                        return v;
-                    }
-                }
-            } catch {
-                // fallback abaixo
-            }
-        }
-        const fallback = parseFloat(process.env.AFFILIATE_COMMISSION_RATE ?? '10');
-        const rate = Number.isFinite(fallback) && fallback >= 0 ? fallback : 10;
-        this._rateCache = rate;
-        this._rateCacheFetchedAt = now;
-        return rate;
     }
 
     /**
@@ -162,7 +122,6 @@ export class AffiliateService {
         return {
             affiliateCode,
             affiliateLink: `${storeUrl}?ref=${affiliateCode}`,
-            commissionRate: await this.getCommissionRate(),
             totalEarned: parseFloat(totalEarned.toFixed(2)),
             totalCredited: parseFloat(totalCredited.toFixed(2)),
             salesCount: commissions.filter((c) => c.status !== 'REVERSED').length,
@@ -236,17 +195,17 @@ export class AffiliateService {
             bookId: number;
             totalPrice: number;
             affiliateProductLink: { affiliateId: string; code: string } | null;
-            book: { isAffiliate: boolean; createdById: string | null; title?: string };
+            book: { isAffiliate: boolean; createdById: string | null; title?: string; commissionRate?: number | null };
         }>;
     }): Promise<void> {
         console.log('[affiliate][creditCommissionForOrder] pedido', order.orderNumber, 'itens:', JSON.stringify(order.orderItems.map(i => ({ bookId: i.bookId, link: i.affiliateProductLink, isAffiliate: i.book?.isAffiliate }))));
-        const rate = await this.getCommissionRate();
-        console.log('[affiliate][creditCommissionForOrder] rate:', rate);
-        if (rate <= 0) return;
 
         for (const item of order.orderItems) {
             const link = item.affiliateProductLink;
             if (!link || !item.book?.isAffiliate) continue;
+
+            const rate = item.book.commissionRate;
+            if (!rate || rate <= 0) continue;
 
             // Afiliado não ganha comissão comprando com o próprio link (autocompra)
             if (order.userId && order.userId === link.affiliateId) continue;
@@ -319,7 +278,7 @@ export class AffiliateService {
 
         const orderBy = this.mapSortOptionToOrderBy(query.sortOption);
 
-        const [books, total, rate] = await Promise.all([
+        const [books, total] = await Promise.all([
             this.prisma.book.findMany({
                 where,
                 include: { createdBy: { select: { name: true } } },
@@ -328,7 +287,6 @@ export class AffiliateService {
                 take: limit,
             }),
             this.prisma.book.count({ where }),
-            this.getCommissionRate(),
         ]);
 
         const bookIds = books.map((b) => b.id);
@@ -350,7 +308,7 @@ export class AffiliateService {
                 category: book.category,
                 price: book.price,
                 ownerName: book.createdBy?.name ?? null,
-                commissionRate: rate,
+                commissionRate: (book as any).commissionRate ?? 0,
                 hasLink: Boolean(link),
                 productLink: link
                     ? { code: link.code, link: `${storeUrl}/book/${book.id}?refp=${link.code}` }

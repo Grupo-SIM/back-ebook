@@ -334,6 +334,7 @@ export class AdminBookController {
             printLength: filteredDto.printLength ?? currentBook.printLength,
             isActive: filteredDto.isActive ?? currentBook.isActive,
             isAffiliate: filteredDto.isAffiliate ?? currentBook.isAffiliate,
+            commissionRate: filteredDto.commissionRate ?? currentBook.commissionRate,
             readingAge: filteredDto.readingAge ?? currentBook.readingAge,
             ...(downloadUrl ? { downloadUrl } : { downloadUrl: currentBook.downloadUrl })
         };

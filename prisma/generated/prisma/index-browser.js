@@ -183,6 +183,7 @@ exports.Prisma.BookScalarFieldEnum = {
   isFeatured: 'isFeatured',
   isFree: 'isFree',
   isAffiliate: 'isAffiliate',
+  commissionRate: 'commissionRate',
   maxInstallments: 'maxInstallments',
   fileSize: 'fileSize',
   downloadUrl: 'downloadUrl',

@@ -108,6 +108,7 @@ model Book {
   isFeatured      Boolean  @default(false)
   isFree          Boolean  @default(false)
   isAffiliate     Boolean  @default(false)
+  commissionRate  Float?
   maxInstallments Int      @default(12)
   fileSize        String?
   downloadUrl     String?

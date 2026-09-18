@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedBookResponseDto, SortOption, CreateReviewDto, ReviewResponseDto, PaginatedReviewsResponseDto } from './dto/book.dto';
@@ -71,6 +71,16 @@ export class BookService {
             throw new NotFoundException('Categoria não encontrada');
         }
 
+        if ((data as any).isAffiliate) {
+            const rate = (data as any).commissionRate;
+            if (rate === undefined || rate === null) {
+                throw new BadRequestException('commissionRate é obrigatório quando isAffiliate=true');
+            }
+            if (rate < 5 || rate > 100) {
+                throw new BadRequestException('commissionRate deve estar entre 5 e 100');
+            }
+        }
+
         // Determinar se o livro é gratuito baseado no preço
         const isFree = data.price === 0 && (data.originalPrice ?? 0) === 0;
 
@@ -108,6 +118,7 @@ export class BookService {
                 maxInstallments: (data as any).maxInstallments ?? 1,
                 isActive: data.isActive ?? true,
                 isAffiliate: (data as any).isAffiliate ?? false,
+                commissionRate: (data as any).isAffiliate ? (data as any).commissionRate : null,
                 ...(coverImageId ? { coverImageId } : {}),
             },
             include: {
@@ -156,6 +167,7 @@ export class BookService {
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
+            commissionRate: (book as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         };
     }
@@ -312,6 +324,7 @@ export class BookService {
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
+            commissionRate: (book as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
@@ -403,6 +416,7 @@ export class BookService {
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
+            commissionRate: (book as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         };
 
@@ -530,6 +544,7 @@ export class BookService {
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
+            commissionRate: (book as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
@@ -644,6 +659,7 @@ export class BookService {
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
+            commissionRate: (book as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 
@@ -721,6 +737,20 @@ export class BookService {
         if ((data as any).maxInstallments !== undefined) updateData.maxInstallments = (data as any).maxInstallments;
         if (data.isActive !== undefined) updateData.isActive = data.isActive;
         if ((data as any).isAffiliate !== undefined) updateData.isAffiliate = (data as any).isAffiliate;
+        if ((data as any).commissionRate !== undefined) updateData.commissionRate = (data as any).commissionRate;
+
+        const effectiveIsAffiliate = updateData.isAffiliate !== undefined ? updateData.isAffiliate : existingBook.isAffiliate;
+        if (effectiveIsAffiliate) {
+            const effectiveRate = updateData.commissionRate !== undefined ? updateData.commissionRate : (existingBook as any).commissionRate;
+            if (effectiveRate === undefined || effectiveRate === null) {
+                throw new BadRequestException('commissionRate é obrigatório quando isAffiliate=true');
+            }
+            if (effectiveRate < 5 || effectiveRate > 100) {
+                throw new BadRequestException('commissionRate deve estar entre 5 e 100');
+            }
+        } else if (updateData.isAffiliate === false) {
+            updateData.commissionRate = null;
+        }
 
         // Se cover for enviado, buscar ou criar imagem e associar coverImageId
         if (data.cover) {
@@ -784,6 +814,7 @@ export class BookService {
             readingAge: updatedBook.readingAge ?? undefined,
             isActive: updatedBook.isActive ?? true,
             isAffiliate: (updatedBook as any).isAffiliate ?? false,
+            commissionRate: (updatedBook as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${updatedBook.price}&description=${encodeURIComponent(updatedBook.title)}`,
         };
     }
@@ -834,6 +865,7 @@ export class BookService {
             readingAge: deleted.readingAge ?? undefined,
             isActive: deleted.isActive ?? true,
             isAffiliate: (deleted as any).isAffiliate ?? false,
+            commissionRate: (deleted as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${deleted.price}&description=${encodeURIComponent(deleted.title)}`,
         };
     }
@@ -884,6 +916,7 @@ export class BookService {
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
+            commissionRate: (book as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
         const totalPages = Math.ceil(total / limit);
@@ -928,6 +961,7 @@ export class BookService {
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
+            commissionRate: (book as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
     }
@@ -1167,6 +1201,7 @@ export class BookService {
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
+            commissionRate: (book as any).commissionRate ?? undefined,
             checkoutUrl: `https://checkout.jbmidia.com/?value=${book.price}&description=${encodeURIComponent(book.title)}&store=ebook`,
         }));
 

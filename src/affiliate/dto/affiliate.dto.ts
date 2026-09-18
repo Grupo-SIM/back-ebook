@@ -9,9 +9,6 @@ export class AffiliateMeResponseDto {
     @ApiProperty({ example: 'https://ebooksim.com?ref=A1B2C3D4' })
     affiliateLink: string;
 
-    @ApiProperty({ example: 10 })
-    commissionRate: number;
-
     @ApiProperty({ example: 128.5 })
     totalEarned: number;
 

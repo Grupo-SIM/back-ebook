@@ -627,7 +627,21 @@ export class CheckoutService {
             where: { id: userId },
             select: { name: true, email: true, cpf: true },
         });
-        await this.notifyPendingTransaction(orderNumber, totalAmount, ownerCpfCart, undefined, {
+        // Deduz a comissão de afiliado (definida pelo criador do livro) do valor
+        // que vai pro dono — o afiliado recebe a comissão, o dono recebe o restante.
+        let affiliateCommissionTotalCart = 0;
+        for (const item of cartItems) {
+            const code = codeByCartItemId.get(item.id);
+            const link = code ? linkByCode.get(code) : undefined;
+            const hasAffiliateSale = link && link.bookId === item.bookId && item.book.isAffiliate;
+            const rate = (item.book as any).commissionRate;
+            if (hasAffiliateSale && rate && rate > 0) {
+                const itemTotal = (item.book.originalPrice && item.book.originalPrice > 0 ? item.book.originalPrice : item.book.price) * item.quantity;
+                affiliateCommissionTotalCart += itemTotal * (rate / 100);
+            }
+        }
+        const ownerAmountCart = parseFloat((totalAmount - affiliateCommissionTotalCart).toFixed(2));
+        await this.notifyPendingTransaction(orderNumber, ownerAmountCart, ownerCpfCart, undefined, {
             name: buyerCart?.name ?? undefined,
             email: buyerCart?.email ?? undefined,
             cpf: buyerCart?.cpf ?? undefined,
@@ -743,7 +757,15 @@ export class CheckoutService {
             where: { id: userId },
             select: { name: true, email: true, cpf: true },
         });
-        await this.notifyPendingTransaction(orderNumber, totalAmount, ownerCpfBook, undefined, {
+        // Deduz a comissão de afiliado (definida pelo criador do livro) do valor
+        // que vai pro dono — o afiliado recebe a comissão, o dono recebe o restante.
+        const hasAffiliateSaleBook = affiliateProductLinkId != null && book.isAffiliate;
+        const rateBook = (book as any).commissionRate;
+        const affiliateCommissionTotalBook = (hasAffiliateSaleBook && rateBook && rateBook > 0)
+            ? totalAmount * (rateBook / 100)
+            : 0;
+        const ownerAmountBook = parseFloat((totalAmount - affiliateCommissionTotalBook).toFixed(2));
+        await this.notifyPendingTransaction(orderNumber, ownerAmountBook, ownerCpfBook, undefined, {
             name: buyerBook?.name ?? undefined,
             email: buyerBook?.email ?? undefined,
             cpf: buyerBook?.cpf ?? undefined,
