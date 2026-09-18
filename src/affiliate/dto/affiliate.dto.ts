@@ -150,6 +150,9 @@ export class AffiliateMarketplaceBookResponseDto {
 
     @ApiProperty({ type: AffiliateMarketplaceProductLinkDto, nullable: true })
     productLink: AffiliateMarketplaceProductLinkDto | null;
+
+    @ApiProperty({ example: false })
+    isFavorite: boolean;
 }
 
 export class PaginatedAffiliateMarketplaceBookResponseDto {
@@ -167,6 +170,60 @@ export class PaginatedAffiliateMarketplaceBookResponseDto {
 
     @ApiProperty({ example: 2 })
     totalPages: number;
+}
+
+export class AffiliateFavoriteBookResponseDto {
+    @ApiProperty({ example: 1 })
+    bookId: number;
+
+    @ApiProperty({ example: 'O Senhor dos Anéis' })
+    title: string;
+
+    @ApiProperty({ example: 'J.R.R. Tolkien' })
+    author: string;
+
+    @ApiProperty({ example: 'https://example.com/cover.jpg' })
+    cover: string;
+
+    @ApiProperty({ example: 'Negócios' })
+    category: string;
+
+    @ApiProperty({ example: 49.9 })
+    price: number;
+
+    @ApiProperty({ example: 'João Silva', nullable: true })
+    ownerName: string | null;
+
+    @ApiProperty({ example: 10 })
+    commissionRate: number;
+
+    @ApiProperty({ example: false })
+    hasLink: boolean;
+
+    @ApiProperty({ type: AffiliateMarketplaceProductLinkDto, nullable: true })
+    productLink: AffiliateMarketplaceProductLinkDto | null;
+}
+
+export class PaginatedAffiliateFavoriteResponseDto {
+    @ApiProperty({ type: [AffiliateFavoriteBookResponseDto] })
+    data: AffiliateFavoriteBookResponseDto[];
+
+    @ApiProperty({ example: 1 })
+    page: number;
+
+    @ApiProperty({ example: 10 })
+    limit: number;
+
+    @ApiProperty({ example: 20 })
+    total: number;
+
+    @ApiProperty({ example: 2 })
+    totalPages: number;
+}
+
+export class AffiliateFavoriteToggleResponseDto {
+    @ApiProperty({ example: true })
+    isFavorite: boolean;
 }
 
 export class AffiliateProductLinkResponseDto {

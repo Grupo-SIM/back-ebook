@@ -10,6 +10,8 @@ import {
     AffiliateMarketplaceBookResponseDto,
     PaginatedAffiliateMarketplaceBookResponseDto,
     AffiliateProductLinkResponseDto,
+    AffiliateFavoriteBookResponseDto,
+    PaginatedAffiliateFavoriteResponseDto,
 } from './dto/affiliate.dto';
 
 @Injectable()
@@ -290,12 +292,20 @@ export class AffiliateService {
         ]);
 
         const bookIds = books.map((b) => b.id);
-        const existingLinks = bookIds.length
-            ? await this.prisma.affiliateProductLink.findMany({
-                where: { affiliateId, bookId: { in: bookIds } },
-            })
-            : [];
+        const [existingLinks, favorites] = await Promise.all([
+            bookIds.length
+                ? this.prisma.affiliateProductLink.findMany({
+                    where: { affiliateId, bookId: { in: bookIds } },
+                })
+                : Promise.resolve([]),
+            bookIds.length
+                ? this.prisma.affiliateFavorite.findMany({
+                    where: { affiliateId, bookId: { in: bookIds } },
+                })
+                : Promise.resolve([]),
+        ]);
         const linkByBookId = new Map(existingLinks.map((l) => [l.bookId, l]));
+        const favoriteBookIds = new Set(favorites.map((f) => f.bookId));
         const storeUrl = process.env.EBOOK_STORE_URL || process.env.STORE_URL || 'https://ebooksim.com';
 
         const data: AffiliateMarketplaceBookResponseDto[] = books.map((book) => {
@@ -313,6 +323,7 @@ export class AffiliateService {
                 productLink: link
                     ? { code: link.code, link: `${storeUrl}/book/${book.id}?refp=${link.code}` }
                     : null,
+                isFavorite: favoriteBookIds.has(book.id),
             };
         });
 
@@ -404,5 +415,88 @@ export class AffiliateService {
             where: { orderId, status: 'CREDITED' },
             data: { status: 'REVERSED', reversedAt: new Date() },
         });
+    }
+
+    /**
+     * Favorita um livro do marketplace de afiliados. Idempotente.
+     */
+    async addFavorite(affiliateId: string, bookId: number): Promise<{ isFavorite: boolean }> {
+        const book = await this.prisma.book.findUnique({ where: { id: bookId } });
+        if (!book) throw new NotFoundException('Livro não encontrado');
+        if (!book.isAffiliate) throw new BadRequestException('Livro não participa do programa de afiliados');
+
+        try {
+            await this.prisma.affiliateFavorite.create({ data: { affiliateId, bookId } });
+        } catch (err: any) {
+            if (err?.code !== 'P2002') throw err; // já favoritado, ignora
+        }
+        return { isFavorite: true };
+    }
+
+    /**
+     * Remove um livro dos favoritos do afiliado autenticado.
+     */
+    async removeFavorite(affiliateId: string, bookId: number): Promise<{ isFavorite: boolean }> {
+        await this.prisma.affiliateFavorite.deleteMany({ where: { affiliateId, bookId } });
+        return { isFavorite: false };
+    }
+
+    /**
+     * Lista os livros favoritados pelo afiliado autenticado (mesmo formato do marketplace).
+     */
+    async getMyFavorites(affiliateId: string, query: AffiliateQueryDto): Promise<PaginatedAffiliateFavoriteResponseDto> {
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const where = { affiliateId };
+
+        const [favorites, total] = await Promise.all([
+            this.prisma.affiliateFavorite.findMany({
+                where,
+                include: {
+                    book: { include: { createdBy: { select: { name: true } } } },
+                },
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limit,
+            }),
+            this.prisma.affiliateFavorite.count({ where }),
+        ]);
+
+        const bookIds = favorites.map((f) => f.bookId);
+        const existingLinks = bookIds.length
+            ? await this.prisma.affiliateProductLink.findMany({
+                where: { affiliateId, bookId: { in: bookIds } },
+            })
+            : [];
+        const linkByBookId = new Map(existingLinks.map((l) => [l.bookId, l]));
+        const storeUrl = process.env.EBOOK_STORE_URL || process.env.STORE_URL || 'https://ebooksim.com';
+
+        const data: AffiliateFavoriteBookResponseDto[] = favorites.map((f) => {
+            const link = linkByBookId.get(f.bookId);
+            return {
+                bookId: f.book.id,
+                title: f.book.title,
+                author: f.book.author,
+                cover: f.book.cover,
+                category: f.book.category,
+                price: f.book.price,
+                ownerName: f.book.createdBy?.name ?? null,
+                commissionRate: (f.book as any).commissionRate ?? 0,
+                hasLink: Boolean(link),
+                productLink: link
+                    ? { code: link.code, link: `${storeUrl}/book/${f.book.id}?refp=${link.code}` }
+                    : null,
+            };
+        });
+
+        return {
+            data,
+            page,
+            limit,
+            total,
+            totalPages: Math.max(1, Math.ceil(total / limit)),
+        };
     }
 }

@@ -55,6 +55,7 @@ model User {
   affiliateCode         String?                @unique
   affiliateCommissions  AffiliateCommission[]  @relation("AffiliateCommissionsEarned")
   affiliateProductLinks AffiliateProductLink[] @relation("AffiliateProductLinksByUser")
+  affiliateFavorites    AffiliateFavorite[]    @relation("AffiliateFavoritesByUser")
 
   @@map("users")
 }
@@ -127,6 +128,7 @@ model Book {
   reviews               Review[]
   affiliateCommissions  AffiliateCommission[]
   affiliateProductLinks AffiliateProductLink[] @relation("AffiliateProductLinksForBook")
+  affiliateFavorites    AffiliateFavorite[]    @relation("AffiliateFavoritesForBook")
 
   @@map("books")
 }
@@ -293,6 +295,20 @@ model AffiliateProductLink {
   @@index([code])
   @@index([affiliateId])
   @@map("affiliate_product_links")
+}
+
+model AffiliateFavorite {
+  id          Int      @id @default(autoincrement())
+  bookId      Int
+  affiliateId String // User.id de quem favoritou (afiliado)
+  createdAt   DateTime @default(now())
+
+  book      Book @relation("AffiliateFavoritesForBook", fields: [bookId], references: [id], onDelete: Cascade)
+  affiliate User @relation("AffiliateFavoritesByUser", fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@unique([affiliateId, bookId])
+  @@index([affiliateId])
+  @@map("affiliate_favorites")
 }
 
 model AdminToken {

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AffiliateService } from './affiliate.service';
 import {
@@ -7,6 +7,8 @@ import {
     AffiliateQueryDto,
     AffiliateMarketplaceQueryDto,
     PaginatedAffiliateMarketplaceBookResponseDto,
+    PaginatedAffiliateFavoriteResponseDto,
+    AffiliateFavoriteToggleResponseDto,
     AffiliateProductLinkResponseDto,
 } from './dto/affiliate.dto';
 import { JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
@@ -52,6 +54,36 @@ export class AffiliateController {
         @GetUser() admin: RequestWithUser['user'],
     ): Promise<PaginatedAffiliateMarketplaceBookResponseDto> {
         return this.affiliateService.getMarketplaceBooks(admin.id, query);
+    }
+
+    @Get('favorites')
+    @ApiOperation({ summary: 'Listar livros favoritados pelo afiliado autenticado' })
+    @ApiResponse({ status: 200, type: PaginatedAffiliateFavoriteResponseDto })
+    async getFavorites(
+        @Query() query: AffiliateQueryDto,
+        @GetUser() admin: RequestWithUser['user'],
+    ): Promise<PaginatedAffiliateFavoriteResponseDto> {
+        return this.affiliateService.getMyFavorites(admin.id, query);
+    }
+
+    @Post('favorites/:bookId')
+    @ApiOperation({ summary: 'Favoritar um livro do marketplace de afiliados' })
+    @ApiResponse({ status: 200, type: AffiliateFavoriteToggleResponseDto })
+    async addFavorite(
+        @Param('bookId', ParseIntPipe) bookId: number,
+        @GetUser() admin: RequestWithUser['user'],
+    ): Promise<AffiliateFavoriteToggleResponseDto> {
+        return this.affiliateService.addFavorite(admin.id, bookId);
+    }
+
+    @Delete('favorites/:bookId')
+    @ApiOperation({ summary: 'Remover um livro dos favoritos do afiliado autenticado' })
+    @ApiResponse({ status: 200, type: AffiliateFavoriteToggleResponseDto })
+    async removeFavorite(
+        @Param('bookId', ParseIntPipe) bookId: number,
+        @GetUser() admin: RequestWithUser['user'],
+    ): Promise<AffiliateFavoriteToggleResponseDto> {
+        return this.affiliateService.removeFavorite(admin.id, bookId);
     }
 
     @Post('marketplace/:bookId/link')

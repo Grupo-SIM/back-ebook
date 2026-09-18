@@ -301,6 +301,13 @@ exports.Prisma.AffiliateProductLinkScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AffiliateFavoriteScalarFieldEnum = {
+  id: 'id',
+  bookId: 'bookId',
+  affiliateId: 'affiliateId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AdminTokenScalarFieldEnum = {
   id: 'id',
   adminId: 'adminId',
@@ -363,6 +370,7 @@ exports.Prisma.ModelName = {
   ActivityLog: 'ActivityLog',
   AffiliateCommission: 'AffiliateCommission',
   AffiliateProductLink: 'AffiliateProductLink',
+  AffiliateFavorite: 'AffiliateFavorite',
   AdminToken: 'AdminToken'
 };
 
