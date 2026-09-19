@@ -1,6 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum, IsBoolean, Validate } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, type TransformFnParams, Type } from 'class-transformer';
+
+const parseBoolean = ({ obj, key }: TransformFnParams): boolean => {
+    const value = obj[key];
+    return value === true || value === 'true';
+};
 
 export type SortOption = 'default' | 'bestsellers' | 'toprated' | 'price-low' | 'price-high';
 
@@ -205,16 +210,21 @@ export class CreateBookDto {
     maxInstallments?: number = 1;
 
     @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)', default: true })
+    @Transform(parseBoolean)
     @IsOptional()
+    @IsBoolean()
     isActive?: boolean = true;
 
     @ApiProperty({ example: false, description: 'Campo calculado automaticamente a partir do preço', required: false })
+    @Transform(parseBoolean)
     @IsOptional()
     @IsBoolean()
     isFree?: boolean;
 
     @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados', default: false, required: false })
+    @Transform(parseBoolean)
     @IsOptional()
+    @IsBoolean()
     isAffiliate?: boolean = false;
 
     @ApiProperty({ example: 10, minimum: 5, maximum: 100, required: false, description: 'Percentual de comissão de afiliado (5 a 100), obrigatório se isAffiliate=true' })
@@ -335,13 +345,21 @@ export class UpdateBookDto {
     maxInstallments?: number;
 
     @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)', required: false })
+    @Transform(parseBoolean)
     @IsOptional()
-    @Type(() => Boolean) // ✅ CORRIGIDO: Adicionado para converter 'true'/'false' (strings) para booleano
+    @IsBoolean()
     isActive?: boolean;
 
-    @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados', required: false })
+    @ApiProperty({ example: false, description: 'Campo calculado automaticamente a partir do preço', required: false })
+    @Transform(parseBoolean)
     @IsOptional()
-    @Type(() => Boolean)
+    @IsBoolean()
+    isFree?: boolean;
+
+    @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados', required: false })
+    @Transform(parseBoolean)
+    @IsOptional()
+    @IsBoolean()
     isAffiliate?: boolean;
 
     @ApiProperty({ example: 10, minimum: 5, maximum: 100, required: false, description: 'Percentual de comissão de afiliado (5 a 100), obrigatório se isAffiliate=true' })
