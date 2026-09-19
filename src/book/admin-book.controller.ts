@@ -113,6 +113,7 @@ export class AdminBookController {
                 printLength: { type: 'number' },
                 readingAge: { type: 'string' },
                 isActive: { type: 'boolean' },
+                isFree: { type: 'boolean', description: 'Calculado automaticamente a partir do preço' },
                 isAffiliate: { type: 'boolean', description: 'Participa do programa de afiliados' },
                 file: { type: 'string', format: 'binary' }
             }

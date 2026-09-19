@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum, Validate } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum, IsBoolean, Validate } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export type SortOption = 'default' | 'bestsellers' | 'toprated' | 'price-low' | 'price-high';
@@ -207,6 +207,11 @@ export class CreateBookDto {
     @ApiProperty({ example: true, description: 'Status do livro (ativo/inativo)', default: true })
     @IsOptional()
     isActive?: boolean = true;
+
+    @ApiProperty({ example: false, description: 'Campo calculado automaticamente a partir do preço', required: false })
+    @IsOptional()
+    @IsBoolean()
+    isFree?: boolean;
 
     @ApiProperty({ example: false, description: 'Se o livro participa do programa de afiliados', default: false, required: false })
     @IsOptional()

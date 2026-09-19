@@ -65,6 +65,7 @@ export class BookController {
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
                 isActive: { type: 'boolean' },
+                isFree: { type: 'boolean', description: 'Calculado automaticamente a partir do preço' },
                 readingAge: { type: 'string' },
                 file: { type: 'string', format: 'binary' }
             }
