@@ -96,6 +96,7 @@ export class AdminBookController {
     @ApiBody({
         schema: {
             type: 'object',
+            additionalProperties: false,
             properties: {
                 title: { type: 'string' },
                 author: { type: 'string' },
