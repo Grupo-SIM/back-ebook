@@ -32,6 +32,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
+  fcmToken  String?
 
   admin         Admin?         @relation("AdminToUser")
   adminToken    AdminToken?    @relation("AdminTokenToUser")

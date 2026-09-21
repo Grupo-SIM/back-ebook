@@ -15,6 +15,7 @@ import type { PayloadWebhook } from './dom-webhook.service';
 import { WebhookService } from './dom-webhook.service';
 import { CheckoutService } from 'src/checkout/checkout.service';
 import { AffiliateService } from 'src/affiliate/affiliate.service';
+import { FirebaseService } from 'src/firebase/firebase.service';
 
 @ApiTags('Webhook')
 @Controller('webhook')
@@ -25,7 +26,39 @@ export class WebhookController {
     private readonly webhookService: WebhookService,
     private readonly checkoutService: CheckoutService,
     private readonly affiliateService: AffiliateService,
+    private readonly firebaseService: FirebaseService,
   ) { }
+
+  /**
+   * Notifica admins via push (Firebase) sobre uma nova venda confirmada.
+   * Não bloqueia o fluxo principal do webhook em caso de falha.
+   */
+  private async notifyAdminsOfSale(order: {
+    orderNumber: string;
+    totalAmount: number;
+    orderItems: Array<{ book: { title: string } }>;
+  }): Promise<void> {
+    try {
+      const prisma = this.webhookService['prismaService'] || this.webhookService['prisma'];
+      const admins = await prisma.user.findMany({
+        where: { role: 'ADMIN', isActive: true, fcmToken: { not: null } },
+        select: { fcmToken: true },
+      });
+      const tokens = admins
+        .map((a: { fcmToken: string | null }) => a.fcmToken)
+        .filter((t: string | null): t is string => Boolean(t));
+
+      if (tokens.length === 0) return;
+
+      const bookTitle = order.orderItems[0]?.book?.title ?? 'Ebook';
+      await this.firebaseService.sendToTokens(tokens, {
+        title: '🟢 Nova venda realizada',
+        body: `${bookTitle} — R$ ${order.totalAmount.toFixed(2)} (${order.orderNumber})`,
+      });
+    } catch (err: any) {
+      this.logger.error(`[Push] Falha ao notificar admins da venda ${order.orderNumber}: ${err?.message}`);
+    }
+  }
 
   /**
    * Credita comissão de afiliado para um pedido recém-marcado como pago.
@@ -908,6 +941,8 @@ export class WebhookController {
 
           await this.creditAffiliateCommission(existingOrder);
 
+          await this.notifyAdminsOfSale(existingOrder);
+
           // Extrair CPF ou CNPJ do dono do livro para a api-machine criar a transaction corretamente
           const ownerCpfFromNotes = String(existingOrder.notes ?? '').match(/\[CPF_DONO:(\d{11})\]/i)?.[1] ?? null;
           const ownerCnpjFromNotes = String(existingOrder.notes ?? '').match(/\[CNPJ_DONO:(\d{14})\]/i)?.[1] ?? null;
@@ -981,6 +1016,8 @@ export class WebhookController {
 
             await this.creditAffiliateCommission(mostRecentOrder);
 
+            await this.notifyAdminsOfSale(mostRecentOrder);
+
             return {
               ok: true,
               message: `Pedido ${mostRecentOrder.orderNumber} atualizado com sucesso`,
@@ -1046,6 +1083,8 @@ export class WebhookController {
                 await this.updateBooksSalesCount(orderWithBook.orderItems);
 
                 await this.creditAffiliateCommission(orderWithBook);
+
+                await this.notifyAdminsOfSale(orderWithBook);
 
                 return {
                   ok: true,
@@ -1117,6 +1156,8 @@ export class WebhookController {
               await this.updateBooksSalesCount(latestOrder.orderItems);
 
               await this.creditAffiliateCommission(latestOrder);
+
+              await this.notifyAdminsOfSale(latestOrder);
 
               return {
                 ok: true,

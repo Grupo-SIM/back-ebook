@@ -138,6 +138,7 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   isActive: 'isActive',
+  fcmToken: 'fcmToken',
   createdById: 'createdById',
   avatarImageId: 'avatarImageId',
   affiliateCode: 'affiliateCode'

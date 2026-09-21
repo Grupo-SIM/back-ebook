@@ -3680,6 +3680,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     isActive: boolean | null
+    fcmToken: string | null
     createdById: string | null
     avatarImageId: string | null
     affiliateCode: string | null
@@ -3696,6 +3697,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     isActive: boolean | null
+    fcmToken: string | null
     createdById: string | null
     avatarImageId: string | null
     affiliateCode: string | null
@@ -3712,6 +3714,7 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     isActive: number
+    fcmToken: number
     createdById: number
     avatarImageId: number
     affiliateCode: number
@@ -3730,6 +3733,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     isActive?: true
+    fcmToken?: true
     createdById?: true
     avatarImageId?: true
     affiliateCode?: true
@@ -3746,6 +3750,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     isActive?: true
+    fcmToken?: true
     createdById?: true
     avatarImageId?: true
     affiliateCode?: true
@@ -3762,6 +3767,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     isActive?: true
+    fcmToken?: true
     createdById?: true
     avatarImageId?: true
     affiliateCode?: true
@@ -3851,6 +3857,7 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     isActive: boolean
+    fcmToken: string | null
     createdById: string | null
     avatarImageId: string | null
     affiliateCode: string | null
@@ -3884,6 +3891,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     isActive?: boolean
+    fcmToken?: boolean
     createdById?: boolean
     avatarImageId?: boolean
     affiliateCode?: boolean
@@ -3916,6 +3924,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     isActive?: boolean
+    fcmToken?: boolean
     createdById?: boolean
     avatarImageId?: boolean
     affiliateCode?: boolean
@@ -3934,6 +3943,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     isActive?: boolean
+    fcmToken?: boolean
     createdById?: boolean
     avatarImageId?: boolean
     affiliateCode?: boolean
@@ -3952,12 +3962,13 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     isActive?: boolean
+    fcmToken?: boolean
     createdById?: boolean
     avatarImageId?: boolean
     affiliateCode?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "cpf" | "cnpj" | "name" | "password" | "role" | "createdAt" | "updatedAt" | "isActive" | "createdById" | "avatarImageId" | "affiliateCode", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "cpf" | "cnpj" | "name" | "password" | "role" | "createdAt" | "updatedAt" | "isActive" | "fcmToken" | "createdById" | "avatarImageId" | "affiliateCode", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     admin?: boolean | User$adminArgs<ExtArgs>
     adminToken?: boolean | User$adminTokenArgs<ExtArgs>
@@ -4015,6 +4026,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       isActive: boolean
+      fcmToken: string | null
       createdById: string | null
       avatarImageId: string | null
       affiliateCode: string | null
@@ -4466,6 +4478,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
     readonly isActive: FieldRef<"User", 'Boolean'>
+    readonly fcmToken: FieldRef<"User", 'String'>
     readonly createdById: FieldRef<"User", 'String'>
     readonly avatarImageId: FieldRef<"User", 'String'>
     readonly affiliateCode: FieldRef<"User", 'String'>
@@ -21873,6 +21886,7 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     isActive: 'isActive',
+    fcmToken: 'fcmToken',
     createdById: 'createdById',
     avatarImageId: 'avatarImageId',
     affiliateCode: 'affiliateCode'
@@ -22316,6 +22330,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     isActive?: BoolFilter<"User"> | boolean
+    fcmToken?: StringNullableFilter<"User"> | string | null
     createdById?: StringNullableFilter<"User"> | string | null
     avatarImageId?: StringNullableFilter<"User"> | string | null
     affiliateCode?: StringNullableFilter<"User"> | string | null
@@ -22347,6 +22362,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isActive?: SortOrder
+    fcmToken?: SortOrderInput | SortOrder
     createdById?: SortOrderInput | SortOrder
     avatarImageId?: SortOrderInput | SortOrder
     affiliateCode?: SortOrderInput | SortOrder
@@ -22382,6 +22398,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     isActive?: BoolFilter<"User"> | boolean
+    fcmToken?: StringNullableFilter<"User"> | string | null
     createdById?: StringNullableFilter<"User"> | string | null
     avatarImageId?: StringNullableFilter<"User"> | string | null
     admin?: XOR<AdminNullableScalarRelationFilter, AdminWhereInput> | null
@@ -22412,6 +22429,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isActive?: SortOrder
+    fcmToken?: SortOrderInput | SortOrder
     createdById?: SortOrderInput | SortOrder
     avatarImageId?: SortOrderInput | SortOrder
     affiliateCode?: SortOrderInput | SortOrder
@@ -22434,6 +22452,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     isActive?: BoolWithAggregatesFilter<"User"> | boolean
+    fcmToken?: StringNullableWithAggregatesFilter<"User"> | string | null
     createdById?: StringNullableWithAggregatesFilter<"User"> | string | null
     avatarImageId?: StringNullableWithAggregatesFilter<"User"> | string | null
     affiliateCode?: StringNullableWithAggregatesFilter<"User"> | string | null
@@ -23677,6 +23696,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -23706,6 +23726,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -23735,6 +23756,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -23764,6 +23786,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23793,6 +23816,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -23809,6 +23833,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
@@ -23823,6 +23848,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -25311,6 +25337,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isActive?: SortOrder
+    fcmToken?: SortOrder
     createdById?: SortOrder
     avatarImageId?: SortOrder
     affiliateCode?: SortOrder
@@ -25327,6 +25354,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isActive?: SortOrder
+    fcmToken?: SortOrder
     createdById?: SortOrder
     avatarImageId?: SortOrder
     affiliateCode?: SortOrder
@@ -25343,6 +25371,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isActive?: SortOrder
+    fcmToken?: SortOrder
     createdById?: SortOrder
     avatarImageId?: SortOrder
     affiliateCode?: SortOrder
@@ -28149,6 +28178,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
     Image?: ImageCreateNestedManyWithoutUsersInput
@@ -28177,6 +28207,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -28221,6 +28252,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
     Image?: ImageUpdateManyWithoutUsersNestedInput
@@ -28249,6 +28281,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28506,6 +28539,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -28534,6 +28568,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -28567,6 +28602,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -28595,6 +28631,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
     admin?: AdminUncheckedCreateNestedOneWithoutAdminUserInput
@@ -29073,6 +29110,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -29101,6 +29139,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29148,6 +29187,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     isActive?: BoolFilter<"User"> | boolean
+    fcmToken?: StringNullableFilter<"User"> | string | null
     createdById?: StringNullableFilter<"User"> | string | null
     avatarImageId?: StringNullableFilter<"User"> | string | null
     affiliateCode?: StringNullableFilter<"User"> | string | null
@@ -29333,6 +29373,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -29361,6 +29402,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -29394,6 +29436,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -29422,6 +29465,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     affiliateCode?: string | null
     admin?: AdminUncheckedCreateNestedOneWithoutAdminUserInput
@@ -29723,6 +29767,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -29751,6 +29796,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -30043,6 +30089,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -30071,6 +30118,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30258,6 +30306,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -30286,6 +30335,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -30412,6 +30462,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -30440,6 +30491,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30556,6 +30608,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -30584,6 +30637,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -30710,6 +30764,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -30738,6 +30793,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -30854,6 +30910,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -30882,6 +30939,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -30992,6 +31050,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -31020,6 +31079,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31398,6 +31458,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -31426,6 +31487,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -31470,6 +31532,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -31498,6 +31561,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31526,6 +31590,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -31554,6 +31619,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -31680,6 +31746,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -31708,6 +31775,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31824,6 +31892,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -31852,6 +31921,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -32026,6 +32096,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -32054,6 +32125,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32306,6 +32378,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -32334,6 +32407,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -32497,6 +32571,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -32525,6 +32600,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32651,6 +32727,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     adminToken?: AdminTokenCreateNestedOneWithoutAdminInput
@@ -32679,6 +32756,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -32811,6 +32889,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -32839,6 +32918,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -32867,6 +32947,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     affiliateCode?: string | null
     admin?: AdminCreateNestedOneWithoutAdminUserInput
     Image?: ImageCreateNestedManyWithoutUsersInput
@@ -32895,6 +32976,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
@@ -32939,6 +33021,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     Image?: ImageUpdateManyWithoutUsersNestedInput
@@ -32967,6 +33050,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33052,6 +33136,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     avatarImageId?: string | null
     affiliateCode?: string | null
   }
@@ -33324,6 +33409,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -33352,6 +33438,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUncheckedUpdateOneWithoutAdminUserNestedInput
@@ -33380,6 +33467,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -33581,6 +33669,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isActive?: boolean
+    fcmToken?: string | null
     createdById?: string | null
     affiliateCode?: string | null
   }
@@ -33628,6 +33717,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -33656,6 +33746,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33684,6 +33775,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     avatarImageId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33700,6 +33792,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUpdateOneWithoutAdminUserNestedInput
     adminToken?: AdminTokenUpdateOneWithoutAdminNestedInput
@@ -33728,6 +33821,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
     admin?: AdminUncheckedUpdateOneWithoutAdminUserNestedInput
@@ -33756,6 +33850,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    fcmToken?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
