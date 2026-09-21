@@ -303,7 +303,7 @@ export class PaymentsController {
     // Sem conta ativa no Simintpay: gateway não tem onde guardar saldo.
     // Calcula um saldo estimado a partir dos pedidos pagos localmente, só para exibição —
     // saque continua bloqueado até a conta ser criada lá.
-    if (machineSummary?.accountExists === false) {
+    if (machineSummary?.accountExists !== true) {
       const paidOrders = await this.prisma.order.findMany({
         where: {
           store: 'ebook',
