@@ -99,6 +99,8 @@ export class CheckoutService {
 
     private _ebookLiquidez: number | null = null;
     private _ebookLiquidezFetchedAt = 0;
+    private _ebookTaxaFixa: number | null = null;
+    private _ebookTaxaFixaFetchedAt = 0;
 
     private async getEbookLiquidez(): Promise<number> {
         const now = Date.now();
@@ -126,6 +128,35 @@ export class CheckoutService {
         const fallback = parseFloat(process.env.EBOOKSIM_LIQUIDEZ ?? '0.91');
         this._ebookLiquidez = fallback;
         this._ebookLiquidezFetchedAt = now;
+        return fallback;
+    }
+
+    private async getEbookTaxaFixa(): Promise<number> {
+        const now = Date.now();
+        if (this._ebookTaxaFixa !== null && now - this._ebookTaxaFixaFetchedAt < 30 * 1000) {
+            return this._ebookTaxaFixa;
+        }
+        try {
+            const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
+            const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
+            if (base && token) {
+                const res = await fetch(`${base.replace(/\/+$/, '')}/internal/ebook/finance/config`, {
+                    headers: { 'x-internal-token': token },
+                });
+                if (res.ok) {
+                    const body = await res.json() as { transactionFeeBrl?: number };
+                    const v = body?.transactionFeeBrl;
+                    if (typeof v === 'number' && Number.isFinite(v)) {
+                        this._ebookTaxaFixa = v;
+                        this._ebookTaxaFixaFetchedAt = now;
+                        return v;
+                    }
+                }
+            }
+        } catch { /* fallback abaixo */ }
+        const fallback = parseFloat(process.env.EBOOKSIM_TAXA_FIXA ?? '4');
+        this._ebookTaxaFixa = fallback;
+        this._ebookTaxaFixaFetchedAt = now;
         return fallback;
     }
 
@@ -558,7 +589,8 @@ export class CheckoutService {
         const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
         // Gravar netAmount no momento da criação para não recalcular depois
         const liquidez = await this.getEbookLiquidez();
-        const netAmount = parseFloat((totalAmount * liquidez).toFixed(2));
+        const taxaFixa = await this.getEbookTaxaFixa();
+        const netAmount = parseFloat((totalAmount * liquidez - taxaFixa).toFixed(2));
         // Criar pedido
         const internalOrderTag = this.buildInternalOrderTag(cartItems[0]?.book.createdBy?.cpf);
         console.log(
@@ -715,7 +747,8 @@ export class CheckoutService {
         
         // Gravar netAmount no momento da criação para não recalcular depois
         const liquidez = await this.getEbookLiquidez();
-        const netAmount = parseFloat((totalAmount * liquidez).toFixed(2));
+        const taxaFixa = await this.getEbookTaxaFixa();
+        const netAmount = parseFloat((totalAmount * liquidez - taxaFixa).toFixed(2));
 
         // Criar pedido
         const internalOrderTag = this.buildInternalOrderTag(book.createdBy?.cpf);
