@@ -243,7 +243,7 @@ export class PaymentsController {
     const orders = await this.prisma.order.findMany({
       where,
       include: {
-        user: { select: { email: true } },
+        user: { select: { name: true, email: true } },
         orderItems: {
           include: { book: { select: { title: true } } },
           take: 1,
@@ -272,8 +272,8 @@ export class PaymentsController {
           id: `ebook-order-${order.id}`,
           userId: null,
           amount: Number(order.totalAmount ?? 0),
-          name: null,
-          email: null,
+          name: order.user?.name ?? null,
+          email: order.user?.email ?? null,
           status: isPaid ? 'PAID' : 'PENDING',
           description: `Pedido ${order.orderNumber} - ${firstBookTitle}`,
           appliedGlobalFee: false,
