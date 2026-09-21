@@ -298,7 +298,32 @@ export class PaymentsController {
   @Get('summary')
   async summary(@GetUser() user: RequestWithUser['user']) {
     const cpf = await this.getCpfFromUser(user);
-    return this.machineGet('/internal/ebook/finance/summary', cpf);
+    const machineSummary = await this.machineGet('/internal/ebook/finance/summary', cpf);
+
+    // Sem conta ativa no Simintpay: gateway não tem onde guardar saldo.
+    // Calcula um saldo estimado a partir dos pedidos pagos localmente, só para exibição —
+    // saque continua bloqueado até a conta ser criada lá.
+    if (machineSummary?.accountExists === false) {
+      const paidOrders = await this.prisma.order.findMany({
+        where: {
+          store: 'ebook',
+          notes: { contains: `[CPF_DONO:${cpf}]` },
+          AND: [{ status: 'paid' }, { paymentStatus: 'paid' }],
+        },
+        select: { netAmount: true, totalAmount: true },
+      });
+      const estimatedBalance = paidOrders.reduce(
+        (sum, o) => sum + Number(o.netAmount ?? Number(o.totalAmount ?? 0) * 0.91),
+        0,
+      );
+      return {
+        ...machineSummary,
+        availableBalance: Number(estimatedBalance.toFixed(2)),
+        estimatedLocalBalance: true,
+      };
+    }
+
+    return machineSummary;
   }
 
   @Get('history')
