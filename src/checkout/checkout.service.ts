@@ -1318,6 +1318,7 @@ export class CheckoutService {
                 <div style="margin-left:16px;">
                   <p style="margin:0;font-size:15px;font-weight:600;color:#f4f4f5;">${item.book.title}</p>
                   <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${item.book.author}</p>
+                  ${item.book.downloadUrl ? `<a href="${item.book.downloadUrl}" style="display:inline-block;margin-top:10px;color:#34d399;font-size:13px;font-weight:600;text-decoration:none;">Baixar PDF →</a>` : ''}
                 </div>
               </div>`).join('')}
             </td>
