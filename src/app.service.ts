@@ -8,6 +8,7 @@ interface EmailOptions {
   subject: string;
   html: string;
   from?: string;
+  attachments?: nodemailer.SendMailOptions['attachments'];
 }
 
 @Injectable()
@@ -72,13 +73,14 @@ export class AppService {
   }
 
   async sendMail(options: EmailOptions): Promise<void> {
-    const { to, subject, html } = options;
+    const { to, subject, html, attachments } = options;
 
     const mailOptions = {
       from: process.env.SMTP_FROM_EMAIL || 'noreply@simintermediacoes.com',
       to,
       subject,
       html,
+      ...(attachments?.length ? { attachments } : {}),
     };
 
     console.log(`📧 Tentando enviar email para: ${to}`);

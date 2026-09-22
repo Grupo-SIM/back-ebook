@@ -19,7 +19,7 @@ services:
       - SMTP_HOST=mail.jbmidia.com
       - SMTP_PORT=587
       - SMTP_SECURE=false
-      - SMTP_USER=noreply
+      - SMTP_USER=noreply@jbmidia.com
       - SMTP_PASSWORD=j0M$$s5e55
       - SMTP_FROM_EMAIL=noreply@jbmidia.com
       - URL_APP=https://back.ebooksim.com

@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { NotificationService } from 'src/notification/notification.service';
@@ -79,6 +81,53 @@ export class CheckoutService {
             .replace(/\s+/g, ' ')
             .trim();
         return sanitized.length ? sanitized : null;
+    }
+
+    private async buildPurchaseEmailAttachments(orderItems: any[]): Promise<Array<{
+        filename: string;
+        content: Buffer;
+        contentType?: string;
+    }>> {
+        const attachments: Array<{ filename: string; content: Buffer; contentType?: string }> = [];
+
+        for (const item of orderItems) {
+            const downloadUrl = item.book?.downloadUrl;
+            if (!downloadUrl) continue;
+
+            try {
+                const isRemoteUrl = /^https?:\/\//i.test(downloadUrl);
+                let content: Buffer;
+
+                if (isRemoteUrl) {
+                    const response = await fetch(downloadUrl);
+                    if (!response.ok) throw new Error(`download retornou HTTP ${response.status}`);
+                    content = Buffer.from(await response.arrayBuffer());
+                } else {
+                    const relativePath = downloadUrl.replace(/^\/+/, '');
+                    const filePath = path.isAbsolute(downloadUrl)
+                        ? downloadUrl
+                        : path.join(process.cwd(), relativePath.startsWith('uploads/') ? relativePath : 'uploads/' + relativePath);
+                    content = await fs.promises.readFile(filePath);
+                }
+
+                const urlPath = isRemoteUrl ? new URL(downloadUrl).pathname : downloadUrl;
+                const extension = path.extname(urlPath) || '.pdf';
+                const safeTitle = String(item.book.title || 'ebook')
+                    .replace(/[^a-zA-Z0-9À-ÿ _-]/g, '')
+                    .trim()
+                    .replace(/\s+/g, '-') || 'ebook';
+
+                attachments.push({
+                    filename: `${safeTitle}${extension}`,
+                    content,
+                    contentType: extension.toLowerCase() === '.pdf' ? 'application/pdf' : undefined,
+                });
+            } catch (error) {
+                console.warn(`⚠️ Não foi possível anexar o ebook "${item.book?.title || 'sem título'}":`, error?.message || error);
+            }
+        }
+
+        return attachments;
     }
 
     private getApiMachineBaseUrl(): string | null {
@@ -1272,10 +1321,12 @@ export class CheckoutService {
             const firstBook = order.orderItems[0]?.book;
             const firstBookTitle = firstBook?.title || 'seu ebook';
             const appUrl = process.env.URL_APP || process.env.FRONTEND_URL || 'https://ebooksim.com';
+            const attachments = await this.buildPurchaseEmailAttachments(order.orderItems);
 
             await this.appService.sendMail({
                 to: userEmail,
                 subject: `Parabéns pela sua compra — ${firstBookTitle}`,
+                attachments,
                 html: `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1304,7 +1355,7 @@ export class CheckoutService {
             <td style="background:linear-gradient(135deg,#064e3b,#0e7490);border-radius:16px 16px 0 0;padding:40px 40px 32px;text-align:center;">
               <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎉</div>
               <h1 style="margin:0 0 12px;font-size:26px;font-weight:700;color:#ffffff;">Parabéns, ${userName}!</h1>
-              <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6;">Sua compra foi confirmada com sucesso.<br>O conteúdo já está disponível na sua biblioteca.</p>
+              <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6;">Sua compra foi confirmada com sucesso.<br>O conteúdo já está disponível na sua biblioteca e o arquivo está anexado a este email.</p>
             </td>
           </tr>
 

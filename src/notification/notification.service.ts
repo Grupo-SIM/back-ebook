@@ -230,6 +230,19 @@ export class NotificationService {
     }
 
     async notifyOrderStatusUpdate(userId: string, orderNumber: string, status: string): Promise<void> {
+        if (status === 'paid') {
+            await this.createNotification(userId, {
+                title: 'Compra confirmada',
+                message: 'Seu ebook foi enviado para o e-mail cadastrado e já está disponível na sua biblioteca.',
+                type: 'success',
+                action: {
+                    label: 'Abrir biblioteca',
+                    onClick: 'view_library'
+                }
+            });
+            return;
+        }
+
         const statusMessages = {
             'paid': 'foi pago com sucesso',
             'delivered': 'foi entregue',
@@ -316,4 +329,4 @@ export class NotificationService {
             await this.invalidateNotificationCache(user.id);
         }
     }
-} 
+}
