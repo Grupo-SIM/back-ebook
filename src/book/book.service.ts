@@ -1216,6 +1216,57 @@ export class BookService {
         };
     }
 
+    async claimFreeBook(bookId: number, userId: string): Promise<void> {
+        const book = await this.prisma.book.findUnique({
+            where: { id: bookId },
+            select: { id: true, isFree: true, price: true, isActive: true },
+        });
+
+        if (!book || !book.isActive) {
+            throw new NotFoundException('Livro não encontrado');
+        }
+
+        if (!book.isFree && book.price !== 0) {
+            throw new BadRequestException('Apenas livros gratuitos podem ser adicionados à biblioteca desta forma');
+        }
+
+        const existingPurchase = await this.prisma.orderItem.findFirst({
+            where: {
+                bookId,
+                order: {
+                    userId,
+                    status: 'paid',
+                },
+            },
+            select: { id: true },
+        });
+
+        if (existingPurchase) return;
+
+        await this.prisma.order.create({
+            data: {
+                userId,
+                orderNumber: `FREE-${Date.now()}-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
+                status: 'paid',
+                totalAmount: 0,
+                subtotal: 0,
+                tax: 0,
+                discount: 0,
+                paymentMethod: 'free',
+                paymentStatus: 'paid',
+                notes: 'Aquisição de livro gratuito',
+                orderItems: {
+                    create: {
+                        bookId,
+                        quantity: 1,
+                        unitPrice: 0,
+                        totalPrice: 0,
+                    },
+                },
+            },
+        });
+    }
+
     async userHasPurchasedBook(bookId: number, userId: string): Promise<boolean> {
         const orderItem = await this.prisma.orderItem.findFirst({
             where: {

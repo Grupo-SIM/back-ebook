@@ -412,6 +412,18 @@ export class BookController {
         return this.bookService.createReview(bookId, user.id, dto);
     }
 
+    @Post(':id/claim-free')
+    @UseGuards(JwtAuthGuardAll)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Adicionar livro gratuito à biblioteca do usuário' })
+    async claimFreeBook(
+        @Param('id', ParseIntPipe) id: number,
+        @GetUser() user: RequestWithUser['user'],
+    ) {
+        await this.bookService.claimFreeBook(id, user.id);
+        return { success: true };
+    }
+
     @Get(':id/download')
     @UseGuards(JwtAuthGuardAll)
     @ApiBearerAuth()
@@ -443,6 +455,7 @@ export class BookController {
             }
         } else {
             console.log(`🆓 Livro gratuito - download permitido`);
+            await this.bookService.claimFreeBook(Number(id), user.id);
         }
         
         // ✅ Verificar se é URL do Storj (começa com http/https)
