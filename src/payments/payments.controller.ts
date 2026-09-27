@@ -14,7 +14,7 @@ import { JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/user.decorator';
 import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { PrismaService } from '../../prisma/prisma.service';
-import { isValidCpf, normalizeCpf } from 'src/common/utils/cpf.util';
+import { isValidCpf, isValidCnpj, normalizeCpf } from 'src/common/utils/cpf.util';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, Min } from 'class-validator';
 
@@ -79,11 +79,15 @@ export class PaymentsController {
   private async getCpfFromUser(user: RequestWithUser['user']): Promise<string> {
     const dbUser = await this.prisma.user.findUnique({
       where: { id: user.id },
-      select: { cpf: true },
+      select: { cpf: true, cnpj: true },
     });
+    const cnpj = normalizeCpf(dbUser?.cnpj ?? '');
+    if (isValidCnpj(cnpj)) {
+      return cnpj;
+    }
     const cpf = normalizeCpf(dbUser?.cpf ?? '');
     if (!isValidCpf(cpf)) {
-      throw new BadRequestException('CPF inválido ou não configurado para acessar o financeiro');
+      throw new BadRequestException('CPF ou CNPJ inválido ou não configurado para acessar o financeiro');
     }
     return cpf;
   }

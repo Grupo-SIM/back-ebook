@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { PrismaService } from 'prisma/prisma.service';
 import { Role } from 'src/types/interfaces/role';
-import { isValidCpf } from 'src/common/utils/cpf.util';
+import { isValidCpf, isValidCnpj } from 'src/common/utils/cpf.util';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -36,12 +36,12 @@ async function enforceCpfRequirement(request: AuthenticatedRequest, prisma: Pris
 
   const dbUser = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { cpf: true },
+    select: { cpf: true, cnpj: true },
   });
-  if (isValidCpf(dbUser?.cpf)) return;
+  if (isValidCpf(dbUser?.cpf) || isValidCnpj(dbUser?.cnpj)) return;
 
   throw new ForbiddenException({
-    message: 'CPF obrigatório. Configure seu CPF para continuar.',
+    message: 'CPF ou CNPJ obrigatório. Configure seu documento para continuar.',
     code: 'CPF_REQUIRED',
   });
 }

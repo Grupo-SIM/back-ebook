@@ -459,7 +459,7 @@ export class CheckoutService {
                 book: {
                     include: {
                         createdBy: {
-                            select: { cpf: true }
+                            select: { cpf: true, cnpj: true }
                         }
                     }
                 }
@@ -705,13 +705,15 @@ export class CheckoutService {
         await this.invalidateCartCache(userId);
         await this.invalidateOrderCache(userId);
         // Notificar api-machine sobre pedido pendente
-        const ownerCpfCart = cartItems[0]?.book?.createdBy?.cpf
-            ? String(cartItems[0].book.createdBy.cpf).replace(/\D/g, '')
+        const ownerDocCart = (cartItems[0]?.book?.createdBy as any)?.cnpj
+            || cartItems[0]?.book?.createdBy?.cpf;
+        const ownerCpfCart = ownerDocCart
+            ? String(ownerDocCart).replace(/\D/g, '')
             : null;
         const ownerNameCart = cartItems[0]?.book?.createdBy?.name ?? null;
         const buyerCart = await this.prisma.user.findUnique({
             where: { id: userId },
-            select: { name: true, email: true, cpf: true },
+            select: { name: true, email: true, cpf: true, cnpj: true },
         });
         // Deduz a comissão de afiliado (definida pelo criador do livro) do valor
         // que vai pro dono — o afiliado recebe a comissão, o dono recebe o restante.
@@ -730,7 +732,7 @@ export class CheckoutService {
         await this.notifyPendingTransaction(orderNumber, ownerAmountCart, ownerCpfCart, undefined, {
             name: buyerCart?.name ?? undefined,
             email: buyerCart?.email ?? undefined,
-            cpf: buyerCart?.cpf ?? undefined,
+            cpf: buyerCart?.cpf ?? (buyerCart as any)?.cnpj ?? undefined,
         }, ownerNameCart);
         // Buscar pedido completo
         const orderWithItems = await this.prisma.order.findUnique({
@@ -841,13 +843,14 @@ export class CheckoutService {
             }
         });
         // Notificar api-machine sobre pedido pendente
-        const ownerCpfBook = book.createdBy?.cpf
-            ? String(book.createdBy.cpf).replace(/\D/g, '')
+        const ownerDocBook = (book.createdBy as any)?.cnpj || book.createdBy?.cpf;
+        const ownerCpfBook = ownerDocBook
+            ? String(ownerDocBook).replace(/\D/g, '')
             : null;
         const ownerNameBook = book.createdBy?.name ?? null;
         const buyerBook = await this.prisma.user.findUnique({
             where: { id: userId },
-            select: { name: true, email: true, cpf: true },
+            select: { name: true, email: true, cpf: true, cnpj: true },
         });
         // Deduz a comissão de afiliado (definida pelo criador do livro) do valor
         // que vai pro dono — o afiliado recebe a comissão, o dono recebe o restante.
@@ -860,7 +863,7 @@ export class CheckoutService {
         await this.notifyPendingTransaction(orderNumber, ownerAmountBook, ownerCpfBook, undefined, {
             name: buyerBook?.name ?? undefined,
             email: buyerBook?.email ?? undefined,
-            cpf: buyerBook?.cpf ?? undefined,
+            cpf: buyerBook?.cpf ?? (buyerBook as any)?.cnpj ?? undefined,
         }, ownerNameBook);
         // Buscar pedido completo
         const orderWithItems = await this.prisma.order.findUnique({

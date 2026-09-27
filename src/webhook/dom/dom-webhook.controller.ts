@@ -909,7 +909,7 @@ export class WebhookController {
         let existingOrder = await prisma.order.findUnique({
           where: { orderNumber: normalizedOrderNumber },
           include: {
-            orderItems: { include: { book: { include: { createdBy: { select: { cpf: true, name: true } } } }, affiliateProductLink: true } },
+            orderItems: { include: { book: { include: { createdBy: { select: { cpf: true, cnpj: true, name: true } } } }, affiliateProductLink: true } },
             user: true
           }
         });
