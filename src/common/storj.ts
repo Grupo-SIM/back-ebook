@@ -63,7 +63,16 @@ const uploadFileS3 = async (file: Express.Multer.File) => {
     const timestamp = Date.now();
     const randomString = uuidv4().substring(0, 8);
     const fileExtension = file.mimetype.includes('pdf') ? 'pdf' : 'png';
-    key = `uploads/${timestamp}-${randomString}.${fileExtension}`;
+    // Para PDFs, embute o nome original (slug) na key para o download sair com o nome enviado
+    const originalBase = (file.originalname || '').replace(/\.[^.]*$/, '');
+    const slug = originalBase
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-zA-Z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
+    const nameSuffix = fileExtension === 'pdf' && slug ? `-${slug}` : '';
+    key = `uploads/${timestamp}-${randomString}${nameSuffix}.${fileExtension}`;
 
     try {
       if (file.mimetype.includes('pdf')) {
