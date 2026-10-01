@@ -641,7 +641,7 @@ export class CheckoutService {
         const taxaFixa = await this.getEbookTaxaFixa();
         const netAmount = parseFloat((totalAmount * liquidez - taxaFixa).toFixed(2));
         // Criar pedido
-        const internalOrderTag = this.buildInternalOrderTag(cartItems[0]?.book.createdBy?.cpf);
+        const internalOrderTag = this.buildInternalOrderTag(cartItems[0]?.book.createdBy?.cnpj || cartItems[0]?.book.createdBy?.cpf);
         console.log(
             `[order-owner][createOrder] orderNumber=${orderNumber} bookId=${cartItems[0]?.book?.id ?? 'null'} ` +
             `bookCreatedById=${cartItems[0]?.book?.createdById ?? 'null'} resolvedOwnerCpf=${cartItems[0]?.book?.createdBy?.cpf ?? 'null'} ` +
@@ -802,7 +802,7 @@ export class CheckoutService {
         const netAmount = parseFloat((totalAmount * liquidez - taxaFixa).toFixed(2));
 
         // Criar pedido
-        const internalOrderTag = this.buildInternalOrderTag(book.createdBy?.cpf);
+        const internalOrderTag = this.buildInternalOrderTag(book.createdBy?.cnpj || book.createdBy?.cpf);
         console.log(
             `[order-owner][createOrderFromBook] orderNumber=${orderNumber} bookId=${book.id} ` +
             `bookCreatedById=${book.createdById ?? 'null'} resolvedOwnerCpf=${book.createdBy?.cpf ?? 'null'} ` +

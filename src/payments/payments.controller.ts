@@ -76,6 +76,11 @@ export class PaymentsController {
     return token;
   }
 
+  // Mesma tag gravada no checkout (buildInternalOrderTag): CNPJ_DONO p/ 14 dígitos, CPF_DONO p/ 11.
+  private ownerTag(doc: string): string {
+    return doc.length === 14 ? `[CNPJ_DONO:${doc}]` : `[CPF_DONO:${doc}]`;
+  }
+
   private async getCpfFromUser(user: RequestWithUser['user']): Promise<string> {
     const dbUser = await this.prisma.user.findUnique({
       where: { id: user.id },
@@ -224,7 +229,7 @@ export class PaymentsController {
     const where: any = {
       store: 'ebook',
       notes: {
-        contains: `[CPF_DONO:${params.cpf}]`,
+        contains: this.ownerTag(params.cpf),
       },
     };
 
@@ -311,7 +316,7 @@ export class PaymentsController {
       const paidOrders = await this.prisma.order.findMany({
         where: {
           store: 'ebook',
-          notes: { contains: `[CPF_DONO:${cpf}]` },
+          notes: { contains: this.ownerTag(cpf) },
           AND: [{ status: 'paid' }, { paymentStatus: 'paid' }],
         },
         select: { netAmount: true, totalAmount: true },
