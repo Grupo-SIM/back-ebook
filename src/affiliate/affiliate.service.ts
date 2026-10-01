@@ -319,6 +319,7 @@ export class AffiliateService {
                 price: book.price,
                 ownerName: book.createdBy?.name ?? null,
                 commissionRate: (book as any).commissionRate ?? 0,
+                sales: book.sales ?? 0,
                 hasLink: Boolean(link),
                 productLink: link
                     ? { code: link.code, link: `${storeUrl}/book/${book.id}?refp=${link.code}` }

@@ -145,6 +145,9 @@ export class AffiliateMarketplaceBookResponseDto {
     @ApiProperty({ example: 10 })
     commissionRate: number;
 
+    @ApiProperty({ example: 0 })
+    sales: number;
+
     @ApiProperty({ example: false })
     hasLink: boolean;
 
