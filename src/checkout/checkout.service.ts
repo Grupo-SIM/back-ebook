@@ -1,10 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import { randomInt } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { AppService } from 'src/app.service';
+import { getSignedDownloadUrl } from 'src/common/storj';
+import { calcNetAmount, getSellerFees } from 'src/common/seller-fees';
 import {
     CartItemDto,
     CheckoutItemDto,
@@ -23,6 +26,9 @@ import {
     CheckoutState
 } from './dto/checkout.dto';
 
+
+// Limite do total de anexos (bytes brutos) no email de compra
+const PURCHASE_EMAIL_MAX_ATTACHMENT_BYTES = 15 * 1024 * 1024;
 @Injectable()
 export class CheckoutService {
     private static readonly PLATFORM_EBOOK_TAG = '[TENANT:EBOOK]';
@@ -89,6 +95,7 @@ export class CheckoutService {
         contentType?: string;
     }>> {
         const attachments: Array<{ filename: string; content: Buffer; contentType?: string }> = [];
+        let totalBytes = 0;
 
         for (const item of orderItems) {
             const downloadUrl = item.book?.downloadUrl;
@@ -99,7 +106,7 @@ export class CheckoutService {
                 let content: Buffer;
 
                 if (isRemoteUrl) {
-                    const response = await fetch(downloadUrl);
+                    const response = await fetch(await getSignedDownloadUrl(downloadUrl));
                     if (!response.ok) throw new Error(`download retornou HTTP ${response.status}`);
                     content = Buffer.from(await response.arrayBuffer());
                 } else {
@@ -116,6 +123,13 @@ export class CheckoutService {
                     .replace(/[^a-zA-Z0-9À-ÿ _-]/g, '')
                     .trim()
                     .replace(/\s+/g, '-') || 'ebook';
+
+                // Base64 aumenta ~33%; acima disso Gmail/Outlook recusam o email inteiro
+                if (totalBytes + content.length > PURCHASE_EMAIL_MAX_ATTACHMENT_BYTES) {
+                    console.warn(`⚠️ Ebook "${item.book.title}" não anexado: ${(content.length / 1024 / 1024).toFixed(1)}MB excede o limite do email`);
+                    continue;
+                }
+                totalBytes += content.length;
 
                 attachments.push({
                     filename: `${safeTitle}${extension}`,
@@ -150,6 +164,34 @@ export class CheckoutService {
     private _ebookLiquidezFetchedAt = 0;
     private _ebookTaxaFixa: number | null = null;
     private _ebookTaxaFixaFetchedAt = 0;
+
+    /**
+     * Número do pedido no formato ORD-AAAA-NNNNNN (6 dígitos — a Simintpay/DOM reconhece exatamente este padrão).
+     * Aleatório e verificado no banco: o antigo (6 últimos dígitos de Date.now()) repetia a cada ~16 min.
+     */
+    private async generateOrderNumber(): Promise<string> {
+        const year = new Date().getFullYear();
+        for (let attempt = 0; attempt < 10; attempt++) {
+            const orderNumber = `ORD-${year}-${String(randomInt(0, 1_000_000)).padStart(6, '0')}`;
+            const existing = await this.prisma.order.findUnique({ where: { orderNumber }, select: { id: true } });
+            if (!existing) return orderNumber;
+        }
+        throw new InternalServerErrorException('Não foi possível gerar o número do pedido. Tente novamente.');
+    }
+
+    /**
+     * Líquido do vendedor com as taxas do método de pagamento (mesma fonte de /taxa no admin).
+     * Só cai na configuração global se a API de pagamento não responder.
+     */
+    private async computeOrderNetAmount(totalAmount: number, ownerDocument: string | null | undefined): Promise<number> {
+        const fees = await getSellerFees(ownerDocument);
+        if (fees) return calcNetAmount(totalAmount, fees);
+
+        console.warn(`[fees] Taxas do vendedor indisponíveis (doc=${ownerDocument ? 'informado' : 'ausente'}); usando configuração global`);
+        const liquidez = await this.getEbookLiquidez();
+        const taxaFixa = await this.getEbookTaxaFixa();
+        return parseFloat((totalAmount * liquidez - taxaFixa).toFixed(2));
+    }
 
     private async getEbookLiquidez(): Promise<number> {
         const now = Date.now();
@@ -635,13 +677,12 @@ export class CheckoutService {
         }
         const discount = 0; // Pode ser implementado com cupons
         // Gerar número do pedido
-        const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+        const orderNumber = await this.generateOrderNumber();
         // Gravar netAmount no momento da criação para não recalcular depois
-        const liquidez = await this.getEbookLiquidez();
-        const taxaFixa = await this.getEbookTaxaFixa();
-        const netAmount = parseFloat((totalAmount * liquidez - taxaFixa).toFixed(2));
+        const ownerDocument = cartItems[0]?.book.createdBy?.cnpj || cartItems[0]?.book.createdBy?.cpf;
+        const netAmount = await this.computeOrderNetAmount(totalAmount, ownerDocument);
         // Criar pedido
-        const internalOrderTag = this.buildInternalOrderTag(cartItems[0]?.book.createdBy?.cnpj || cartItems[0]?.book.createdBy?.cpf);
+        const internalOrderTag = this.buildInternalOrderTag(ownerDocument);
         console.log(
             `[order-owner][createOrder] orderNumber=${orderNumber} bookId=${cartItems[0]?.book?.id ?? 'null'} ` +
             `bookCreatedById=${cartItems[0]?.book?.createdById ?? 'null'} resolvedOwnerCpf=${cartItems[0]?.book?.createdBy?.cpf ?? 'null'} ` +
@@ -794,15 +835,14 @@ export class CheckoutService {
             totalAmount = book.originalPrice * quantity;
         }
         const discount = 0;
-        const orderNumber = `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+        const orderNumber = await this.generateOrderNumber();
         
         // Gravar netAmount no momento da criação para não recalcular depois
-        const liquidez = await this.getEbookLiquidez();
-        const taxaFixa = await this.getEbookTaxaFixa();
-        const netAmount = parseFloat((totalAmount * liquidez - taxaFixa).toFixed(2));
+        const ownerDocument = book.createdBy?.cnpj || book.createdBy?.cpf;
+        const netAmount = await this.computeOrderNetAmount(totalAmount, ownerDocument);
 
         // Criar pedido
-        const internalOrderTag = this.buildInternalOrderTag(book.createdBy?.cnpj || book.createdBy?.cpf);
+        const internalOrderTag = this.buildInternalOrderTag(ownerDocument);
         console.log(
             `[order-owner][createOrderFromBook] orderNumber=${orderNumber} bookId=${book.id} ` +
             `bookCreatedById=${book.createdById ?? 'null'} resolvedOwnerCpf=${book.createdBy?.cpf ?? 'null'} ` +
@@ -1323,12 +1363,18 @@ export class CheckoutService {
 
             const firstBook = order.orderItems[0]?.book;
             const firstBookTitle = firstBook?.title || 'seu ebook';
-            const appUrl = process.env.URL_APP || process.env.FRONTEND_URL || 'https://ebooksim.com';
+            // Links do email vão para a loja (front), nunca para a API (URL_APP)
+            const appUrl = (process.env.FRONTEND_URL || 'https://ebooksim.com').replace(/\/+$/, '');
             const attachments = await this.buildPurchaseEmailAttachments(order.orderItems);
+            const isFreeOrder = order.paymentMethod === 'free' || order.totalAmount === 0;
+            const allAttached = attachments.length === order.orderItems.filter(item => item.book?.downloadUrl).length;
+            const introText = `${isFreeOrder ? 'Seu ebook gratuito já é seu.' : 'Sua compra foi confirmada com sucesso.'}<br>${allAttached
+                ? 'O conteúdo já está disponível na sua biblioteca e o arquivo está anexado a este email.'
+                : 'O conteúdo já está disponível na sua biblioteca. Use o botão abaixo para baixar o arquivo.'}`;
 
             await this.appService.sendMail({
                 to: userEmail,
-                subject: `Parabéns pela sua compra — ${firstBookTitle}`,
+                subject: isFreeOrder ? `Seu ebook gratuito — ${firstBookTitle}` : `Parabéns pela sua compra — ${firstBookTitle}`,
                 attachments,
                 html: `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -1358,7 +1404,7 @@ export class CheckoutService {
             <td style="background:linear-gradient(135deg,#064e3b,#0e7490);border-radius:16px 16px 0 0;padding:40px 40px 32px;text-align:center;">
               <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎉</div>
               <h1 style="margin:0 0 12px;font-size:26px;font-weight:700;color:#ffffff;">Parabéns, ${userName}!</h1>
-              <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6;">Sua compra foi confirmada com sucesso.<br>O conteúdo já está disponível na sua biblioteca e o arquivo está anexado a este email.</p>
+              <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.8);line-height:1.6;">${introText}</p>
             </td>
           </tr>
 
@@ -1372,7 +1418,7 @@ export class CheckoutService {
                 <div style="margin-left:16px;">
                   <p style="margin:0;font-size:15px;font-weight:600;color:#f4f4f5;">${item.book.title}</p>
                   <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${item.book.author}</p>
-                  ${item.book.downloadUrl ? `<a href="${item.book.downloadUrl}" style="display:inline-block;margin-top:10px;color:#34d399;font-size:13px;font-weight:600;text-decoration:none;">Baixar PDF →</a>` : ''}
+                  ${item.book.downloadUrl ? `<a href="${appUrl}/library" style="display:inline-block;margin-top:10px;color:#34d399;font-size:13px;font-weight:600;text-decoration:none;">Baixar PDF →</a>` : ''}
                 </div>
               </div>`).join('')}
             </td>
@@ -1408,7 +1454,7 @@ export class CheckoutService {
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="color:#a1a1aa;font-size:13px;">Valor Pago</td>
-                        <td align="right" style="color:#10b981;font-size:15px;font-weight:700;">${totalAmount}</td>
+                        <td align="right" style="color:#10b981;font-size:15px;font-weight:700;">${isFreeOrder ? 'Grátis' : totalAmount}</td>
                       </tr>
                     </table>
                   </td>

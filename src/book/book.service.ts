@@ -1243,7 +1243,7 @@ export class BookService {
 
         if (existingPurchase) return;
 
-        await this.prisma.order.create({
+        const order = await this.prisma.order.create({
             data: {
                 userId,
                 orderNumber: `FREE-${Date.now()}-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
@@ -1265,6 +1265,9 @@ export class BookService {
                 },
             },
         });
+
+        // Envia o ebook por email em segundo plano (erros já são tratados e logados no método)
+        void this.checkoutService.sendPurchaseConfirmationEmail(order.id);
     }
 
     async userHasPurchasedBook(bookId: number, userId: string): Promise<boolean> {

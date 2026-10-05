@@ -35,7 +35,7 @@ import { diskStorage } from 'multer';
 import * as path from 'path';
 import { Response } from 'express';
 import * as fs from 'fs';
-import { uploadFileS3, getUrlImageByKey } from 'src/common/storj';
+import { uploadFileS3, getUrlImageByKey, getSignedDownloadUrl } from 'src/common/storj';
 
 @Controller('books')
 @ApiTags('Books')
@@ -460,10 +460,11 @@ export class BookController {
         
         // ✅ Verificar se é URL do Storj (começa com http/https)
         if (book.downloadUrl.startsWith('http://') || book.downloadUrl.startsWith('https://')) {
-            console.log(`☁️ Arquivo está no Storj - redirecionando para: ${book.downloadUrl}`);
-            
-            // Redirecionar para a URL do Storj (o navegador vai baixar diretamente)
-            return res.redirect(book.downloadUrl);
+            // URL assinada e temporária: o link permanente nunca sai do servidor
+            const signedUrl = await getSignedDownloadUrl(book.downloadUrl);
+            console.log(`☁️ Arquivo está no Storj - redirecionando para URL assinada (livro ${id})`);
+            res.setHeader('Cache-Control', 'no-store');
+            return res.redirect(signedUrl);
         }
         
         // 💾 Se for caminho local (livros antigos), manter lógica de disco

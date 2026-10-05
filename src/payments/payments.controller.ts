@@ -17,6 +17,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { isValidCpf, isValidCnpj, normalizeCpf } from 'src/common/utils/cpf.util';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, Min } from 'class-validator';
+import { calcNetAmount, getSellerFees, parseSellerFees, SellerFees } from 'src/common/seller-fees';
 
 export class WithdrawRequestDto {
   @ApiProperty({ description: 'Valor a ser sacado', example: 100.50 })
@@ -79,6 +80,17 @@ export class PaymentsController {
   // Mesma tag gravada no checkout (buildInternalOrderTag): CNPJ_DONO p/ 14 dígitos, CPF_DONO p/ 11.
   private ownerTag(doc: string): string {
     return doc.length === 14 ? `[CNPJ_DONO:${doc}]` : `[CPF_DONO:${doc}]`;
+  }
+
+  /**
+   * Líquido de um pedido local. Usa o netAmount gravado na venda; para pedidos antigos sem ele,
+   * calcula com as taxas do vendedor no método de pagamento (mesma fonte de /taxa).
+   */
+  private localNetAmount(order: { netAmount: number | null; totalAmount: number | null }, fees: SellerFees | null): number {
+    if (order.netAmount != null) return Number(order.netAmount);
+    const gross = Number(order.totalAmount ?? 0);
+    // Sem taxas disponíveis: padrão histórico de 91%
+    return fees ? calcNetAmount(gross, fees) : Number((gross * 0.91).toFixed(2));
   }
 
   private async getCpfFromUser(user: RequestWithUser['user']): Promise<string> {
@@ -269,6 +281,7 @@ export class PaymentsController {
     const reconciledPaidOrderIds = await this.reconcileLocalPendingOrdersWithDom(pendingOrders);
 
     const normalizedDescription = String(params.description || '').trim().toLowerCase();
+    const sellerFees = orders.some((o) => o.netAmount == null) ? await getSellerFees(params.cpf) : null;
 
     return orders
       .map((order) => {
@@ -289,9 +302,7 @@ export class PaymentsController {
           fee: 0,
           dom_fee: 0,
           payment_method: (order.paymentMethod || 'pix').toString().toLowerCase(),
-          amountWithoutAllFee: order.netAmount != null
-            ? Number(order.netAmount)
-            : Number((Number(order.totalAmount ?? 0) * 0.91).toFixed(2)), // Transações antigas sem netAmount ficam com o padrão histórico de 91%
+          amountWithoutAllFee: this.localNetAmount(order, sellerFees),
           walletId: null,
           createdAt: order.createdAt,
           paymentId: `ORDER:${order.orderNumber}`,
@@ -304,50 +315,19 @@ export class PaymentsController {
       });
   }
 
-  @Get('summary')
-  async summary(@GetUser() user: RequestWithUser['user']) {
-    const cpf = await this.getCpfFromUser(user);
-    const machineSummary = await this.machineGet('/internal/ebook/finance/summary', cpf);
-
-    // Sem conta ativa no Simintpay: gateway não tem onde guardar saldo.
-    // Calcula um saldo estimado a partir dos pedidos pagos localmente, só para exibição —
-    // saque continua bloqueado até a conta ser criada lá.
-    if (machineSummary?.accountExists !== true) {
-      const paidOrders = await this.prisma.order.findMany({
-        where: {
-          store: 'ebook',
-          notes: { contains: this.ownerTag(cpf) },
-          AND: [{ status: 'paid' }, { paymentStatus: 'paid' }],
-        },
-        select: { netAmount: true, totalAmount: true },
-      });
-      const estimatedBalance = paidOrders.reduce(
-        (sum, o) => sum + Number(o.netAmount ?? Number(o.totalAmount ?? 0) * 0.91),
-        0,
-      );
-      return {
-        ...machineSummary,
-        availableBalance: Number(estimatedBalance.toFixed(2)),
-        estimatedLocalBalance: true,
-      };
-    }
-
-    return machineSummary;
-  }
-
-  @Get('history')
-  async history(
-    @GetUser() user: RequestWithUser['user'],
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-    @Query('status') status?: string,
-    @Query('description') description?: string,
-  ) {
-    const cpf = await this.getCpfFromUser(user);
-    const pageNum = Math.max(1, Number(page || 1));
-    const limitNum = Math.min(Math.max(1, Number(limit || 10)), 200);
+  /**
+   * Transações do vendedor: API Machine (gateway) + pedidos locais ainda não refletidos lá,
+   * sem duplicatas, ordenadas da mais recente para a mais antiga.
+   * Fonte única para Relatórios e Dashboard.
+   */
+  private async listSellerTransactions(params: {
+    cpf: string;
+    startDate?: string;
+    endDate?: string;
+    status?: string;
+    description?: string;
+  }): Promise<any[]> {
+    const { cpf, startDate, endDate, status, description } = params;
 
     // Machine API uses COMPLETED for paid, not PAID
     const normalizedStatus = String(status || '').toUpperCase();
@@ -401,6 +381,54 @@ export class PaymentsController {
     const mergedSorted = [...uniqueByKey.values()].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
+
+    return mergedSorted;
+  }
+
+  @Get('summary')
+  async summary(@GetUser() user: RequestWithUser['user']) {
+    const cpf = await this.getCpfFromUser(user);
+    const machineSummary = await this.machineGet('/internal/ebook/finance/summary', cpf);
+
+    // Sem conta ativa no Simintpay: gateway não tem onde guardar saldo.
+    // Calcula um saldo estimado a partir dos pedidos pagos localmente, só para exibição —
+    // saque continua bloqueado até a conta ser criada lá.
+    if (machineSummary?.accountExists !== true) {
+      const paidOrders = await this.prisma.order.findMany({
+        where: {
+          store: 'ebook',
+          notes: { contains: this.ownerTag(cpf) },
+          AND: [{ status: 'paid' }, { paymentStatus: 'paid' }],
+        },
+        select: { netAmount: true, totalAmount: true },
+      });
+      const sellerFees = parseSellerFees(machineSummary);
+      const estimatedBalance = paidOrders.reduce((sum, o) => sum + this.localNetAmount(o, sellerFees), 0);
+      return {
+        ...machineSummary,
+        availableBalance: Number(estimatedBalance.toFixed(2)),
+        estimatedLocalBalance: true,
+      };
+    }
+
+    return machineSummary;
+  }
+
+  @Get('history')
+  async history(
+    @GetUser() user: RequestWithUser['user'],
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('status') status?: string,
+    @Query('description') description?: string,
+  ) {
+    const cpf = await this.getCpfFromUser(user);
+    const pageNum = Math.max(1, Number(page || 1));
+    const limitNum = Math.min(Math.max(1, Number(limit || 10)), 200);
+
+    const mergedSorted = await this.listSellerTransactions({ cpf, startDate, endDate, status, description });
     const totalItems = mergedSorted.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / limitNum));
     const startIdx = (pageNum - 1) * limitNum;
@@ -429,6 +457,78 @@ export class PaymentsController {
         totalPages,
         totalAffiliateCommissions,
       },
+    };
+  }
+
+  /**
+   * Números do Dashboard calculados da mesma fonte dos Relatórios (listSellerTransactions),
+   * para os dois sempre baterem.
+   */
+  @Get('dashboard-stats')
+  async dashboardStats(@GetUser() user: RequestWithUser['user']) {
+    const cpf = await this.getCpfFromUser(user);
+    const transactions = await this.listSellerTransactions({ cpf });
+
+    const PAID_STATUSES = new Set(['PAID', 'COMPLETED', 'APPROVED']);
+    const paid = transactions.filter((tx) => PAID_STATUSES.has(String(tx.status || '').toUpperCase()));
+
+    const monthKey = (value: Date | string) =>
+      new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit' })
+        .format(new Date(value));
+    const currentMonth = monthKey(new Date());
+    const paidThisMonth = paid.filter((tx) => tx.createdAt && monthKey(tx.createdAt) === currentMonth);
+
+    const sumAmount = (txs: any[]) => Number(txs.reduce((sum, tx) => sum + Number(tx.amount || 0), 0).toFixed(2));
+
+    // Título do livro: pelo pedido local (orderNumber na descrição); senão, a própria descrição limpa
+    const orderNumberOf = (tx: any): string | null => {
+      const fromPaymentId = String(tx.paymentId || '').match(/^ORDER:(.+)$/);
+      if (fromPaymentId) return fromPaymentId[1];
+      const fromDescription = String(tx.description || '').match(/\b((?:ORD|FREE|MOCK)-[A-Z0-9-]+)/i);
+      return fromDescription ? fromDescription[1] : null;
+    };
+    const orderNumbers = [...new Set(paid.map(orderNumberOf).filter((n): n is string => !!n))];
+    const orders = orderNumbers.length
+      ? await this.prisma.order.findMany({
+          where: { orderNumber: { in: orderNumbers } },
+          select: {
+            orderNumber: true,
+            orderItems: { select: { book: { select: { title: true, price: true } } }, take: 1 },
+          },
+        })
+      : [];
+    const bookByOrder = new Map(orders.map((o) => [o.orderNumber, o.orderItems[0]?.book]));
+
+    const cleanDescription = (text: string) =>
+      String(text || '')
+        .replace(/\[[A-Z_]+:[^\]]*\]/gi, '')
+        .replace(/^\s*Pedido\s+\S+\s*-\s*/i, '')
+        .trim() || 'Sem título';
+
+    const bookSales = new Map<string, { title: string; quantity: number; price: number }>();
+    for (const tx of paid) {
+      const orderNumber = orderNumberOf(tx);
+      const book = orderNumber ? bookByOrder.get(orderNumber) : undefined;
+      const title = book?.title || cleanDescription(tx.description);
+      const key = title.toLowerCase();
+      const entry = bookSales.get(key) ?? { title, quantity: 0, price: Number(book?.price ?? tx.amount ?? 0) };
+      entry.quantity += 1;
+      bookSales.set(key, entry);
+    }
+    const bestSelling = [...bookSales.values()].sort((a, b) => b.quantity - a.quantity)[0];
+
+    // transactions já vem ordenado do mais recente para o mais antigo
+    const lastSale = paid[0];
+
+    return {
+      totalRevenue: sumAmount(paid),
+      totalSales: paid.length,
+      currentMonthRevenue: sumAmount(paidThisMonth),
+      currentMonthSales: paidThisMonth.length,
+      lastSaleDate: lastSale?.createdAt ? new Date(lastSale.createdAt).toISOString() : null,
+      bestSellingBook: bestSelling?.title ?? 'Nenhum',
+      bestSellingBookQuantity: bestSelling?.quantity ?? 0,
+      bestSellingBookPrice: bestSelling?.price ?? 0,
     };
   }
 
