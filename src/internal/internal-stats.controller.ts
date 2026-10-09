@@ -66,9 +66,15 @@ export class InternalStatsController {
   /** Pedidos pagos que usaram o código pessoal do afiliado (?ref=CODE), com ou sem comissão. */
   private async paidOrdersByCode(codes: string[]) {
     if (codes.length === 0) return [];
-    return this.prisma.order.findMany({
-      where: { affiliateCode: { in: codes }, paymentStatus: 'paid' },
+    // `contains` tolera caracteres invisíveis gravados junto do código (colados com o link).
+    const orders = await this.prisma.order.findMany({
+      where: { paymentStatus: 'paid', OR: codes.map((c) => ({ affiliateCode: { contains: c, mode: 'insensitive' as const } })) },
       select: { id: true, affiliateCode: true, userId: true, user: { select: { id: true, name: true, email: true, cpf: true } } },
+    });
+    return orders.flatMap((o) => {
+      const raw = (o.affiliateCode ?? '').toUpperCase();
+      const code = codes.find((c) => raw.includes(c));
+      return code ? [{ ...o, affiliateCode: code }] : [];
     });
   }
 

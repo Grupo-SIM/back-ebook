@@ -700,7 +700,7 @@ export class CheckoutService {
                 paymentStatus: 'pending' as PaymentStatus,
                 store: 'ebook', // Sempre vem do ebook
                 notes: internalOrderTag ?? null,
-                affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
+                affiliateCode: data.affiliateCode?.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || null,
             }
         });
         // Resolver links de afiliado por item (code específico por par livro+afiliado)
@@ -860,12 +860,12 @@ export class CheckoutService {
                 paymentStatus: 'pending',
                 store: 'ebook', // Sempre vem do ebook
                 notes: internalOrderTag ?? null,
-                affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
+                affiliateCode: data.affiliateCode?.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() || null,
             }
         });
         // Resolver link de afiliado por produto (code específico do par livro+afiliado)
         console.log('[affiliate][createOrderFromBook] data.affiliateCode recebido:', data.affiliateCode, '| bookId:', book.id);
-        const affiliateCode = data.affiliateCode?.trim().toUpperCase();
+        const affiliateCode = data.affiliateCode?.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
         const productLink = affiliateCode
             ? await this.prisma.affiliateProductLink.findUnique({ where: { code: affiliateCode } })
             : null;
