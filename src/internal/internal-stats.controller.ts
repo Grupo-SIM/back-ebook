@@ -63,41 +63,16 @@ export class InternalStatsController {
     return { data: users, total, page: pageNum, pageSize: size };
   }
 
-  /** Pedidos pagos que usaram o código pessoal do afiliado (?ref=CODE), com ou sem comissão. */
-  private async paidOrdersByCode(codes: string[]) {
-    if (codes.length === 0) return [];
-    // `contains` tolera caracteres invisíveis gravados junto do código (colados com o link).
-    const orders = await this.prisma.order.findMany({
-      where: { paymentStatus: 'paid', OR: codes.map((c) => ({ affiliateCode: { contains: c, mode: 'insensitive' as const } })) },
-      select: { id: true, affiliateCode: true, userId: true, user: { select: { id: true, name: true, email: true, cpf: true } } },
-    });
-    return orders.flatMap((o) => {
-      const raw = (o.affiliateCode ?? '').toUpperCase();
-      const code = codes.find((c) => raw.includes(c));
-      return code ? [{ ...o, affiliateCode: code }] : [];
-    });
-  }
-
-  /** Afiliados do Ebook (link de produto, comissão ou venda pelo código pessoal). Somente leitura. */
+  /** Afiliados do Ebook (quem gerou link de afiliado ou tem comissão). Somente leitura. */
   @Get('affiliates')
   async listAffiliates(@Headers('x-internal-token') token?: string) {
     this.ensureInternalToken(token);
-
-    const coded = await this.prisma.user.findMany({
-      where: { affiliateCode: { not: null } },
-      select: { id: true, affiliateCode: true },
-    });
-    const codeToUser = new Map(coded.map((u) => [u.affiliateCode as string, u.id]));
-    const codeOrders = await this.paidOrdersByCode([...codeToUser.keys()]);
-
-    const soldViaCode = new Set(codeOrders.map((o) => codeToUser.get((o.affiliateCode ?? '').toUpperCase())).filter(Boolean) as string[]);
 
     const users = await this.prisma.user.findMany({
       where: {
         OR: [
           { affiliateProductLinks: { some: {} } },
           { affiliateCommissions: { some: {} } },
-          { id: { in: [...soldViaCode] } },
         ],
       },
       orderBy: { createdAt: 'desc' },
@@ -109,24 +84,20 @@ export class InternalStatsController {
         affiliateCommissions: {
           where: { status: { not: 'REVERSED' } },
           orderBy: { createdAt: 'desc' },
-          select: { orderId: true, commissionAmount: true, commissionRate: true, order: { select: { userId: true } } },
+          select: { orderId: true, commissionAmount: true, commissionRate: true },
         },
       },
     });
 
     const data = users.map((u) => {
       const comms = u.affiliateCommissions;
-      const buyers = new Set(comms.map((c) => c.order.userId));
-      for (const o of codeOrders) {
-        if (codeToUser.get((o.affiliateCode ?? '').toUpperCase()) === u.id) buyers.add(o.userId);
-      }
       return {
         id: u.id,
         name: u.name,
         email: u.email,
         affiliateCode: u.affiliateCode ?? null,
         commissionPercent: comms[0] ? comms[0].commissionRate : null,
-        totalReferrals: buyers.size,
+        totalReferrals: new Set(comms.map((c) => c.orderId)).size,
         totalCommission: comms.reduce((sum, c) => sum + c.commissionAmount, 0),
       };
     });
@@ -139,11 +110,8 @@ export class InternalStatsController {
   async affiliateDetail(@Headers('x-internal-token') token: string | undefined, @Param('id') id: string) {
     this.ensureInternalToken(token);
 
-    const affiliate = await this.prisma.user.findUnique({
-      where: { id },
-      select: { id: true, name: true, email: true, cpf: true, affiliateCode: true },
-    });
-    const [comms, codeOrders] = await Promise.all([
+    const [affiliate, comms] = await Promise.all([
+      this.prisma.user.findUnique({ where: { id }, select: { id: true, name: true, email: true, cpf: true } }),
       this.prisma.affiliateCommission.findMany({
         where: { affiliateId: id, status: { not: 'REVERSED' } },
         select: {
@@ -151,17 +119,14 @@ export class InternalStatsController {
           order: { select: { user: { select: { id: true, name: true, email: true, cpf: true } } } },
         },
       }),
-      this.paidOrdersByCode(affiliate?.affiliateCode ? [affiliate.affiliateCode] : []),
     ]);
 
     const byBuyer = new Map<string, { id: string; name: string; email: string; cpf: string | null; generated: number }>();
-    const touch = (u: { id: string; name: string; email: string; cpf: string | null }) =>
-      byBuyer.get(u.id) ?? { id: u.id, name: u.name, email: u.email, cpf: u.cpf ?? null, generated: 0 };
-    for (const o of codeOrders) byBuyer.set(o.user.id, touch(o.user));
     for (const c of comms) {
-      const cur = touch(c.order.user);
+      const u = c.order.user;
+      const cur = byBuyer.get(u.id) ?? { id: u.id, name: u.name, email: u.email, cpf: u.cpf ?? null, generated: 0 };
       cur.generated += c.commissionAmount;
-      byBuyer.set(c.order.user.id, cur);
+      byBuyer.set(u.id, cur);
     }
 
     return { data: { affiliate, referrals: [...byBuyer.values()] } };
