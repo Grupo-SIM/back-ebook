@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum, IsBoolean, Validate } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum, IsBoolean, Validate, MaxLength } from 'class-validator';
 import { Transform, type TransformFnParams, Type } from 'class-transformer';
 
 const parseBoolean = ({ obj, key }: TransformFnParams): boolean => {
@@ -201,6 +201,12 @@ export class CreateBookDto {
     @IsString()
     readingAge: string;
 
+    @ApiProperty({ example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', description: 'Vídeo de vendas (YouTube ou Vimeo)', required: false })
+    @IsOptional()
+    @IsString()
+    @MaxLength(300)
+    videoUrl?: string;
+
     @ApiProperty({ example: 1, description: 'Número máximo de parcelas (1 = à vista)', default: 1, required: false })
     @IsOptional()
     @Type(() => Number)
@@ -336,6 +342,12 @@ export class UpdateBookDto {
     @IsString()
     readingAge?: string;
 
+    @ApiProperty({ example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', description: 'Vídeo de vendas (YouTube ou Vimeo)', required: false })
+    @IsOptional()
+    @IsString()
+    @MaxLength(300)
+    videoUrl?: string;
+
     @ApiProperty({ example: 1, description: 'Número máximo de parcelas (1 = à vista)', required: false })
     @IsOptional()
     @Type(() => Number)
@@ -458,6 +470,9 @@ export class BookResponseDto {
 
     @ApiProperty({ example: '12-16', required: false })
     readingAge?: string;
+
+    @ApiProperty({ example: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', description: 'Vídeo de vendas (YouTube ou Vimeo)', required: false })
+    videoUrl?: string;
 
     @ApiProperty({ example: 1, description: 'Número máximo de parcelas', required: false })
     maxInstallments?: number;

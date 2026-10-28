@@ -192,6 +192,7 @@ exports.Prisma.BookScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   readingAge: 'readingAge',
+  videoUrl: 'videoUrl',
   createdById: 'createdById',
   categoryId: 'categoryId'
 };

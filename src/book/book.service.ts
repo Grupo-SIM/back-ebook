@@ -5,6 +5,7 @@ import { CreateBookDto, UpdateBookDto, BookResponseDto, BookQueryDto, PaginatedB
 import { Prisma } from '../../prisma/generated/prisma';
 import { FavoriteService } from '../favorite/favorite.service';
 import { CheckoutService } from '../checkout/checkout.service';
+import { normalizeVideoUrl } from './video-url.util';
 
 @Injectable()
 export class BookService {
@@ -115,6 +116,7 @@ export class BookService {
                 printLength: data.printLength,
                 downloadUrl: data.downloadUrl,
                 readingAge: data.readingAge,
+                videoUrl: normalizeVideoUrl(data.videoUrl),
                 maxInstallments: (data as any).maxInstallments ?? 1,
                 isActive: data.isActive ?? true,
                 isAffiliate: (data as any).isAffiliate ?? false,
@@ -164,6 +166,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            videoUrl: book.videoUrl ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
@@ -321,6 +324,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            videoUrl: book.videoUrl ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
@@ -413,6 +417,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            videoUrl: book.videoUrl ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
@@ -541,6 +546,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            videoUrl: book.videoUrl ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
@@ -656,6 +662,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            videoUrl: book.videoUrl ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
@@ -734,6 +741,7 @@ export class BookService {
         if (data.printLength !== undefined) updateData.printLength = data.printLength;
         if (data.downloadUrl !== undefined) updateData.downloadUrl = data.downloadUrl;
         if (data.readingAge !== undefined) updateData.readingAge = data.readingAge;
+        if (data.videoUrl !== undefined) updateData.videoUrl = normalizeVideoUrl(data.videoUrl);
         if ((data as any).maxInstallments !== undefined) updateData.maxInstallments = (data as any).maxInstallments;
         if (data.isActive !== undefined) updateData.isActive = data.isActive;
         if ((data as any).isAffiliate !== undefined) updateData.isAffiliate = (data as any).isAffiliate;
@@ -812,6 +820,7 @@ export class BookService {
             downloadUrl: updatedBook.downloadUrl ?? undefined,
             isFree: updatedBook.isFree ?? false,
             readingAge: updatedBook.readingAge ?? undefined,
+            videoUrl: updatedBook.videoUrl ?? undefined,
             isActive: updatedBook.isActive ?? true,
             isAffiliate: (updatedBook as any).isAffiliate ?? false,
             commissionRate: (updatedBook as any).commissionRate ?? undefined,
@@ -913,6 +922,7 @@ export class BookService {
             cartQuantity: undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            videoUrl: book.videoUrl ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
@@ -958,6 +968,7 @@ export class BookService {
             printLength: book.printLength ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            videoUrl: book.videoUrl ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
@@ -1198,6 +1209,7 @@ export class BookService {
             downloadUrl: book.downloadUrl ?? undefined,
             isFree: book.isFree ?? false,
             readingAge: book.readingAge ?? undefined,
+            videoUrl: book.videoUrl ?? undefined,
             maxInstallments: (book as any).maxInstallments ?? 1,
             isActive: book.isActive ?? true,
             isAffiliate: (book as any).isAffiliate ?? false,
