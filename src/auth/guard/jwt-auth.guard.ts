@@ -16,6 +16,14 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+// O token do checkout é público (vai no bundle do navegador), então só vale para ler um pedido.
+const CHECKOUT_ORDER_PATH = /^\/checkout\/orders\/\d+\/?$/;
+
+function isCheckoutOrderRead(request: any): boolean {
+  const path = String(request?.originalUrl || request?.url || '').split('?')[0];
+  return request?.method === 'GET' && CHECKOUT_ORDER_PATH.test(path);
+}
+
 function isCpfBypassRoute(request: any): boolean {
   const path = String(request?.originalUrl || request?.url || '');
   const normalizedPath = path.toLowerCase();
@@ -210,9 +218,9 @@ export class JwtAuthGuardAll extends AuthGuard('jwt') implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     // Token especial para checkout
-    const CHECKOUT_TOKEN = 'checkout-token-2025-simint';
+    const CHECKOUT_TOKEN = process.env.CHECKOUT_API_TOKEN || 'checkout-token-2025-simint';
 
-    if (token === CHECKOUT_TOKEN) {
+    if (token === CHECKOUT_TOKEN && isCheckoutOrderRead(request)) {
       // Criar um "usuário fake" para o checkout e permitir acesso
       request.user = {
         id: 'checkout-system',
