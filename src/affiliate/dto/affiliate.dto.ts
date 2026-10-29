@@ -57,6 +57,40 @@ export class AffiliateCommissionResponseDto {
     affiliateName: string | null;
 }
 
+export class AffiliateSellerBookDto {
+    @ApiProperty({ example: 1 })
+    bookId: number;
+
+    @ApiProperty({ example: 'O Senhor dos Anéis' })
+    bookTitle: string;
+
+    @ApiProperty({ example: 3, description: 'Vendas desse livro feitas por este afiliado' })
+    salesCount: number;
+}
+
+export class AffiliateSellerResponseDto {
+    @ApiProperty({ example: 'b1f0c2e4-...' })
+    affiliateId: string;
+
+    @ApiProperty({ example: 'Gabriel Souza', nullable: true })
+    affiliateName: string | null;
+
+    @ApiProperty({ example: 12, description: 'Vendas dos seus livros feitas por este afiliado (sem estornos)' })
+    salesCount: number;
+
+    @ApiProperty({ example: 598.8, description: 'Valor bruto vendido por este afiliado' })
+    grossAmount: number;
+
+    @ApiProperty({ example: 59.88, description: 'Comissão devida/paga a este afiliado' })
+    commissionAmount: number;
+
+    @ApiProperty({ example: '2026-01-01T00:00:00.000Z' })
+    lastSaleAt: Date;
+
+    @ApiProperty({ type: [AffiliateSellerBookDto] })
+    books: AffiliateSellerBookDto[];
+}
+
 export class PaginatedAffiliateCommissionResponseDto {
     @ApiProperty({ type: [AffiliateCommissionResponseDto] })
     data: AffiliateCommissionResponseDto[];

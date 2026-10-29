@@ -4,6 +4,7 @@ import { randomBytes } from 'crypto';
 import {
     AffiliateMeResponseDto,
     AffiliateCommissionResponseDto,
+    AffiliateSellerResponseDto,
     PaginatedAffiliateCommissionResponseDto,
     AffiliateQueryDto,
     AffiliateMarketplaceQueryDto,
@@ -128,6 +129,63 @@ export class AffiliateService {
             totalCredited: parseFloat(totalCredited.toFixed(2)),
             salesCount: commissions.filter((c) => c.status !== 'REVERSED').length,
         };
+    }
+
+    /**
+     * Afiliados que venderam livros do admin autenticado, agregados por afiliado.
+     * Comissões estornadas ficam de fora dos totais.
+     */
+    async getAffiliatesOfMyBooks(userId: string): Promise<AffiliateSellerResponseDto[]> {
+        const where = {
+            book: { createdById: userId },
+            affiliateId: { not: userId },
+            status: { not: 'REVERSED' as const },
+        };
+
+        const [perAffiliate, perBook] = await Promise.all([
+            this.prisma.affiliateCommission.groupBy({
+                by: ['affiliateId'],
+                where,
+                _count: { _all: true },
+                _sum: { grossAmount: true, commissionAmount: true },
+                _max: { createdAt: true },
+            }),
+            this.prisma.affiliateCommission.groupBy({
+                by: ['affiliateId', 'bookId'],
+                where,
+                _count: { _all: true },
+            }),
+        ]);
+
+        if (perAffiliate.length === 0) return [];
+
+        const [users, books] = await Promise.all([
+            this.prisma.user.findMany({
+                where: { id: { in: perAffiliate.map((a) => a.affiliateId) } },
+                select: { id: true, name: true },
+            }),
+            this.prisma.book.findMany({
+                where: { id: { in: [...new Set(perBook.map((b) => b.bookId))] } },
+                select: { id: true, title: true },
+            }),
+        ]);
+        const userName = new Map(users.map((u) => [u.id, u.name]));
+        const bookTitle = new Map(books.map((b) => [b.id, b.title]));
+
+        return perAffiliate
+            .map((a) => ({
+                affiliateId: a.affiliateId,
+                affiliateName: userName.get(a.affiliateId) ?? null,
+                salesCount: a._count._all,
+                grossAmount: a._sum.grossAmount ?? 0,
+                commissionAmount: a._sum.commissionAmount ?? 0,
+                lastSaleAt: a._max.createdAt as Date,
+                books: perBook
+                    .filter((b) => b.affiliateId === a.affiliateId)
+                    .map((b) => ({ bookId: b.bookId, bookTitle: bookTitle.get(b.bookId) ?? '', salesCount: b._count._all }))
+                    .sort((x, y) => y.salesCount - x.salesCount),
+            }))
+            .sort((x, y) => y.grossAmount - x.grossAmount);
     }
 
     async getMyCommissions(userId: string, query: AffiliateQueryDto): Promise<PaginatedAffiliateCommissionResponseDto> {
