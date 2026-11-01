@@ -1,3 +1,4 @@
+import { retryCommissionDeliveries } from './commission-delivery';
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { randomBytes } from 'crypto';
@@ -18,63 +19,28 @@ import {
 export class AffiliateService {
     private readonly logger = new Logger(AffiliateService.name);
 
+    private retryTimer?: ReturnType<typeof setInterval>;
+    private retryRunning = false;
+
     constructor(private readonly prisma: PrismaService) { }
 
-    private getApiMachineBaseUrl(): string | null {
-        const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL || null;
-        if (!base) return null;
-        return base.replace(/\/+$/, '');
+    onModuleInit(): void {
+        this.retryTimer = setInterval(() => {
+            if (this.retryRunning) return;
+            this.retryRunning = true;
+            void this.retryCommissionDeliveries().catch(() => {
+                this.logger.error('[Affiliate] Durable delivery retry failed');
+            }).finally(() => { this.retryRunning = false; });
+        }, 60_000);
+        this.retryTimer.unref();
     }
 
-    private getInternalToken(): string | undefined {
-        return process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
+    onModuleDestroy(): void {
+        if (this.retryTimer) clearInterval(this.retryTimer);
     }
 
-    /**
-     * Credita a comissão como saldo sacável real na conta do afiliado no simintpay
-     * (cria uma transação COMPLETED lá, vinculada por CPF/CNPJ). Não bloqueia o
-     * fluxo principal em caso de falha — o registro local em AffiliateCommission
-     * já serve de fonte de verdade e pode ser reprocessado depois.
-     */
-    private async creditOnSimintpay(params: {
-        referenceId: string;
-        cpf?: string | null;
-        cnpj?: string | null;
-        amount: number;
-        description: string;
-    }): Promise<void> {
-        const base = this.getApiMachineBaseUrl();
-        const token = this.getInternalToken();
-        if (!base || !token) return;
-        // Prioriza CPF (mesmo documento usado pela tela de Saque para consultar saldo
-        // em /payments/summary) para garantir que o crédito apareça no mesmo lugar
-        // de onde o afiliado vai sacar. CNPJ só é usado como fallback quando não há CPF.
-        const cpf = params.cpf?.trim() || null;
-        const cnpj = !cpf ? params.cnpj?.trim() || null : null;
-        const doc = cpf || cnpj;
-        if (!doc) {
-            this.logger.warn(`[Affiliate] Afiliado sem CPF/CNPJ cadastrado — comissão ${params.referenceId} não creditada no simintpay`);
-            return;
-        }
-        try {
-            const res = await fetch(`${base}/internal/ebook/finance/credit-commission`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-internal-token': token },
-                body: JSON.stringify({
-                    referenceId: params.referenceId,
-                    cpf: cpf ?? undefined,
-                    cnpj: cnpj ?? undefined,
-                    amount: params.amount,
-                    description: params.description,
-                }),
-            });
-            if (!res.ok) {
-                const text = await res.text().catch(() => '');
-                this.logger.error(`[Affiliate] simintpay recusou crédito de comissão ${params.referenceId}: ${res.status} ${text}`);
-            }
-        } catch (err: any) {
-            this.logger.error(`[Affiliate] Falha ao chamar simintpay para creditar comissão ${params.referenceId}: ${err?.message}`);
-        }
+    async retryCommissionDeliveries(limit = 20): Promise<void> {
+        await retryCommissionDeliveries(this.prisma, limit);
     }
 
     private generateCode(): string {
@@ -227,26 +193,31 @@ export class AffiliateService {
             if (commissionAmount <= 0) continue;
 
             try {
-                await this.prisma.affiliateCommission.create({
-                    data: {
-                        affiliateId: affiliate.id,
-                        bookId: item.bookId,
-                        orderId: order.id,
-                        orderNumber: order.orderNumber,
-                        grossAmount,
-                        commissionRate: rate,
-                        commissionAmount,
-                        status: 'CREDITED',
-                    },
+                const orderItems = await this.prisma.orderItem.findMany({
+                    where: { orderId: order.id, bookId: item.bookId },
+                    select: { id: true, quantity: true, unitPrice: true, totalPrice: true },
+                    orderBy: { id: 'asc' },
                 });
-                this.logger.log(`[Affiliate] Comissão creditada: afiliado=${affiliate.id} livro=${item.bookId} pedido=${order.orderNumber} valor=${commissionAmount}`);
-
-                await this.creditOnSimintpay({
-                    referenceId: `${order.id}-${item.bookId}`,
-                    cpf: affiliate.cpf,
-                    cnpj: affiliate.cnpj,
-                    amount: commissionAmount,
+                const snapshot = JSON.stringify({
+                    orderItems,
+                    referenceId: `${order.id}-${item.bookId}`, orderId: order.id,
+                    orderNumber: order.orderNumber, bookId: item.bookId,
+                    sellerId: item.book.createdById || null, affiliateId: affiliate.id,
+                    cpf: affiliate.cpf || null, cnpj: affiliate.cnpj || null,
+                    amount: commissionAmount, currency: 'BRL', grossAmount, commissionRate: rate,
                     description: `Comissão de afiliado — ${item.book.title ?? `livro #${item.bookId}`} (pedido ${order.orderNumber})`,
+                    fundingRule: 'SELLER_FUNDED_GROSS_COMMISSION',
+                    serviceFeeRule: 'ONCE_PER_ORDER_PROPORTIONAL_ITEM_GROSS_DETERMINISTIC_CENTS',
+                    coproductionOrdering: 'UNRESOLVED',
+                });
+                await this.prisma.$transaction(async tx => {
+                    const commission = await tx.affiliateCommission.create({ data: {
+                        affiliateId: affiliate.id, bookId: item.bookId, orderId: order.id,
+                        orderNumber: order.orderNumber, grossAmount, commissionRate: rate,
+                        commissionAmount, status: 'CREDITED',
+                    } });
+                    await tx.$executeRaw`INSERT INTO affiliate_commission_deliveries
+                        (commission_id, state, snapshot) VALUES (${commission.id}, 'PENDING', ${snapshot}::jsonb)`;
                 });
             } catch (err: any) {
                 // Unique constraint (orderId, bookId) -> já processado, ignora
@@ -255,6 +226,7 @@ export class AffiliateService {
                 }
             }
         }
+        await this.retryCommissionDeliveries();
     }
 
     /**

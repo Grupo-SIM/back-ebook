@@ -294,6 +294,23 @@ exports.Prisma.AffiliateCommissionScalarFieldEnum = {
   reversedAt: 'reversedAt'
 };
 
+exports.Prisma.AffiliateCommissionDeliveryScalarFieldEnum = {
+  id: 'id',
+  commissionId: 'commissionId',
+  protocol: 'protocol',
+  state: 'state',
+  financialState: 'financialState',
+  fundingState: 'fundingState',
+  snapshot: 'snapshot',
+  attempts: 'attempts',
+  nextAttemptAt: 'nextAttemptAt',
+  leaseToken: 'leaseToken',
+  leaseUntil: 'leaseUntil',
+  lastError: 'lastError',
+  acknowledgedAt: 'acknowledgedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AffiliateProductLinkScalarFieldEnum = {
   id: 'id',
   bookId: 'bookId',
@@ -326,6 +343,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -370,6 +391,7 @@ exports.Prisma.ModelName = {
   Review: 'Review',
   ActivityLog: 'ActivityLog',
   AffiliateCommission: 'AffiliateCommission',
+  AffiliateCommissionDelivery: 'AffiliateCommissionDelivery',
   AffiliateProductLink: 'AffiliateProductLink',
   AffiliateFavorite: 'AffiliateFavorite',
   AdminToken: 'AdminToken'

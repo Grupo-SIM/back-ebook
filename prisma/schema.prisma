@@ -275,10 +275,34 @@ model AffiliateCommission {
   book      Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)
   order     Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
+  delivery AffiliateCommissionDelivery?
+
   @@unique([orderId, bookId])
   @@index([affiliateId])
   @@index([status])
   @@map("affiliate_commissions")
+}
+
+// SQL constraints restrict this to nonfinancial legacy recording; no settlement protocol exists.
+model AffiliateCommissionDelivery {
+  id             Int @id @default(autoincrement())
+  commissionId   Int @unique @map("commission_id")
+  commission     AffiliateCommission @relation(fields: [commissionId], references: [id], onDelete: Restrict)
+  protocol       String @default("LEGACY_RECORD_ONLY")
+  state          String @default("QUARANTINED")
+  financialState String @default("UNCONFIRMED") @map("financial_state")
+  fundingState   String @default("UNCONFIRMED") @map("funding_state")
+  snapshot       Json
+  attempts       Int @default(0)
+  nextAttemptAt  DateTime @default(now()) @map("next_attempt_at") @db.Timestamptz
+  leaseToken     String? @map("lease_token")
+  leaseUntil     DateTime? @map("lease_until") @db.Timestamptz
+  lastError      String? @map("last_error")
+  acknowledgedAt DateTime? @map("acknowledged_at") @db.Timestamptz
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([state, nextAttemptAt], map: "affiliate_delivery_retry")
+  @@map("affiliate_commission_deliveries")
 }
 
 model AffiliateProductLink {

@@ -79,6 +79,11 @@ export type ActivityLog = $Result.DefaultSelection<Prisma.$ActivityLogPayload>
  */
 export type AffiliateCommission = $Result.DefaultSelection<Prisma.$AffiliateCommissionPayload>
 /**
+ * Model AffiliateCommissionDelivery
+ * 
+ */
+export type AffiliateCommissionDelivery = $Result.DefaultSelection<Prisma.$AffiliateCommissionDeliveryPayload>
+/**
  * Model AffiliateProductLink
  * 
  */
@@ -371,6 +376,16 @@ export class PrismaClient<
     * ```
     */
   get affiliateCommission(): Prisma.AffiliateCommissionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.affiliateCommissionDelivery`: Exposes CRUD operations for the **AffiliateCommissionDelivery** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AffiliateCommissionDeliveries
+    * const affiliateCommissionDeliveries = await prisma.affiliateCommissionDelivery.findMany()
+    * ```
+    */
+  get affiliateCommissionDelivery(): Prisma.AffiliateCommissionDeliveryDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.affiliateProductLink`: Exposes CRUD operations for the **AffiliateProductLink** model.
@@ -848,6 +863,7 @@ export namespace Prisma {
     Review: 'Review',
     ActivityLog: 'ActivityLog',
     AffiliateCommission: 'AffiliateCommission',
+    AffiliateCommissionDelivery: 'AffiliateCommissionDelivery',
     AffiliateProductLink: 'AffiliateProductLink',
     AffiliateFavorite: 'AffiliateFavorite',
     AdminToken: 'AdminToken'
@@ -866,7 +882,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "admin" | "user" | "image" | "category" | "book" | "favorite" | "cart" | "order" | "orderItem" | "notification" | "review" | "activityLog" | "affiliateCommission" | "affiliateProductLink" | "affiliateFavorite" | "adminToken"
+      modelProps: "admin" | "user" | "image" | "category" | "book" | "favorite" | "cart" | "order" | "orderItem" | "notification" | "review" | "activityLog" | "affiliateCommission" | "affiliateCommissionDelivery" | "affiliateProductLink" | "affiliateFavorite" | "adminToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1832,6 +1848,80 @@ export namespace Prisma {
           }
         }
       }
+      AffiliateCommissionDelivery: {
+        payload: Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>
+        fields: Prisma.AffiliateCommissionDeliveryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AffiliateCommissionDeliveryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AffiliateCommissionDeliveryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>
+          }
+          findFirst: {
+            args: Prisma.AffiliateCommissionDeliveryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AffiliateCommissionDeliveryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>
+          }
+          findMany: {
+            args: Prisma.AffiliateCommissionDeliveryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>[]
+          }
+          create: {
+            args: Prisma.AffiliateCommissionDeliveryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>
+          }
+          createMany: {
+            args: Prisma.AffiliateCommissionDeliveryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AffiliateCommissionDeliveryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>[]
+          }
+          delete: {
+            args: Prisma.AffiliateCommissionDeliveryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>
+          }
+          update: {
+            args: Prisma.AffiliateCommissionDeliveryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>
+          }
+          deleteMany: {
+            args: Prisma.AffiliateCommissionDeliveryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AffiliateCommissionDeliveryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AffiliateCommissionDeliveryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>[]
+          }
+          upsert: {
+            args: Prisma.AffiliateCommissionDeliveryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AffiliateCommissionDeliveryPayload>
+          }
+          aggregate: {
+            args: Prisma.AffiliateCommissionDeliveryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAffiliateCommissionDelivery>
+          }
+          groupBy: {
+            args: Prisma.AffiliateCommissionDeliveryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AffiliateCommissionDeliveryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AffiliateCommissionDeliveryCountArgs<ExtArgs>
+            result: $Utils.Optional<AffiliateCommissionDeliveryCountAggregateOutputType> | number
+          }
+        }
+      }
       AffiliateProductLink: {
         payload: Prisma.$AffiliateProductLinkPayload<ExtArgs>
         fields: Prisma.AffiliateProductLinkFieldRefs
@@ -2175,6 +2265,7 @@ export namespace Prisma {
     review?: ReviewOmit
     activityLog?: ActivityLogOmit
     affiliateCommission?: AffiliateCommissionOmit
+    affiliateCommissionDelivery?: AffiliateCommissionDeliveryOmit
     affiliateProductLink?: AffiliateProductLinkOmit
     affiliateFavorite?: AffiliateFavoriteOmit
     adminToken?: AdminTokenOmit
@@ -17605,6 +17696,7 @@ export namespace Prisma {
     affiliate?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
     order?: boolean | OrderDefaultArgs<ExtArgs>
+    delivery?: boolean | AffiliateCommission$deliveryArgs<ExtArgs>
   }, ExtArgs["result"]["affiliateCommission"]>
 
   export type AffiliateCommissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -17660,6 +17752,7 @@ export namespace Prisma {
     affiliate?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
     order?: boolean | OrderDefaultArgs<ExtArgs>
+    delivery?: boolean | AffiliateCommission$deliveryArgs<ExtArgs>
   }
   export type AffiliateCommissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     affiliate?: boolean | UserDefaultArgs<ExtArgs>
@@ -17678,6 +17771,7 @@ export namespace Prisma {
       affiliate: Prisma.$UserPayload<ExtArgs>
       book: Prisma.$BookPayload<ExtArgs>
       order: Prisma.$OrderPayload<ExtArgs>
+      delivery: Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -18088,6 +18182,7 @@ export namespace Prisma {
     affiliate<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     book<T extends BookDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BookDefaultArgs<ExtArgs>>): Prisma__BookClient<$Result.GetResult<Prisma.$BookPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     order<T extends OrderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrderDefaultArgs<ExtArgs>>): Prisma__OrderClient<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    delivery<T extends AffiliateCommission$deliveryArgs<ExtArgs> = {}>(args?: Subset<T, AffiliateCommission$deliveryArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -18524,6 +18619,25 @@ export namespace Prisma {
   }
 
   /**
+   * AffiliateCommission.delivery
+   */
+  export type AffiliateCommission$deliveryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    where?: AffiliateCommissionDeliveryWhereInput
+  }
+
+  /**
    * AffiliateCommission without action
    */
   export type AffiliateCommissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -18539,6 +18653,1219 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: AffiliateCommissionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AffiliateCommissionDelivery
+   */
+
+  export type AggregateAffiliateCommissionDelivery = {
+    _count: AffiliateCommissionDeliveryCountAggregateOutputType | null
+    _avg: AffiliateCommissionDeliveryAvgAggregateOutputType | null
+    _sum: AffiliateCommissionDeliverySumAggregateOutputType | null
+    _min: AffiliateCommissionDeliveryMinAggregateOutputType | null
+    _max: AffiliateCommissionDeliveryMaxAggregateOutputType | null
+  }
+
+  export type AffiliateCommissionDeliveryAvgAggregateOutputType = {
+    id: number | null
+    commissionId: number | null
+    attempts: number | null
+  }
+
+  export type AffiliateCommissionDeliverySumAggregateOutputType = {
+    id: number | null
+    commissionId: number | null
+    attempts: number | null
+  }
+
+  export type AffiliateCommissionDeliveryMinAggregateOutputType = {
+    id: number | null
+    commissionId: number | null
+    protocol: string | null
+    state: string | null
+    financialState: string | null
+    fundingState: string | null
+    attempts: number | null
+    nextAttemptAt: Date | null
+    leaseToken: string | null
+    leaseUntil: Date | null
+    lastError: string | null
+    acknowledgedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type AffiliateCommissionDeliveryMaxAggregateOutputType = {
+    id: number | null
+    commissionId: number | null
+    protocol: string | null
+    state: string | null
+    financialState: string | null
+    fundingState: string | null
+    attempts: number | null
+    nextAttemptAt: Date | null
+    leaseToken: string | null
+    leaseUntil: Date | null
+    lastError: string | null
+    acknowledgedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type AffiliateCommissionDeliveryCountAggregateOutputType = {
+    id: number
+    commissionId: number
+    protocol: number
+    state: number
+    financialState: number
+    fundingState: number
+    snapshot: number
+    attempts: number
+    nextAttemptAt: number
+    leaseToken: number
+    leaseUntil: number
+    lastError: number
+    acknowledgedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AffiliateCommissionDeliveryAvgAggregateInputType = {
+    id?: true
+    commissionId?: true
+    attempts?: true
+  }
+
+  export type AffiliateCommissionDeliverySumAggregateInputType = {
+    id?: true
+    commissionId?: true
+    attempts?: true
+  }
+
+  export type AffiliateCommissionDeliveryMinAggregateInputType = {
+    id?: true
+    commissionId?: true
+    protocol?: true
+    state?: true
+    financialState?: true
+    fundingState?: true
+    attempts?: true
+    nextAttemptAt?: true
+    leaseToken?: true
+    leaseUntil?: true
+    lastError?: true
+    acknowledgedAt?: true
+    createdAt?: true
+  }
+
+  export type AffiliateCommissionDeliveryMaxAggregateInputType = {
+    id?: true
+    commissionId?: true
+    protocol?: true
+    state?: true
+    financialState?: true
+    fundingState?: true
+    attempts?: true
+    nextAttemptAt?: true
+    leaseToken?: true
+    leaseUntil?: true
+    lastError?: true
+    acknowledgedAt?: true
+    createdAt?: true
+  }
+
+  export type AffiliateCommissionDeliveryCountAggregateInputType = {
+    id?: true
+    commissionId?: true
+    protocol?: true
+    state?: true
+    financialState?: true
+    fundingState?: true
+    snapshot?: true
+    attempts?: true
+    nextAttemptAt?: true
+    leaseToken?: true
+    leaseUntil?: true
+    lastError?: true
+    acknowledgedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AffiliateCommissionDeliveryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AffiliateCommissionDelivery to aggregate.
+     */
+    where?: AffiliateCommissionDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AffiliateCommissionDeliveries to fetch.
+     */
+    orderBy?: AffiliateCommissionDeliveryOrderByWithRelationInput | AffiliateCommissionDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AffiliateCommissionDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AffiliateCommissionDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AffiliateCommissionDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AffiliateCommissionDeliveries
+    **/
+    _count?: true | AffiliateCommissionDeliveryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AffiliateCommissionDeliveryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AffiliateCommissionDeliverySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AffiliateCommissionDeliveryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AffiliateCommissionDeliveryMaxAggregateInputType
+  }
+
+  export type GetAffiliateCommissionDeliveryAggregateType<T extends AffiliateCommissionDeliveryAggregateArgs> = {
+        [P in keyof T & keyof AggregateAffiliateCommissionDelivery]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAffiliateCommissionDelivery[P]>
+      : GetScalarType<T[P], AggregateAffiliateCommissionDelivery[P]>
+  }
+
+
+
+
+  export type AffiliateCommissionDeliveryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AffiliateCommissionDeliveryWhereInput
+    orderBy?: AffiliateCommissionDeliveryOrderByWithAggregationInput | AffiliateCommissionDeliveryOrderByWithAggregationInput[]
+    by: AffiliateCommissionDeliveryScalarFieldEnum[] | AffiliateCommissionDeliveryScalarFieldEnum
+    having?: AffiliateCommissionDeliveryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AffiliateCommissionDeliveryCountAggregateInputType | true
+    _avg?: AffiliateCommissionDeliveryAvgAggregateInputType
+    _sum?: AffiliateCommissionDeliverySumAggregateInputType
+    _min?: AffiliateCommissionDeliveryMinAggregateInputType
+    _max?: AffiliateCommissionDeliveryMaxAggregateInputType
+  }
+
+  export type AffiliateCommissionDeliveryGroupByOutputType = {
+    id: number
+    commissionId: number
+    protocol: string
+    state: string
+    financialState: string
+    fundingState: string
+    snapshot: JsonValue
+    attempts: number
+    nextAttemptAt: Date
+    leaseToken: string | null
+    leaseUntil: Date | null
+    lastError: string | null
+    acknowledgedAt: Date | null
+    createdAt: Date
+    _count: AffiliateCommissionDeliveryCountAggregateOutputType | null
+    _avg: AffiliateCommissionDeliveryAvgAggregateOutputType | null
+    _sum: AffiliateCommissionDeliverySumAggregateOutputType | null
+    _min: AffiliateCommissionDeliveryMinAggregateOutputType | null
+    _max: AffiliateCommissionDeliveryMaxAggregateOutputType | null
+  }
+
+  type GetAffiliateCommissionDeliveryGroupByPayload<T extends AffiliateCommissionDeliveryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AffiliateCommissionDeliveryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AffiliateCommissionDeliveryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AffiliateCommissionDeliveryGroupByOutputType[P]>
+            : GetScalarType<T[P], AffiliateCommissionDeliveryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AffiliateCommissionDeliverySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    commissionId?: boolean
+    protocol?: boolean
+    state?: boolean
+    financialState?: boolean
+    fundingState?: boolean
+    snapshot?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    leaseToken?: boolean
+    leaseUntil?: boolean
+    lastError?: boolean
+    acknowledgedAt?: boolean
+    createdAt?: boolean
+    commission?: boolean | AffiliateCommissionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["affiliateCommissionDelivery"]>
+
+  export type AffiliateCommissionDeliverySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    commissionId?: boolean
+    protocol?: boolean
+    state?: boolean
+    financialState?: boolean
+    fundingState?: boolean
+    snapshot?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    leaseToken?: boolean
+    leaseUntil?: boolean
+    lastError?: boolean
+    acknowledgedAt?: boolean
+    createdAt?: boolean
+    commission?: boolean | AffiliateCommissionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["affiliateCommissionDelivery"]>
+
+  export type AffiliateCommissionDeliverySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    commissionId?: boolean
+    protocol?: boolean
+    state?: boolean
+    financialState?: boolean
+    fundingState?: boolean
+    snapshot?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    leaseToken?: boolean
+    leaseUntil?: boolean
+    lastError?: boolean
+    acknowledgedAt?: boolean
+    createdAt?: boolean
+    commission?: boolean | AffiliateCommissionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["affiliateCommissionDelivery"]>
+
+  export type AffiliateCommissionDeliverySelectScalar = {
+    id?: boolean
+    commissionId?: boolean
+    protocol?: boolean
+    state?: boolean
+    financialState?: boolean
+    fundingState?: boolean
+    snapshot?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    leaseToken?: boolean
+    leaseUntil?: boolean
+    lastError?: boolean
+    acknowledgedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type AffiliateCommissionDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "commissionId" | "protocol" | "state" | "financialState" | "fundingState" | "snapshot" | "attempts" | "nextAttemptAt" | "leaseToken" | "leaseUntil" | "lastError" | "acknowledgedAt" | "createdAt", ExtArgs["result"]["affiliateCommissionDelivery"]>
+  export type AffiliateCommissionDeliveryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    commission?: boolean | AffiliateCommissionDefaultArgs<ExtArgs>
+  }
+  export type AffiliateCommissionDeliveryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    commission?: boolean | AffiliateCommissionDefaultArgs<ExtArgs>
+  }
+  export type AffiliateCommissionDeliveryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    commission?: boolean | AffiliateCommissionDefaultArgs<ExtArgs>
+  }
+
+  export type $AffiliateCommissionDeliveryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AffiliateCommissionDelivery"
+    objects: {
+      commission: Prisma.$AffiliateCommissionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      commissionId: number
+      protocol: string
+      state: string
+      financialState: string
+      fundingState: string
+      snapshot: Prisma.JsonValue
+      attempts: number
+      nextAttemptAt: Date
+      leaseToken: string | null
+      leaseUntil: Date | null
+      lastError: string | null
+      acknowledgedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["affiliateCommissionDelivery"]>
+    composites: {}
+  }
+
+  type AffiliateCommissionDeliveryGetPayload<S extends boolean | null | undefined | AffiliateCommissionDeliveryDefaultArgs> = $Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload, S>
+
+  type AffiliateCommissionDeliveryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AffiliateCommissionDeliveryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AffiliateCommissionDeliveryCountAggregateInputType | true
+    }
+
+  export interface AffiliateCommissionDeliveryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AffiliateCommissionDelivery'], meta: { name: 'AffiliateCommissionDelivery' } }
+    /**
+     * Find zero or one AffiliateCommissionDelivery that matches the filter.
+     * @param {AffiliateCommissionDeliveryFindUniqueArgs} args - Arguments to find a AffiliateCommissionDelivery
+     * @example
+     * // Get one AffiliateCommissionDelivery
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AffiliateCommissionDeliveryFindUniqueArgs>(args: SelectSubset<T, AffiliateCommissionDeliveryFindUniqueArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AffiliateCommissionDelivery that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AffiliateCommissionDeliveryFindUniqueOrThrowArgs} args - Arguments to find a AffiliateCommissionDelivery
+     * @example
+     * // Get one AffiliateCommissionDelivery
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AffiliateCommissionDeliveryFindUniqueOrThrowArgs>(args: SelectSubset<T, AffiliateCommissionDeliveryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AffiliateCommissionDelivery that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateCommissionDeliveryFindFirstArgs} args - Arguments to find a AffiliateCommissionDelivery
+     * @example
+     * // Get one AffiliateCommissionDelivery
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AffiliateCommissionDeliveryFindFirstArgs>(args?: SelectSubset<T, AffiliateCommissionDeliveryFindFirstArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AffiliateCommissionDelivery that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateCommissionDeliveryFindFirstOrThrowArgs} args - Arguments to find a AffiliateCommissionDelivery
+     * @example
+     * // Get one AffiliateCommissionDelivery
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AffiliateCommissionDeliveryFindFirstOrThrowArgs>(args?: SelectSubset<T, AffiliateCommissionDeliveryFindFirstOrThrowArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AffiliateCommissionDeliveries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateCommissionDeliveryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AffiliateCommissionDeliveries
+     * const affiliateCommissionDeliveries = await prisma.affiliateCommissionDelivery.findMany()
+     * 
+     * // Get first 10 AffiliateCommissionDeliveries
+     * const affiliateCommissionDeliveries = await prisma.affiliateCommissionDelivery.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const affiliateCommissionDeliveryWithIdOnly = await prisma.affiliateCommissionDelivery.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AffiliateCommissionDeliveryFindManyArgs>(args?: SelectSubset<T, AffiliateCommissionDeliveryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AffiliateCommissionDelivery.
+     * @param {AffiliateCommissionDeliveryCreateArgs} args - Arguments to create a AffiliateCommissionDelivery.
+     * @example
+     * // Create one AffiliateCommissionDelivery
+     * const AffiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.create({
+     *   data: {
+     *     // ... data to create a AffiliateCommissionDelivery
+     *   }
+     * })
+     * 
+     */
+    create<T extends AffiliateCommissionDeliveryCreateArgs>(args: SelectSubset<T, AffiliateCommissionDeliveryCreateArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AffiliateCommissionDeliveries.
+     * @param {AffiliateCommissionDeliveryCreateManyArgs} args - Arguments to create many AffiliateCommissionDeliveries.
+     * @example
+     * // Create many AffiliateCommissionDeliveries
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AffiliateCommissionDeliveryCreateManyArgs>(args?: SelectSubset<T, AffiliateCommissionDeliveryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AffiliateCommissionDeliveries and returns the data saved in the database.
+     * @param {AffiliateCommissionDeliveryCreateManyAndReturnArgs} args - Arguments to create many AffiliateCommissionDeliveries.
+     * @example
+     * // Create many AffiliateCommissionDeliveries
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AffiliateCommissionDeliveries and only return the `id`
+     * const affiliateCommissionDeliveryWithIdOnly = await prisma.affiliateCommissionDelivery.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AffiliateCommissionDeliveryCreateManyAndReturnArgs>(args?: SelectSubset<T, AffiliateCommissionDeliveryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AffiliateCommissionDelivery.
+     * @param {AffiliateCommissionDeliveryDeleteArgs} args - Arguments to delete one AffiliateCommissionDelivery.
+     * @example
+     * // Delete one AffiliateCommissionDelivery
+     * const AffiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.delete({
+     *   where: {
+     *     // ... filter to delete one AffiliateCommissionDelivery
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AffiliateCommissionDeliveryDeleteArgs>(args: SelectSubset<T, AffiliateCommissionDeliveryDeleteArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AffiliateCommissionDelivery.
+     * @param {AffiliateCommissionDeliveryUpdateArgs} args - Arguments to update one AffiliateCommissionDelivery.
+     * @example
+     * // Update one AffiliateCommissionDelivery
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AffiliateCommissionDeliveryUpdateArgs>(args: SelectSubset<T, AffiliateCommissionDeliveryUpdateArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AffiliateCommissionDeliveries.
+     * @param {AffiliateCommissionDeliveryDeleteManyArgs} args - Arguments to filter AffiliateCommissionDeliveries to delete.
+     * @example
+     * // Delete a few AffiliateCommissionDeliveries
+     * const { count } = await prisma.affiliateCommissionDelivery.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AffiliateCommissionDeliveryDeleteManyArgs>(args?: SelectSubset<T, AffiliateCommissionDeliveryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AffiliateCommissionDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateCommissionDeliveryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AffiliateCommissionDeliveries
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AffiliateCommissionDeliveryUpdateManyArgs>(args: SelectSubset<T, AffiliateCommissionDeliveryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AffiliateCommissionDeliveries and returns the data updated in the database.
+     * @param {AffiliateCommissionDeliveryUpdateManyAndReturnArgs} args - Arguments to update many AffiliateCommissionDeliveries.
+     * @example
+     * // Update many AffiliateCommissionDeliveries
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AffiliateCommissionDeliveries and only return the `id`
+     * const affiliateCommissionDeliveryWithIdOnly = await prisma.affiliateCommissionDelivery.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AffiliateCommissionDeliveryUpdateManyAndReturnArgs>(args: SelectSubset<T, AffiliateCommissionDeliveryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AffiliateCommissionDelivery.
+     * @param {AffiliateCommissionDeliveryUpsertArgs} args - Arguments to update or create a AffiliateCommissionDelivery.
+     * @example
+     * // Update or create a AffiliateCommissionDelivery
+     * const affiliateCommissionDelivery = await prisma.affiliateCommissionDelivery.upsert({
+     *   create: {
+     *     // ... data to create a AffiliateCommissionDelivery
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AffiliateCommissionDelivery we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AffiliateCommissionDeliveryUpsertArgs>(args: SelectSubset<T, AffiliateCommissionDeliveryUpsertArgs<ExtArgs>>): Prisma__AffiliateCommissionDeliveryClient<$Result.GetResult<Prisma.$AffiliateCommissionDeliveryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AffiliateCommissionDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateCommissionDeliveryCountArgs} args - Arguments to filter AffiliateCommissionDeliveries to count.
+     * @example
+     * // Count the number of AffiliateCommissionDeliveries
+     * const count = await prisma.affiliateCommissionDelivery.count({
+     *   where: {
+     *     // ... the filter for the AffiliateCommissionDeliveries we want to count
+     *   }
+     * })
+    **/
+    count<T extends AffiliateCommissionDeliveryCountArgs>(
+      args?: Subset<T, AffiliateCommissionDeliveryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AffiliateCommissionDeliveryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AffiliateCommissionDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateCommissionDeliveryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AffiliateCommissionDeliveryAggregateArgs>(args: Subset<T, AffiliateCommissionDeliveryAggregateArgs>): Prisma.PrismaPromise<GetAffiliateCommissionDeliveryAggregateType<T>>
+
+    /**
+     * Group by AffiliateCommissionDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AffiliateCommissionDeliveryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AffiliateCommissionDeliveryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AffiliateCommissionDeliveryGroupByArgs['orderBy'] }
+        : { orderBy?: AffiliateCommissionDeliveryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AffiliateCommissionDeliveryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAffiliateCommissionDeliveryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AffiliateCommissionDelivery model
+   */
+  readonly fields: AffiliateCommissionDeliveryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AffiliateCommissionDelivery.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AffiliateCommissionDeliveryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    commission<T extends AffiliateCommissionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AffiliateCommissionDefaultArgs<ExtArgs>>): Prisma__AffiliateCommissionClient<$Result.GetResult<Prisma.$AffiliateCommissionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AffiliateCommissionDelivery model
+   */
+  interface AffiliateCommissionDeliveryFieldRefs {
+    readonly id: FieldRef<"AffiliateCommissionDelivery", 'Int'>
+    readonly commissionId: FieldRef<"AffiliateCommissionDelivery", 'Int'>
+    readonly protocol: FieldRef<"AffiliateCommissionDelivery", 'String'>
+    readonly state: FieldRef<"AffiliateCommissionDelivery", 'String'>
+    readonly financialState: FieldRef<"AffiliateCommissionDelivery", 'String'>
+    readonly fundingState: FieldRef<"AffiliateCommissionDelivery", 'String'>
+    readonly snapshot: FieldRef<"AffiliateCommissionDelivery", 'Json'>
+    readonly attempts: FieldRef<"AffiliateCommissionDelivery", 'Int'>
+    readonly nextAttemptAt: FieldRef<"AffiliateCommissionDelivery", 'DateTime'>
+    readonly leaseToken: FieldRef<"AffiliateCommissionDelivery", 'String'>
+    readonly leaseUntil: FieldRef<"AffiliateCommissionDelivery", 'DateTime'>
+    readonly lastError: FieldRef<"AffiliateCommissionDelivery", 'String'>
+    readonly acknowledgedAt: FieldRef<"AffiliateCommissionDelivery", 'DateTime'>
+    readonly createdAt: FieldRef<"AffiliateCommissionDelivery", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AffiliateCommissionDelivery findUnique
+   */
+  export type AffiliateCommissionDeliveryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateCommissionDelivery to fetch.
+     */
+    where: AffiliateCommissionDeliveryWhereUniqueInput
+  }
+
+  /**
+   * AffiliateCommissionDelivery findUniqueOrThrow
+   */
+  export type AffiliateCommissionDeliveryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateCommissionDelivery to fetch.
+     */
+    where: AffiliateCommissionDeliveryWhereUniqueInput
+  }
+
+  /**
+   * AffiliateCommissionDelivery findFirst
+   */
+  export type AffiliateCommissionDeliveryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateCommissionDelivery to fetch.
+     */
+    where?: AffiliateCommissionDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AffiliateCommissionDeliveries to fetch.
+     */
+    orderBy?: AffiliateCommissionDeliveryOrderByWithRelationInput | AffiliateCommissionDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AffiliateCommissionDeliveries.
+     */
+    cursor?: AffiliateCommissionDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AffiliateCommissionDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AffiliateCommissionDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AffiliateCommissionDeliveries.
+     */
+    distinct?: AffiliateCommissionDeliveryScalarFieldEnum | AffiliateCommissionDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * AffiliateCommissionDelivery findFirstOrThrow
+   */
+  export type AffiliateCommissionDeliveryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateCommissionDelivery to fetch.
+     */
+    where?: AffiliateCommissionDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AffiliateCommissionDeliveries to fetch.
+     */
+    orderBy?: AffiliateCommissionDeliveryOrderByWithRelationInput | AffiliateCommissionDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AffiliateCommissionDeliveries.
+     */
+    cursor?: AffiliateCommissionDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AffiliateCommissionDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AffiliateCommissionDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AffiliateCommissionDeliveries.
+     */
+    distinct?: AffiliateCommissionDeliveryScalarFieldEnum | AffiliateCommissionDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * AffiliateCommissionDelivery findMany
+   */
+  export type AffiliateCommissionDeliveryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter, which AffiliateCommissionDeliveries to fetch.
+     */
+    where?: AffiliateCommissionDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AffiliateCommissionDeliveries to fetch.
+     */
+    orderBy?: AffiliateCommissionDeliveryOrderByWithRelationInput | AffiliateCommissionDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AffiliateCommissionDeliveries.
+     */
+    cursor?: AffiliateCommissionDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AffiliateCommissionDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AffiliateCommissionDeliveries.
+     */
+    skip?: number
+    distinct?: AffiliateCommissionDeliveryScalarFieldEnum | AffiliateCommissionDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * AffiliateCommissionDelivery create
+   */
+  export type AffiliateCommissionDeliveryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AffiliateCommissionDelivery.
+     */
+    data: XOR<AffiliateCommissionDeliveryCreateInput, AffiliateCommissionDeliveryUncheckedCreateInput>
+  }
+
+  /**
+   * AffiliateCommissionDelivery createMany
+   */
+  export type AffiliateCommissionDeliveryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AffiliateCommissionDeliveries.
+     */
+    data: AffiliateCommissionDeliveryCreateManyInput | AffiliateCommissionDeliveryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AffiliateCommissionDelivery createManyAndReturn
+   */
+  export type AffiliateCommissionDeliveryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to create many AffiliateCommissionDeliveries.
+     */
+    data: AffiliateCommissionDeliveryCreateManyInput | AffiliateCommissionDeliveryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AffiliateCommissionDelivery update
+   */
+  export type AffiliateCommissionDeliveryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AffiliateCommissionDelivery.
+     */
+    data: XOR<AffiliateCommissionDeliveryUpdateInput, AffiliateCommissionDeliveryUncheckedUpdateInput>
+    /**
+     * Choose, which AffiliateCommissionDelivery to update.
+     */
+    where: AffiliateCommissionDeliveryWhereUniqueInput
+  }
+
+  /**
+   * AffiliateCommissionDelivery updateMany
+   */
+  export type AffiliateCommissionDeliveryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AffiliateCommissionDeliveries.
+     */
+    data: XOR<AffiliateCommissionDeliveryUpdateManyMutationInput, AffiliateCommissionDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which AffiliateCommissionDeliveries to update
+     */
+    where?: AffiliateCommissionDeliveryWhereInput
+    /**
+     * Limit how many AffiliateCommissionDeliveries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AffiliateCommissionDelivery updateManyAndReturn
+   */
+  export type AffiliateCommissionDeliveryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to update AffiliateCommissionDeliveries.
+     */
+    data: XOR<AffiliateCommissionDeliveryUpdateManyMutationInput, AffiliateCommissionDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which AffiliateCommissionDeliveries to update
+     */
+    where?: AffiliateCommissionDeliveryWhereInput
+    /**
+     * Limit how many AffiliateCommissionDeliveries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AffiliateCommissionDelivery upsert
+   */
+  export type AffiliateCommissionDeliveryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AffiliateCommissionDelivery to update in case it exists.
+     */
+    where: AffiliateCommissionDeliveryWhereUniqueInput
+    /**
+     * In case the AffiliateCommissionDelivery found by the `where` argument doesn't exist, create a new AffiliateCommissionDelivery with this data.
+     */
+    create: XOR<AffiliateCommissionDeliveryCreateInput, AffiliateCommissionDeliveryUncheckedCreateInput>
+    /**
+     * In case the AffiliateCommissionDelivery was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AffiliateCommissionDeliveryUpdateInput, AffiliateCommissionDeliveryUncheckedUpdateInput>
+  }
+
+  /**
+   * AffiliateCommissionDelivery delete
+   */
+  export type AffiliateCommissionDeliveryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
+    /**
+     * Filter which AffiliateCommissionDelivery to delete.
+     */
+    where: AffiliateCommissionDeliveryWhereUniqueInput
+  }
+
+  /**
+   * AffiliateCommissionDelivery deleteMany
+   */
+  export type AffiliateCommissionDeliveryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AffiliateCommissionDeliveries to delete
+     */
+    where?: AffiliateCommissionDeliveryWhereInput
+    /**
+     * Limit how many AffiliateCommissionDeliveries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AffiliateCommissionDelivery without action
+   */
+  export type AffiliateCommissionDeliveryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AffiliateCommissionDelivery
+     */
+    select?: AffiliateCommissionDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AffiliateCommissionDelivery
+     */
+    omit?: AffiliateCommissionDeliveryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AffiliateCommissionDeliveryInclude<ExtArgs> | null
   }
 
 
@@ -22078,6 +23405,26 @@ export namespace Prisma {
   export type AffiliateCommissionScalarFieldEnum = (typeof AffiliateCommissionScalarFieldEnum)[keyof typeof AffiliateCommissionScalarFieldEnum]
 
 
+  export const AffiliateCommissionDeliveryScalarFieldEnum: {
+    id: 'id',
+    commissionId: 'commissionId',
+    protocol: 'protocol',
+    state: 'state',
+    financialState: 'financialState',
+    fundingState: 'fundingState',
+    snapshot: 'snapshot',
+    attempts: 'attempts',
+    nextAttemptAt: 'nextAttemptAt',
+    leaseToken: 'leaseToken',
+    leaseUntil: 'leaseUntil',
+    lastError: 'lastError',
+    acknowledgedAt: 'acknowledgedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type AffiliateCommissionDeliveryScalarFieldEnum = (typeof AffiliateCommissionDeliveryScalarFieldEnum)[keyof typeof AffiliateCommissionDeliveryScalarFieldEnum]
+
+
   export const AffiliateProductLinkScalarFieldEnum: {
     id: 'id',
     bookId: 'bookId',
@@ -22126,6 +23473,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -23376,6 +24730,7 @@ export namespace Prisma {
     affiliate?: XOR<UserScalarRelationFilter, UserWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+    delivery?: XOR<AffiliateCommissionDeliveryNullableScalarRelationFilter, AffiliateCommissionDeliveryWhereInput> | null
   }
 
   export type AffiliateCommissionOrderByWithRelationInput = {
@@ -23393,6 +24748,7 @@ export namespace Prisma {
     affiliate?: UserOrderByWithRelationInput
     book?: BookOrderByWithRelationInput
     order?: OrderOrderByWithRelationInput
+    delivery?: AffiliateCommissionDeliveryOrderByWithRelationInput
   }
 
   export type AffiliateCommissionWhereUniqueInput = Prisma.AtLeast<{
@@ -23414,6 +24770,7 @@ export namespace Prisma {
     affiliate?: XOR<UserScalarRelationFilter, UserWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
+    delivery?: XOR<AffiliateCommissionDeliveryNullableScalarRelationFilter, AffiliateCommissionDeliveryWhereInput> | null
   }, "id" | "orderId_bookId">
 
   export type AffiliateCommissionOrderByWithAggregationInput = {
@@ -23450,6 +24807,108 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusWithAggregatesFilter<"AffiliateCommission"> | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeWithAggregatesFilter<"AffiliateCommission"> | Date | string
     reversedAt?: DateTimeNullableWithAggregatesFilter<"AffiliateCommission"> | Date | string | null
+  }
+
+  export type AffiliateCommissionDeliveryWhereInput = {
+    AND?: AffiliateCommissionDeliveryWhereInput | AffiliateCommissionDeliveryWhereInput[]
+    OR?: AffiliateCommissionDeliveryWhereInput[]
+    NOT?: AffiliateCommissionDeliveryWhereInput | AffiliateCommissionDeliveryWhereInput[]
+    id?: IntFilter<"AffiliateCommissionDelivery"> | number
+    commissionId?: IntFilter<"AffiliateCommissionDelivery"> | number
+    protocol?: StringFilter<"AffiliateCommissionDelivery"> | string
+    state?: StringFilter<"AffiliateCommissionDelivery"> | string
+    financialState?: StringFilter<"AffiliateCommissionDelivery"> | string
+    fundingState?: StringFilter<"AffiliateCommissionDelivery"> | string
+    snapshot?: JsonFilter<"AffiliateCommissionDelivery">
+    attempts?: IntFilter<"AffiliateCommissionDelivery"> | number
+    nextAttemptAt?: DateTimeFilter<"AffiliateCommissionDelivery"> | Date | string
+    leaseToken?: StringNullableFilter<"AffiliateCommissionDelivery"> | string | null
+    leaseUntil?: DateTimeNullableFilter<"AffiliateCommissionDelivery"> | Date | string | null
+    lastError?: StringNullableFilter<"AffiliateCommissionDelivery"> | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"AffiliateCommissionDelivery"> | Date | string | null
+    createdAt?: DateTimeFilter<"AffiliateCommissionDelivery"> | Date | string
+    commission?: XOR<AffiliateCommissionScalarRelationFilter, AffiliateCommissionWhereInput>
+  }
+
+  export type AffiliateCommissionDeliveryOrderByWithRelationInput = {
+    id?: SortOrder
+    commissionId?: SortOrder
+    protocol?: SortOrder
+    state?: SortOrder
+    financialState?: SortOrder
+    fundingState?: SortOrder
+    snapshot?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrderInput | SortOrder
+    leaseUntil?: SortOrderInput | SortOrder
+    lastError?: SortOrderInput | SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    commission?: AffiliateCommissionOrderByWithRelationInput
+  }
+
+  export type AffiliateCommissionDeliveryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    commissionId?: number
+    AND?: AffiliateCommissionDeliveryWhereInput | AffiliateCommissionDeliveryWhereInput[]
+    OR?: AffiliateCommissionDeliveryWhereInput[]
+    NOT?: AffiliateCommissionDeliveryWhereInput | AffiliateCommissionDeliveryWhereInput[]
+    protocol?: StringFilter<"AffiliateCommissionDelivery"> | string
+    state?: StringFilter<"AffiliateCommissionDelivery"> | string
+    financialState?: StringFilter<"AffiliateCommissionDelivery"> | string
+    fundingState?: StringFilter<"AffiliateCommissionDelivery"> | string
+    snapshot?: JsonFilter<"AffiliateCommissionDelivery">
+    attempts?: IntFilter<"AffiliateCommissionDelivery"> | number
+    nextAttemptAt?: DateTimeFilter<"AffiliateCommissionDelivery"> | Date | string
+    leaseToken?: StringNullableFilter<"AffiliateCommissionDelivery"> | string | null
+    leaseUntil?: DateTimeNullableFilter<"AffiliateCommissionDelivery"> | Date | string | null
+    lastError?: StringNullableFilter<"AffiliateCommissionDelivery"> | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"AffiliateCommissionDelivery"> | Date | string | null
+    createdAt?: DateTimeFilter<"AffiliateCommissionDelivery"> | Date | string
+    commission?: XOR<AffiliateCommissionScalarRelationFilter, AffiliateCommissionWhereInput>
+  }, "id" | "commissionId">
+
+  export type AffiliateCommissionDeliveryOrderByWithAggregationInput = {
+    id?: SortOrder
+    commissionId?: SortOrder
+    protocol?: SortOrder
+    state?: SortOrder
+    financialState?: SortOrder
+    fundingState?: SortOrder
+    snapshot?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrderInput | SortOrder
+    leaseUntil?: SortOrderInput | SortOrder
+    lastError?: SortOrderInput | SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AffiliateCommissionDeliveryCountOrderByAggregateInput
+    _avg?: AffiliateCommissionDeliveryAvgOrderByAggregateInput
+    _max?: AffiliateCommissionDeliveryMaxOrderByAggregateInput
+    _min?: AffiliateCommissionDeliveryMinOrderByAggregateInput
+    _sum?: AffiliateCommissionDeliverySumOrderByAggregateInput
+  }
+
+  export type AffiliateCommissionDeliveryScalarWhereWithAggregatesInput = {
+    AND?: AffiliateCommissionDeliveryScalarWhereWithAggregatesInput | AffiliateCommissionDeliveryScalarWhereWithAggregatesInput[]
+    OR?: AffiliateCommissionDeliveryScalarWhereWithAggregatesInput[]
+    NOT?: AffiliateCommissionDeliveryScalarWhereWithAggregatesInput | AffiliateCommissionDeliveryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"AffiliateCommissionDelivery"> | number
+    commissionId?: IntWithAggregatesFilter<"AffiliateCommissionDelivery"> | number
+    protocol?: StringWithAggregatesFilter<"AffiliateCommissionDelivery"> | string
+    state?: StringWithAggregatesFilter<"AffiliateCommissionDelivery"> | string
+    financialState?: StringWithAggregatesFilter<"AffiliateCommissionDelivery"> | string
+    fundingState?: StringWithAggregatesFilter<"AffiliateCommissionDelivery"> | string
+    snapshot?: JsonWithAggregatesFilter<"AffiliateCommissionDelivery">
+    attempts?: IntWithAggregatesFilter<"AffiliateCommissionDelivery"> | number
+    nextAttemptAt?: DateTimeWithAggregatesFilter<"AffiliateCommissionDelivery"> | Date | string
+    leaseToken?: StringNullableWithAggregatesFilter<"AffiliateCommissionDelivery"> | string | null
+    leaseUntil?: DateTimeNullableWithAggregatesFilter<"AffiliateCommissionDelivery"> | Date | string | null
+    lastError?: StringNullableWithAggregatesFilter<"AffiliateCommissionDelivery"> | string | null
+    acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"AffiliateCommissionDelivery"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AffiliateCommissionDelivery"> | Date | string
   }
 
   export type AffiliateProductLinkWhereInput = {
@@ -24831,6 +26290,7 @@ export namespace Prisma {
     affiliate: UserCreateNestedOneWithoutAffiliateCommissionsInput
     book: BookCreateNestedOneWithoutAffiliateCommissionsInput
     order: OrderCreateNestedOneWithoutAffiliateCommissionsInput
+    delivery?: AffiliateCommissionDeliveryCreateNestedOneWithoutCommissionInput
   }
 
   export type AffiliateCommissionUncheckedCreateInput = {
@@ -24845,6 +26305,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    delivery?: AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput
   }
 
   export type AffiliateCommissionUpdateInput = {
@@ -24858,6 +26319,7 @@ export namespace Prisma {
     affiliate?: UserUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     book?: BookUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     order?: OrderUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
+    delivery?: AffiliateCommissionDeliveryUpdateOneWithoutCommissionNestedInput
   }
 
   export type AffiliateCommissionUncheckedUpdateInput = {
@@ -24872,6 +26334,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delivery?: AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput
   }
 
   export type AffiliateCommissionCreateManyInput = {
@@ -24910,6 +26373,121 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type AffiliateCommissionDeliveryCreateInput = {
+    protocol?: string
+    state?: string
+    financialState?: string
+    fundingState?: string
+    snapshot: JsonNullValueInput | InputJsonValue
+    attempts?: number
+    nextAttemptAt?: Date | string
+    leaseToken?: string | null
+    leaseUntil?: Date | string | null
+    lastError?: string | null
+    acknowledgedAt?: Date | string | null
+    createdAt?: Date | string
+    commission: AffiliateCommissionCreateNestedOneWithoutDeliveryInput
+  }
+
+  export type AffiliateCommissionDeliveryUncheckedCreateInput = {
+    id?: number
+    commissionId: number
+    protocol?: string
+    state?: string
+    financialState?: string
+    fundingState?: string
+    snapshot: JsonNullValueInput | InputJsonValue
+    attempts?: number
+    nextAttemptAt?: Date | string
+    leaseToken?: string | null
+    leaseUntil?: Date | string | null
+    lastError?: string | null
+    acknowledgedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AffiliateCommissionDeliveryUpdateInput = {
+    protocol?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    financialState?: StringFieldUpdateOperationsInput | string
+    fundingState?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    commission?: AffiliateCommissionUpdateOneRequiredWithoutDeliveryNestedInput
+  }
+
+  export type AffiliateCommissionDeliveryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    commissionId?: IntFieldUpdateOperationsInput | number
+    protocol?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    financialState?: StringFieldUpdateOperationsInput | string
+    fundingState?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AffiliateCommissionDeliveryCreateManyInput = {
+    id?: number
+    commissionId: number
+    protocol?: string
+    state?: string
+    financialState?: string
+    fundingState?: string
+    snapshot: JsonNullValueInput | InputJsonValue
+    attempts?: number
+    nextAttemptAt?: Date | string
+    leaseToken?: string | null
+    leaseUntil?: Date | string | null
+    lastError?: string | null
+    acknowledgedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AffiliateCommissionDeliveryUpdateManyMutationInput = {
+    protocol?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    financialState?: StringFieldUpdateOperationsInput | string
+    fundingState?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AffiliateCommissionDeliveryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    commissionId?: IntFieldUpdateOperationsInput | number
+    protocol?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    financialState?: StringFieldUpdateOperationsInput | string
+    fundingState?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AffiliateProductLinkCreateInput = {
@@ -26167,6 +27745,11 @@ export namespace Prisma {
     not?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel> | $Enums.AffiliateCommissionStatus
   }
 
+  export type AffiliateCommissionDeliveryNullableScalarRelationFilter = {
+    is?: AffiliateCommissionDeliveryWhereInput | null
+    isNot?: AffiliateCommissionDeliveryWhereInput | null
+  }
+
   export type AffiliateCommissionOrderIdBookIdCompoundUniqueInput = {
     orderId: number
     bookId: number
@@ -26240,6 +27823,121 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
     _max?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type AffiliateCommissionScalarRelationFilter = {
+    is?: AffiliateCommissionWhereInput
+    isNot?: AffiliateCommissionWhereInput
+  }
+
+  export type AffiliateCommissionDeliveryCountOrderByAggregateInput = {
+    id?: SortOrder
+    commissionId?: SortOrder
+    protocol?: SortOrder
+    state?: SortOrder
+    financialState?: SortOrder
+    fundingState?: SortOrder
+    snapshot?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrder
+    leaseUntil?: SortOrder
+    lastError?: SortOrder
+    acknowledgedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AffiliateCommissionDeliveryAvgOrderByAggregateInput = {
+    id?: SortOrder
+    commissionId?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type AffiliateCommissionDeliveryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    commissionId?: SortOrder
+    protocol?: SortOrder
+    state?: SortOrder
+    financialState?: SortOrder
+    fundingState?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrder
+    leaseUntil?: SortOrder
+    lastError?: SortOrder
+    acknowledgedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AffiliateCommissionDeliveryMinOrderByAggregateInput = {
+    id?: SortOrder
+    commissionId?: SortOrder
+    protocol?: SortOrder
+    state?: SortOrder
+    financialState?: SortOrder
+    fundingState?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrder
+    leaseUntil?: SortOrder
+    lastError?: SortOrder
+    acknowledgedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AffiliateCommissionDeliverySumOrderByAggregateInput = {
+    id?: SortOrder
+    commissionId?: SortOrder
+    attempts?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type AffiliateProductLinkBookIdAffiliateIdCompoundUniqueInput = {
@@ -27737,6 +29435,18 @@ export namespace Prisma {
     connect?: OrderWhereUniqueInput
   }
 
+  export type AffiliateCommissionDeliveryCreateNestedOneWithoutCommissionInput = {
+    create?: XOR<AffiliateCommissionDeliveryCreateWithoutCommissionInput, AffiliateCommissionDeliveryUncheckedCreateWithoutCommissionInput>
+    connectOrCreate?: AffiliateCommissionDeliveryCreateOrConnectWithoutCommissionInput
+    connect?: AffiliateCommissionDeliveryWhereUniqueInput
+  }
+
+  export type AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput = {
+    create?: XOR<AffiliateCommissionDeliveryCreateWithoutCommissionInput, AffiliateCommissionDeliveryUncheckedCreateWithoutCommissionInput>
+    connectOrCreate?: AffiliateCommissionDeliveryCreateOrConnectWithoutCommissionInput
+    connect?: AffiliateCommissionDeliveryWhereUniqueInput
+  }
+
   export type EnumAffiliateCommissionStatusFieldUpdateOperationsInput = {
     set?: $Enums.AffiliateCommissionStatus
   }
@@ -27763,6 +29473,40 @@ export namespace Prisma {
     upsert?: OrderUpsertWithoutAffiliateCommissionsInput
     connect?: OrderWhereUniqueInput
     update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutAffiliateCommissionsInput, OrderUpdateWithoutAffiliateCommissionsInput>, OrderUncheckedUpdateWithoutAffiliateCommissionsInput>
+  }
+
+  export type AffiliateCommissionDeliveryUpdateOneWithoutCommissionNestedInput = {
+    create?: XOR<AffiliateCommissionDeliveryCreateWithoutCommissionInput, AffiliateCommissionDeliveryUncheckedCreateWithoutCommissionInput>
+    connectOrCreate?: AffiliateCommissionDeliveryCreateOrConnectWithoutCommissionInput
+    upsert?: AffiliateCommissionDeliveryUpsertWithoutCommissionInput
+    disconnect?: AffiliateCommissionDeliveryWhereInput | boolean
+    delete?: AffiliateCommissionDeliveryWhereInput | boolean
+    connect?: AffiliateCommissionDeliveryWhereUniqueInput
+    update?: XOR<XOR<AffiliateCommissionDeliveryUpdateToOneWithWhereWithoutCommissionInput, AffiliateCommissionDeliveryUpdateWithoutCommissionInput>, AffiliateCommissionDeliveryUncheckedUpdateWithoutCommissionInput>
+  }
+
+  export type AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput = {
+    create?: XOR<AffiliateCommissionDeliveryCreateWithoutCommissionInput, AffiliateCommissionDeliveryUncheckedCreateWithoutCommissionInput>
+    connectOrCreate?: AffiliateCommissionDeliveryCreateOrConnectWithoutCommissionInput
+    upsert?: AffiliateCommissionDeliveryUpsertWithoutCommissionInput
+    disconnect?: AffiliateCommissionDeliveryWhereInput | boolean
+    delete?: AffiliateCommissionDeliveryWhereInput | boolean
+    connect?: AffiliateCommissionDeliveryWhereUniqueInput
+    update?: XOR<XOR<AffiliateCommissionDeliveryUpdateToOneWithWhereWithoutCommissionInput, AffiliateCommissionDeliveryUpdateWithoutCommissionInput>, AffiliateCommissionDeliveryUncheckedUpdateWithoutCommissionInput>
+  }
+
+  export type AffiliateCommissionCreateNestedOneWithoutDeliveryInput = {
+    create?: XOR<AffiliateCommissionCreateWithoutDeliveryInput, AffiliateCommissionUncheckedCreateWithoutDeliveryInput>
+    connectOrCreate?: AffiliateCommissionCreateOrConnectWithoutDeliveryInput
+    connect?: AffiliateCommissionWhereUniqueInput
+  }
+
+  export type AffiliateCommissionUpdateOneRequiredWithoutDeliveryNestedInput = {
+    create?: XOR<AffiliateCommissionCreateWithoutDeliveryInput, AffiliateCommissionUncheckedCreateWithoutDeliveryInput>
+    connectOrCreate?: AffiliateCommissionCreateOrConnectWithoutDeliveryInput
+    upsert?: AffiliateCommissionUpsertWithoutDeliveryInput
+    connect?: AffiliateCommissionWhereUniqueInput
+    update?: XOR<XOR<AffiliateCommissionUpdateToOneWithWhereWithoutDeliveryInput, AffiliateCommissionUpdateWithoutDeliveryInput>, AffiliateCommissionUncheckedUpdateWithoutDeliveryInput>
   }
 
   export type BookCreateNestedOneWithoutAffiliateProductLinksInput = {
@@ -28165,6 +29909,29 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
     _max?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type UserCreateWithoutAdminInput = {
@@ -28781,6 +30548,7 @@ export namespace Prisma {
     reversedAt?: Date | string | null
     book: BookCreateNestedOneWithoutAffiliateCommissionsInput
     order: OrderCreateNestedOneWithoutAffiliateCommissionsInput
+    delivery?: AffiliateCommissionDeliveryCreateNestedOneWithoutCommissionInput
   }
 
   export type AffiliateCommissionUncheckedCreateWithoutAffiliateInput = {
@@ -28794,6 +30562,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    delivery?: AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput
   }
 
   export type AffiliateCommissionCreateOrConnectWithoutAffiliateInput = {
@@ -29965,6 +31734,7 @@ export namespace Prisma {
     reversedAt?: Date | string | null
     affiliate: UserCreateNestedOneWithoutAffiliateCommissionsInput
     order: OrderCreateNestedOneWithoutAffiliateCommissionsInput
+    delivery?: AffiliateCommissionDeliveryCreateNestedOneWithoutCommissionInput
   }
 
   export type AffiliateCommissionUncheckedCreateWithoutBookInput = {
@@ -29978,6 +31748,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    delivery?: AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput
   }
 
   export type AffiliateCommissionCreateOrConnectWithoutBookInput = {
@@ -31003,6 +32774,7 @@ export namespace Prisma {
     reversedAt?: Date | string | null
     affiliate: UserCreateNestedOneWithoutAffiliateCommissionsInput
     book: BookCreateNestedOneWithoutAffiliateCommissionsInput
+    delivery?: AffiliateCommissionDeliveryCreateNestedOneWithoutCommissionInput
   }
 
   export type AffiliateCommissionUncheckedCreateWithoutOrderInput = {
@@ -31016,6 +32788,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    delivery?: AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput
   }
 
   export type AffiliateCommissionCreateOrConnectWithoutOrderInput = {
@@ -32074,6 +33847,42 @@ export namespace Prisma {
     create: XOR<OrderCreateWithoutAffiliateCommissionsInput, OrderUncheckedCreateWithoutAffiliateCommissionsInput>
   }
 
+  export type AffiliateCommissionDeliveryCreateWithoutCommissionInput = {
+    protocol?: string
+    state?: string
+    financialState?: string
+    fundingState?: string
+    snapshot: JsonNullValueInput | InputJsonValue
+    attempts?: number
+    nextAttemptAt?: Date | string
+    leaseToken?: string | null
+    leaseUntil?: Date | string | null
+    lastError?: string | null
+    acknowledgedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AffiliateCommissionDeliveryUncheckedCreateWithoutCommissionInput = {
+    id?: number
+    protocol?: string
+    state?: string
+    financialState?: string
+    fundingState?: string
+    snapshot: JsonNullValueInput | InputJsonValue
+    attempts?: number
+    nextAttemptAt?: Date | string
+    leaseToken?: string | null
+    leaseUntil?: Date | string | null
+    lastError?: string | null
+    acknowledgedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AffiliateCommissionDeliveryCreateOrConnectWithoutCommissionInput = {
+    where: AffiliateCommissionDeliveryWhereUniqueInput
+    create: XOR<AffiliateCommissionDeliveryCreateWithoutCommissionInput, AffiliateCommissionDeliveryUncheckedCreateWithoutCommissionInput>
+  }
+
   export type UserUpsertWithoutAffiliateCommissionsInput = {
     update: XOR<UserUpdateWithoutAffiliateCommissionsInput, UserUncheckedUpdateWithoutAffiliateCommissionsInput>
     create: XOR<UserCreateWithoutAffiliateCommissionsInput, UserUncheckedCreateWithoutAffiliateCommissionsInput>
@@ -32283,6 +34092,118 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orderItems?: OrderItemUncheckedUpdateManyWithoutOrderNestedInput
+  }
+
+  export type AffiliateCommissionDeliveryUpsertWithoutCommissionInput = {
+    update: XOR<AffiliateCommissionDeliveryUpdateWithoutCommissionInput, AffiliateCommissionDeliveryUncheckedUpdateWithoutCommissionInput>
+    create: XOR<AffiliateCommissionDeliveryCreateWithoutCommissionInput, AffiliateCommissionDeliveryUncheckedCreateWithoutCommissionInput>
+    where?: AffiliateCommissionDeliveryWhereInput
+  }
+
+  export type AffiliateCommissionDeliveryUpdateToOneWithWhereWithoutCommissionInput = {
+    where?: AffiliateCommissionDeliveryWhereInput
+    data: XOR<AffiliateCommissionDeliveryUpdateWithoutCommissionInput, AffiliateCommissionDeliveryUncheckedUpdateWithoutCommissionInput>
+  }
+
+  export type AffiliateCommissionDeliveryUpdateWithoutCommissionInput = {
+    protocol?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    financialState?: StringFieldUpdateOperationsInput | string
+    fundingState?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AffiliateCommissionDeliveryUncheckedUpdateWithoutCommissionInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    protocol?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    financialState?: StringFieldUpdateOperationsInput | string
+    fundingState?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AffiliateCommissionCreateWithoutDeliveryInput = {
+    orderNumber: string
+    grossAmount: number
+    commissionRate: number
+    commissionAmount: number
+    status?: $Enums.AffiliateCommissionStatus
+    createdAt?: Date | string
+    reversedAt?: Date | string | null
+    affiliate: UserCreateNestedOneWithoutAffiliateCommissionsInput
+    book: BookCreateNestedOneWithoutAffiliateCommissionsInput
+    order: OrderCreateNestedOneWithoutAffiliateCommissionsInput
+  }
+
+  export type AffiliateCommissionUncheckedCreateWithoutDeliveryInput = {
+    id?: number
+    affiliateId: string
+    bookId: number
+    orderId: number
+    orderNumber: string
+    grossAmount: number
+    commissionRate: number
+    commissionAmount: number
+    status?: $Enums.AffiliateCommissionStatus
+    createdAt?: Date | string
+    reversedAt?: Date | string | null
+  }
+
+  export type AffiliateCommissionCreateOrConnectWithoutDeliveryInput = {
+    where: AffiliateCommissionWhereUniqueInput
+    create: XOR<AffiliateCommissionCreateWithoutDeliveryInput, AffiliateCommissionUncheckedCreateWithoutDeliveryInput>
+  }
+
+  export type AffiliateCommissionUpsertWithoutDeliveryInput = {
+    update: XOR<AffiliateCommissionUpdateWithoutDeliveryInput, AffiliateCommissionUncheckedUpdateWithoutDeliveryInput>
+    create: XOR<AffiliateCommissionCreateWithoutDeliveryInput, AffiliateCommissionUncheckedCreateWithoutDeliveryInput>
+    where?: AffiliateCommissionWhereInput
+  }
+
+  export type AffiliateCommissionUpdateToOneWithWhereWithoutDeliveryInput = {
+    where?: AffiliateCommissionWhereInput
+    data: XOR<AffiliateCommissionUpdateWithoutDeliveryInput, AffiliateCommissionUncheckedUpdateWithoutDeliveryInput>
+  }
+
+  export type AffiliateCommissionUpdateWithoutDeliveryInput = {
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    grossAmount?: FloatFieldUpdateOperationsInput | number
+    commissionRate?: FloatFieldUpdateOperationsInput | number
+    commissionAmount?: FloatFieldUpdateOperationsInput | number
+    status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    affiliate?: UserUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
+    book?: BookUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
+    order?: OrderUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
+  }
+
+  export type AffiliateCommissionUncheckedUpdateWithoutDeliveryInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    affiliateId?: StringFieldUpdateOperationsInput | string
+    bookId?: IntFieldUpdateOperationsInput | number
+    orderId?: IntFieldUpdateOperationsInput | number
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    grossAmount?: FloatFieldUpdateOperationsInput | number
+    commissionRate?: FloatFieldUpdateOperationsInput | number
+    commissionAmount?: FloatFieldUpdateOperationsInput | number
+    status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type BookCreateWithoutAffiliateProductLinksInput = {
@@ -33591,6 +35512,7 @@ export namespace Prisma {
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     book?: BookUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     order?: OrderUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
+    delivery?: AffiliateCommissionDeliveryUpdateOneWithoutCommissionNestedInput
   }
 
   export type AffiliateCommissionUncheckedUpdateWithoutAffiliateInput = {
@@ -33604,6 +35526,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delivery?: AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput
   }
 
   export type AffiliateCommissionUncheckedUpdateManyWithoutAffiliateInput = {
@@ -34285,6 +36208,7 @@ export namespace Prisma {
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     affiliate?: UserUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     order?: OrderUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
+    delivery?: AffiliateCommissionDeliveryUpdateOneWithoutCommissionNestedInput
   }
 
   export type AffiliateCommissionUncheckedUpdateWithoutBookInput = {
@@ -34298,6 +36222,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delivery?: AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput
   }
 
   export type AffiliateCommissionUncheckedUpdateManyWithoutBookInput = {
@@ -34418,6 +36343,7 @@ export namespace Prisma {
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     affiliate?: UserUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     book?: BookUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
+    delivery?: AffiliateCommissionDeliveryUpdateOneWithoutCommissionNestedInput
   }
 
   export type AffiliateCommissionUncheckedUpdateWithoutOrderInput = {
@@ -34431,6 +36357,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    delivery?: AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput
   }
 
   export type AffiliateCommissionUncheckedUpdateManyWithoutOrderInput = {
