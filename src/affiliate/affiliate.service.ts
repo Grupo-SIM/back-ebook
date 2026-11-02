@@ -1,4 +1,5 @@
 import { retryCommissionDeliveries } from './commission-delivery';
+import { validateCommissionEvidence } from './commission-evidence';
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { randomBytes } from 'crypto';
@@ -193,13 +194,21 @@ export class AffiliateService {
             if (commissionAmount <= 0) continue;
 
             try {
-                const orderItems = await this.prisma.orderItem.findMany({
+                await this.prisma.$transaction(async tx => {
+                const orderItems = await tx.orderItem.findMany({
                     where: { orderId: order.id, bookId: item.bookId },
-                    select: { id: true, quantity: true, unitPrice: true, totalPrice: true },
+                    select: { id: true, orderId: true, bookId: true, quantity: true, unitPrice: true, totalPrice: true,
+                        order: { select: { orderNumber: true } },
+                        book: { select: { createdById: true } },
+                        affiliateProductLink: { select: { affiliateId: true, code: true } } },
                     orderBy: { id: 'asc' },
                 });
+                const evidence = validateCommissionEvidence(orderItems, {
+                    orderId: order.id, orderNumber: order.orderNumber, bookId: item.bookId,
+                    sellerId: item.book.createdById, affiliateId: affiliate.id, code: link.code, grossAmount, commissionAmount,
+                });
                 const snapshot = JSON.stringify({
-                    orderItems,
+                    ...evidence,
                     referenceId: `${order.id}-${item.bookId}`, orderId: order.id,
                     orderNumber: order.orderNumber, bookId: item.bookId,
                     sellerId: item.book.createdById || null, affiliateId: affiliate.id,
@@ -210,7 +219,6 @@ export class AffiliateService {
                     serviceFeeRule: 'ONCE_PER_ORDER_PROPORTIONAL_ITEM_GROSS_DETERMINISTIC_CENTS',
                     coproductionOrdering: 'UNRESOLVED',
                 });
-                await this.prisma.$transaction(async tx => {
                     const commission = await tx.affiliateCommission.create({ data: {
                         affiliateId: affiliate.id, bookId: item.bookId, orderId: order.id,
                         orderNumber: order.orderNumber, grossAmount, commissionRate: rate,
