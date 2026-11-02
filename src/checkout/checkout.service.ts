@@ -1,3 +1,4 @@
+import { createFixedFeeSnapshot } from './fixed-fee-snapshot';
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -150,6 +151,7 @@ export class CheckoutService {
     private _ebookLiquidezFetchedAt = 0;
     private _ebookTaxaFixa: number | null = null;
     private _ebookTaxaFixaFetchedAt = 0;
+    private _ebookTaxaFixaSource = 'UNKNOWN';
 
     private async getEbookLiquidez(): Promise<number> {
         const now = Date.now();
@@ -196,6 +198,7 @@ export class CheckoutService {
                     const body = await res.json() as { transactionFeeBrl?: number };
                     const v = body?.transactionFeeBrl;
                     if (typeof v === 'number' && Number.isFinite(v)) {
+                        this._ebookTaxaFixaSource = 'CONFIGURED';
                         this._ebookTaxaFixa = v;
                         this._ebookTaxaFixaFetchedAt = now;
                         return v;
@@ -204,6 +207,7 @@ export class CheckoutService {
             }
         } catch { /* fallback abaixo */ }
         const fallback = parseFloat(process.env.EBOOKSIM_TAXA_FIXA ?? '4');
+        this._ebookTaxaFixaSource = 'LEGACY_FALLBACK';
         this._ebookTaxaFixa = fallback;
         this._ebookTaxaFixaFetchedAt = now;
         return fallback;
@@ -647,21 +651,6 @@ export class CheckoutService {
             `bookCreatedById=${cartItems[0]?.book?.createdById ?? 'null'} resolvedOwnerCpf=${cartItems[0]?.book?.createdBy?.cpf ?? 'null'} ` +
             `buyerUserId=${userId} cartItemsCount=${cartItems.length}`,
         );
-        const order = await this.prisma.order.create({
-            data: {
-                userId,
-                orderNumber,
-                status: 'pending' as OrderStatus,
-                totalAmount,
-                netAmount,
-                subtotal,
-                discount,
-                paymentStatus: 'pending' as PaymentStatus,
-                store: 'ebook', // Sempre vem do ebook
-                notes: internalOrderTag ?? null,
-                affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
-            }
-        });
         // Resolver links de afiliado por item (code específico por par livro+afiliado)
         console.log('[affiliate][createOrder] data.itemAffiliateCodes recebido:', JSON.stringify(data.itemAffiliateCodes));
         console.log('[affiliate][createOrder] data.affiliateCode (legado) recebido:', data.affiliateCode);
@@ -675,25 +664,46 @@ export class CheckoutService {
         console.log('[affiliate][createOrder] codesToResolve:', codesToResolve, '| resolvedLinks:', JSON.stringify(resolvedLinks));
         const linkByCode = new Map(resolvedLinks.map(link => [link.code, link]));
 
-        // Criar itens do pedido
-        await Promise.all(
-            cartItems.map(item => {
-                const code = codeByCartItemId.get(item.id);
-                const link = code ? linkByCode.get(code) : undefined;
-                const affiliateProductLinkId = link && link.bookId === item.bookId ? link.id : null;
-                console.log('[affiliate][createOrder] item', item.id, 'bookId', item.bookId, 'code', code, 'link', link?.id, 'affiliateProductLinkId', affiliateProductLinkId);
-                return this.prisma.orderItem.create({
-                    data: {
-                        orderId: order.id,
-                        bookId: item.bookId,
-                        quantity: item.quantity,
-                        unitPrice: item.book.price,
-                        totalPrice: item.book.price * item.quantity,
-                        affiliateProductLinkId,
-                    }
-                });
-            })
-        );
+        const snapshot = createFixedFeeSnapshot(totalAmount, taxaFixa, cartItems.map(item => ({ sellerId: item.book.createdById ?? null, gross: item.book.price * item.quantity })), this._ebookTaxaFixaSource);
+        const order = await this.prisma.$transaction(async tx => {
+            const order = await tx.order.create({
+                data: {
+                    userId,
+                    orderNumber,
+                    status: 'pending' as OrderStatus,
+                    totalAmount,
+                    netAmount,
+                    fixedFeeSnapshot: { ...snapshot, orderNumber },
+                    subtotal,
+                    discount,
+                    paymentStatus: 'pending' as PaymentStatus,
+                    store: 'ebook', // Sempre vem do ebook
+                    notes: internalOrderTag ?? null,
+                    affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
+                }
+            });
+            // Criar itens do pedido
+            await Promise.all(
+                cartItems.map((item, index) => {
+                    const code = codeByCartItemId.get(item.id);
+                    const link = code ? linkByCode.get(code) : undefined;
+                    const affiliateProductLinkId = link && link.bookId === item.bookId ? link.id : null;
+                    console.log('[affiliate][createOrder] item', item.id, 'bookId', item.bookId, 'code', code, 'link', link?.id, 'affiliateProductLinkId', affiliateProductLinkId);
+                    return tx.orderItem.create({
+                        data: {
+                            orderId: order.id,
+                            fixedFeeItemId: snapshot.items[index].itemId,
+                            bookId: item.bookId,
+                            quantity: item.quantity,
+                            unitPrice: item.book.price,
+                            totalPrice: item.book.price * item.quantity,
+                            affiliateProductLinkId,
+                        }
+                    });
+                })
+            );
+            return order;
+        });
         // Remover itens do carrinho
         await this.prisma.cart.deleteMany({
             where: {
@@ -806,21 +816,6 @@ export class CheckoutService {
             `bookCreatedById=${book.createdById ?? 'null'} resolvedOwnerCpf=${book.createdBy?.cpf ?? 'null'} ` +
             `buyerUserId=${userId}`,
         );
-        const order = await this.prisma.order.create({
-            data: {
-                userId,
-                orderNumber,
-                status: 'pending',
-                totalAmount,
-                netAmount,
-                subtotal,
-                discount,
-                paymentStatus: 'pending',
-                store: 'ebook', // Sempre vem do ebook
-                notes: internalOrderTag ?? null,
-                affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
-            }
-        });
         // Resolver link de afiliado por produto (code específico do par livro+afiliado)
         console.log('[affiliate][createOrderFromBook] data.affiliateCode recebido:', data.affiliateCode, '| bookId:', book.id);
         const affiliateCode = data.affiliateCode?.trim().toUpperCase();
@@ -829,16 +824,37 @@ export class CheckoutService {
             : null;
         const affiliateProductLinkId = productLink && productLink.bookId === book.id ? productLink.id : null;
         console.log('[affiliate][createOrderFromBook] productLink:', JSON.stringify(productLink), '| affiliateProductLinkId:', affiliateProductLinkId);
-        // Criar item do pedido
-        await this.prisma.orderItem.create({
-            data: {
-                orderId: order.id,
-                bookId: book.id,
-                quantity,
-                unitPrice: book.price,
-                totalPrice: book.price * quantity,
-                affiliateProductLinkId,
-            }
+        const snapshot = createFixedFeeSnapshot(totalAmount, taxaFixa, [{ sellerId: book.createdById ?? null, gross: subtotal }], this._ebookTaxaFixaSource);
+        const order = await this.prisma.$transaction(async tx => {
+            const order = await tx.order.create({
+                data: {
+                    userId,
+                    orderNumber,
+                    status: 'pending',
+                    totalAmount,
+                    netAmount,
+                    fixedFeeSnapshot: { ...snapshot, orderNumber },
+                    subtotal,
+                    discount,
+                    paymentStatus: 'pending',
+                    store: 'ebook', // Sempre vem do ebook
+                    notes: internalOrderTag ?? null,
+                    affiliateCode: data.affiliateCode?.trim().toUpperCase() || null,
+                }
+            });
+            // Criar item do pedido
+            await tx.orderItem.create({
+                data: {
+                    orderId: order.id,
+                    fixedFeeItemId: snapshot.items[0].itemId,
+                    bookId: book.id,
+                    quantity,
+                    unitPrice: book.price,
+                    totalPrice: book.price * quantity,
+                    affiliateProductLinkId,
+                }
+            });
+            return order;
         });
         // Notificar api-machine sobre pedido pendente
         const ownerCpfBook = book.createdBy?.cpf

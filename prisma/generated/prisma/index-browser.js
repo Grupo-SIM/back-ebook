@@ -222,6 +222,7 @@ exports.Prisma.OrderScalarFieldEnum = {
   status: 'status',
   totalAmount: 'totalAmount',
   netAmount: 'netAmount',
+  fixedFeeSnapshot: 'fixedFeeSnapshot',
   subtotal: 'subtotal',
   tax: 'tax',
   discount: 'discount',
@@ -243,6 +244,7 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   quantity: 'quantity',
   unitPrice: 'unitPrice',
   totalPrice: 'totalPrice',
+  fixedFeeItemId: 'fixedFeeItemId',
   affiliateProductLinkId: 'affiliateProductLinkId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

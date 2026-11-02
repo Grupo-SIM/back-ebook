@@ -172,6 +172,7 @@ model Order {
   status          String   @default("pending") // pending, paid, cancelled, delivered
   totalAmount     Float
   netAmount       Float? // Valor líquido após taxa da plataforma (gravado na criação, imutável)
+  fixedFeeSnapshot Json? // Null for historical orders; immutable v1 integer-cent allocation
   subtotal        Float
   tax             Float    @default(0)
   discount        Float    @default(0)
@@ -199,6 +200,7 @@ model OrderItem {
   quantity               Int
   unitPrice              Float
   totalPrice             Float
+  fixedFeeItemId String? @unique // Immutable identity inside the order snapshot
   affiliateProductLinkId Int?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt

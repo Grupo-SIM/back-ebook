@@ -11669,6 +11669,7 @@ export namespace Prisma {
     status: number
     totalAmount: number
     netAmount: number
+    fixedFeeSnapshot: number
     subtotal: number
     tax: number
     discount: number
@@ -11748,6 +11749,7 @@ export namespace Prisma {
     status?: true
     totalAmount?: true
     netAmount?: true
+    fixedFeeSnapshot?: true
     subtotal?: true
     tax?: true
     discount?: true
@@ -11856,6 +11858,7 @@ export namespace Prisma {
     status: string
     totalAmount: number
     netAmount: number | null
+    fixedFeeSnapshot: JsonValue | null
     subtotal: number
     tax: number
     discount: number
@@ -11896,6 +11899,7 @@ export namespace Prisma {
     status?: boolean
     totalAmount?: boolean
     netAmount?: boolean
+    fixedFeeSnapshot?: boolean
     subtotal?: boolean
     tax?: boolean
     discount?: boolean
@@ -11921,6 +11925,7 @@ export namespace Prisma {
     status?: boolean
     totalAmount?: boolean
     netAmount?: boolean
+    fixedFeeSnapshot?: boolean
     subtotal?: boolean
     tax?: boolean
     discount?: boolean
@@ -11943,6 +11948,7 @@ export namespace Prisma {
     status?: boolean
     totalAmount?: boolean
     netAmount?: boolean
+    fixedFeeSnapshot?: boolean
     subtotal?: boolean
     tax?: boolean
     discount?: boolean
@@ -11965,6 +11971,7 @@ export namespace Prisma {
     status?: boolean
     totalAmount?: boolean
     netAmount?: boolean
+    fixedFeeSnapshot?: boolean
     subtotal?: boolean
     tax?: boolean
     discount?: boolean
@@ -11979,7 +11986,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "orderNumber" | "status" | "totalAmount" | "netAmount" | "subtotal" | "tax" | "discount" | "paymentMethod" | "paymentStatus" | "store" | "shippingAddress" | "billingAddress" | "notes" | "affiliateCode" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
+  export type OrderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "orderNumber" | "status" | "totalAmount" | "netAmount" | "fixedFeeSnapshot" | "subtotal" | "tax" | "discount" | "paymentMethod" | "paymentStatus" | "store" | "shippingAddress" | "billingAddress" | "notes" | "affiliateCode" | "createdAt" | "updatedAt", ExtArgs["result"]["order"]>
   export type OrderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     orderItems?: boolean | Order$orderItemsArgs<ExtArgs>
@@ -12007,6 +12014,7 @@ export namespace Prisma {
       status: string
       totalAmount: number
       netAmount: number | null
+      fixedFeeSnapshot: Prisma.JsonValue | null
       subtotal: number
       tax: number
       discount: number
@@ -12451,6 +12459,7 @@ export namespace Prisma {
     readonly status: FieldRef<"Order", 'String'>
     readonly totalAmount: FieldRef<"Order", 'Float'>
     readonly netAmount: FieldRef<"Order", 'Float'>
+    readonly fixedFeeSnapshot: FieldRef<"Order", 'Json'>
     readonly subtotal: FieldRef<"Order", 'Float'>
     readonly tax: FieldRef<"Order", 'Float'>
     readonly discount: FieldRef<"Order", 'Float'>
@@ -12964,6 +12973,7 @@ export namespace Prisma {
     quantity: number | null
     unitPrice: number | null
     totalPrice: number | null
+    fixedFeeItemId: string | null
     affiliateProductLinkId: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -12976,6 +12986,7 @@ export namespace Prisma {
     quantity: number | null
     unitPrice: number | null
     totalPrice: number | null
+    fixedFeeItemId: string | null
     affiliateProductLinkId: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -12988,6 +12999,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId: number
     affiliateProductLinkId: number
     createdAt: number
     updatedAt: number
@@ -13022,6 +13034,7 @@ export namespace Prisma {
     quantity?: true
     unitPrice?: true
     totalPrice?: true
+    fixedFeeItemId?: true
     affiliateProductLinkId?: true
     createdAt?: true
     updatedAt?: true
@@ -13034,6 +13047,7 @@ export namespace Prisma {
     quantity?: true
     unitPrice?: true
     totalPrice?: true
+    fixedFeeItemId?: true
     affiliateProductLinkId?: true
     createdAt?: true
     updatedAt?: true
@@ -13046,6 +13060,7 @@ export namespace Prisma {
     quantity?: true
     unitPrice?: true
     totalPrice?: true
+    fixedFeeItemId?: true
     affiliateProductLinkId?: true
     createdAt?: true
     updatedAt?: true
@@ -13145,6 +13160,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId: string | null
     affiliateProductLinkId: number | null
     createdAt: Date
     updatedAt: Date
@@ -13176,6 +13192,7 @@ export namespace Prisma {
     quantity?: boolean
     unitPrice?: boolean
     totalPrice?: boolean
+    fixedFeeItemId?: boolean
     affiliateProductLinkId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -13191,6 +13208,7 @@ export namespace Prisma {
     quantity?: boolean
     unitPrice?: boolean
     totalPrice?: boolean
+    fixedFeeItemId?: boolean
     affiliateProductLinkId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -13206,6 +13224,7 @@ export namespace Prisma {
     quantity?: boolean
     unitPrice?: boolean
     totalPrice?: boolean
+    fixedFeeItemId?: boolean
     affiliateProductLinkId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -13221,12 +13240,13 @@ export namespace Prisma {
     quantity?: boolean
     unitPrice?: boolean
     totalPrice?: boolean
+    fixedFeeItemId?: boolean
     affiliateProductLinkId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OrderItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "bookId" | "quantity" | "unitPrice" | "totalPrice" | "affiliateProductLinkId" | "createdAt" | "updatedAt", ExtArgs["result"]["orderItem"]>
+  export type OrderItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "bookId" | "quantity" | "unitPrice" | "totalPrice" | "fixedFeeItemId" | "affiliateProductLinkId" | "createdAt" | "updatedAt", ExtArgs["result"]["orderItem"]>
   export type OrderItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     order?: boolean | OrderDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
@@ -13257,6 +13277,7 @@ export namespace Prisma {
       quantity: number
       unitPrice: number
       totalPrice: number
+      fixedFeeItemId: string | null
       affiliateProductLinkId: number | null
       createdAt: Date
       updatedAt: Date
@@ -13692,6 +13713,7 @@ export namespace Prisma {
     readonly quantity: FieldRef<"OrderItem", 'Int'>
     readonly unitPrice: FieldRef<"OrderItem", 'Float'>
     readonly totalPrice: FieldRef<"OrderItem", 'Float'>
+    readonly fixedFeeItemId: FieldRef<"OrderItem", 'String'>
     readonly affiliateProductLinkId: FieldRef<"OrderItem", 'Int'>
     readonly createdAt: FieldRef<"OrderItem", 'DateTime'>
     readonly updatedAt: FieldRef<"OrderItem", 'DateTime'>
@@ -23315,6 +23337,7 @@ export namespace Prisma {
     status: 'status',
     totalAmount: 'totalAmount',
     netAmount: 'netAmount',
+    fixedFeeSnapshot: 'fixedFeeSnapshot',
     subtotal: 'subtotal',
     tax: 'tax',
     discount: 'discount',
@@ -23339,6 +23362,7 @@ export namespace Prisma {
     quantity: 'quantity',
     unitPrice: 'unitPrice',
     totalPrice: 'totalPrice',
+    fixedFeeItemId: 'fixedFeeItemId',
     affiliateProductLinkId: 'affiliateProductLinkId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -24301,6 +24325,7 @@ export namespace Prisma {
     status?: StringFilter<"Order"> | string
     totalAmount?: FloatFilter<"Order"> | number
     netAmount?: FloatNullableFilter<"Order"> | number | null
+    fixedFeeSnapshot?: JsonNullableFilter<"Order">
     subtotal?: FloatFilter<"Order"> | number
     tax?: FloatFilter<"Order"> | number
     discount?: FloatFilter<"Order"> | number
@@ -24325,6 +24350,7 @@ export namespace Prisma {
     status?: SortOrder
     totalAmount?: SortOrder
     netAmount?: SortOrderInput | SortOrder
+    fixedFeeSnapshot?: SortOrderInput | SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -24352,6 +24378,7 @@ export namespace Prisma {
     status?: StringFilter<"Order"> | string
     totalAmount?: FloatFilter<"Order"> | number
     netAmount?: FloatNullableFilter<"Order"> | number | null
+    fixedFeeSnapshot?: JsonNullableFilter<"Order">
     subtotal?: FloatFilter<"Order"> | number
     tax?: FloatFilter<"Order"> | number
     discount?: FloatFilter<"Order"> | number
@@ -24376,6 +24403,7 @@ export namespace Prisma {
     status?: SortOrder
     totalAmount?: SortOrder
     netAmount?: SortOrderInput | SortOrder
+    fixedFeeSnapshot?: SortOrderInput | SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -24405,6 +24433,7 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"Order"> | string
     totalAmount?: FloatWithAggregatesFilter<"Order"> | number
     netAmount?: FloatNullableWithAggregatesFilter<"Order"> | number | null
+    fixedFeeSnapshot?: JsonNullableWithAggregatesFilter<"Order">
     subtotal?: FloatWithAggregatesFilter<"Order"> | number
     tax?: FloatWithAggregatesFilter<"Order"> | number
     discount?: FloatWithAggregatesFilter<"Order"> | number
@@ -24429,6 +24458,7 @@ export namespace Prisma {
     quantity?: IntFilter<"OrderItem"> | number
     unitPrice?: FloatFilter<"OrderItem"> | number
     totalPrice?: FloatFilter<"OrderItem"> | number
+    fixedFeeItemId?: StringNullableFilter<"OrderItem"> | string | null
     affiliateProductLinkId?: IntNullableFilter<"OrderItem"> | number | null
     createdAt?: DateTimeFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeFilter<"OrderItem"> | Date | string
@@ -24444,6 +24474,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    fixedFeeItemId?: SortOrderInput | SortOrder
     affiliateProductLinkId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24454,6 +24485,7 @@ export namespace Prisma {
 
   export type OrderItemWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    fixedFeeItemId?: string
     AND?: OrderItemWhereInput | OrderItemWhereInput[]
     OR?: OrderItemWhereInput[]
     NOT?: OrderItemWhereInput | OrderItemWhereInput[]
@@ -24468,7 +24500,7 @@ export namespace Prisma {
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
     affiliateProductLink?: XOR<AffiliateProductLinkNullableScalarRelationFilter, AffiliateProductLinkWhereInput> | null
-  }, "id">
+  }, "id" | "fixedFeeItemId">
 
   export type OrderItemOrderByWithAggregationInput = {
     id?: SortOrder
@@ -24477,6 +24509,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    fixedFeeItemId?: SortOrderInput | SortOrder
     affiliateProductLinkId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24497,6 +24530,7 @@ export namespace Prisma {
     quantity?: IntWithAggregatesFilter<"OrderItem"> | number
     unitPrice?: FloatWithAggregatesFilter<"OrderItem"> | number
     totalPrice?: FloatWithAggregatesFilter<"OrderItem"> | number
+    fixedFeeItemId?: StringNullableWithAggregatesFilter<"OrderItem"> | string | null
     affiliateProductLinkId?: IntNullableWithAggregatesFilter<"OrderItem"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OrderItem"> | Date | string
@@ -25840,6 +25874,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -25864,6 +25899,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -25885,6 +25921,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -25909,6 +25946,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -25932,6 +25970,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -25951,6 +25990,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -25972,6 +26012,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -25990,6 +26031,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     order: OrderCreateNestedOneWithoutOrderItemsInput
@@ -26004,6 +26046,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26013,6 +26056,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -26027,6 +26071,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26039,6 +26084,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26048,6 +26094,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26059,6 +26106,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27455,6 +27503,7 @@ export namespace Prisma {
     status?: SortOrder
     totalAmount?: SortOrder
     netAmount?: SortOrder
+    fixedFeeSnapshot?: SortOrder
     subtotal?: SortOrder
     tax?: SortOrder
     discount?: SortOrder
@@ -27568,6 +27617,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    fixedFeeItemId?: SortOrder
     affiliateProductLinkId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -27590,6 +27640,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    fixedFeeItemId?: SortOrder
     affiliateProductLinkId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -27602,6 +27653,7 @@ export namespace Prisma {
     quantity?: SortOrder
     unitPrice?: SortOrder
     totalPrice?: SortOrder
+    fixedFeeItemId?: SortOrder
     affiliateProductLinkId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -30188,6 +30240,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -30210,6 +30263,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -30783,6 +30837,7 @@ export namespace Prisma {
     status?: StringFilter<"Order"> | string
     totalAmount?: FloatFilter<"Order"> | number
     netAmount?: FloatNullableFilter<"Order"> | number | null
+    fixedFeeSnapshot?: JsonNullableFilter<"Order">
     subtotal?: FloatFilter<"Order"> | number
     tax?: FloatFilter<"Order"> | number
     discount?: FloatFilter<"Order"> | number
@@ -31670,6 +31725,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     order: OrderCreateNestedOneWithoutOrderItemsInput
@@ -31682,6 +31738,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -31997,6 +32054,7 @@ export namespace Prisma {
     quantity?: IntFilter<"OrderItem"> | number
     unitPrice?: FloatFilter<"OrderItem"> | number
     totalPrice?: FloatFilter<"OrderItem"> | number
+    fixedFeeItemId?: StringNullableFilter<"OrderItem"> | string | null
     affiliateProductLinkId?: IntNullableFilter<"OrderItem"> | number | null
     createdAt?: DateTimeFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeFilter<"OrderItem"> | Date | string
@@ -32737,6 +32795,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     book: BookCreateNestedOneWithoutOrderItemsInput
@@ -32749,6 +32808,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -32907,6 +32967,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -32930,6 +32991,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -33068,6 +33130,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -33091,6 +33154,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -33804,6 +33868,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -33827,6 +33892,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -34056,6 +34122,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -34079,6 +34146,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -34355,6 +34423,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     order: OrderCreateNestedOneWithoutOrderItemsInput
@@ -34368,6 +34437,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -35012,6 +35082,7 @@ export namespace Prisma {
     status?: string
     totalAmount: number
     netAmount?: number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal: number
     tax?: number
     discount?: number
@@ -35202,6 +35273,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -35224,6 +35296,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -35246,6 +35319,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     totalAmount?: FloatFieldUpdateOperationsInput | number
     netAmount?: NullableFloatFieldUpdateOperationsInput | number | null
+    fixedFeeSnapshot?: NullableJsonNullValueInput | InputJsonValue
     subtotal?: FloatFieldUpdateOperationsInput | number
     tax?: FloatFieldUpdateOperationsInput | number
     discount?: FloatFieldUpdateOperationsInput | number
@@ -36051,6 +36125,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36144,6 +36219,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -36156,6 +36232,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36167,6 +36244,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36283,6 +36361,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36305,6 +36384,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     book?: BookUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -36317,6 +36397,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36328,6 +36409,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36380,6 +36462,7 @@ export namespace Prisma {
     quantity: number
     unitPrice: number
     totalPrice: number
+    fixedFeeItemId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36388,6 +36471,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -36401,6 +36485,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36412,6 +36497,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
+    fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

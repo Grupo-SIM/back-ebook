@@ -166,24 +166,25 @@ model Cart {
 }
 
 model Order {
-  id              Int      @id @default(autoincrement())
-  userId          String
-  orderNumber     String   @unique
-  status          String   @default("pending") // pending, paid, cancelled, delivered
-  totalAmount     Float
-  netAmount       Float? // Valor líquido após taxa da plataforma (gravado na criação, imutável)
-  subtotal        Float
-  tax             Float    @default(0)
-  discount        Float    @default(0)
-  paymentMethod   String?
-  paymentStatus   String   @default("pending") // pending, paid, failed
-  store           String? // Identifica a plataforma de origem (ebook, pagatg, etc.)
-  shippingAddress Json?
-  billingAddress  Json?
-  notes           String?
-  affiliateCode   String? // Código de afiliado capturado no checkout (?ref=CODE)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  userId           String
+  orderNumber      String   @unique
+  status           String   @default("pending") // pending, paid, cancelled, delivered
+  totalAmount      Float
+  netAmount        Float? // Valor líquido após taxa da plataforma (gravado na criação, imutável)
+  fixedFeeSnapshot Json? // Null for historical orders; immutable v1 integer-cent allocation
+  subtotal         Float
+  tax              Float    @default(0)
+  discount         Float    @default(0)
+  paymentMethod    String?
+  paymentStatus    String   @default("pending") // pending, paid, failed
+  store            String? // Identifica a plataforma de origem (ebook, pagatg, etc.)
+  shippingAddress  Json?
+  billingAddress   Json?
+  notes            String?
+  affiliateCode    String? // Código de afiliado capturado no checkout (?ref=CODE)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   orderItems           OrderItem[]
@@ -199,6 +200,7 @@ model OrderItem {
   quantity               Int
   unitPrice              Float
   totalPrice             Float
+  fixedFeeItemId         String?  @unique // Immutable identity inside the order snapshot
   affiliateProductLinkId Int?
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
