@@ -113,6 +113,7 @@ export class AdminBookController {
                 publishedDate: { type: 'string' },
                 printLength: { type: 'number' },
                 readingAge: { type: 'string' },
+                videoUrl: { type: 'string', description: 'Vídeo de vendas (YouTube ou Vimeo)' },
                 isActive: { type: 'boolean' },
                 isFree: { type: 'boolean', description: 'Calculado automaticamente a partir do preço' },
                 isAffiliate: { type: 'boolean', description: 'Participa do programa de afiliados' },
@@ -206,6 +207,7 @@ export class AdminBookController {
                 isActive: { type: 'boolean' },
                 isAffiliate: { type: 'boolean', description: 'Participa do programa de afiliados' },
                 readingAge: { type: 'string' },
+                videoUrl: { type: 'string', description: 'Vídeo de vendas (YouTube ou Vimeo)' },
                 file: { type: 'string', format: 'binary', description: 'Arquivo do ebook (PDF, EPUB, MOBI)' },
                 coverFile: { type: 'string', format: 'binary', description: 'Imagem da capa (JPG, PNG, GIF)' }
             }
@@ -338,6 +340,8 @@ export class AdminBookController {
             isAffiliate: filteredDto.isAffiliate ?? currentBook.isAffiliate,
             commissionRate: filteredDto.commissionRate ?? currentBook.commissionRate,
             readingAge: filteredDto.readingAge ?? currentBook.readingAge,
+            // '' (campo limpo no admin) remove o vídeo; undefined mantém o atual
+            videoUrl: updateBookDto.videoUrl ?? currentBook.videoUrl,
             ...(downloadUrl ? { downloadUrl } : { downloadUrl: currentBook.downloadUrl })
         };
 

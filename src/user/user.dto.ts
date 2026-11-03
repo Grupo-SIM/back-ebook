@@ -68,6 +68,9 @@ export class UserResponseDto {
   @ApiProperty({ example: '12345678909', required: false, nullable: true })
   cpf?: string | null;
 
+  @ApiProperty({ example: '12345678000199', required: false, nullable: true })
+  cnpj?: string | null;
+
   @ApiProperty({ enum: Role, example: Role.USER })
   role: Role;
 

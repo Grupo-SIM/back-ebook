@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AffiliateService } from './affiliate.service';
 import {
     AffiliateMeResponseDto,
+    AffiliateSellerResponseDto,
     PaginatedAffiliateCommissionResponseDto,
     AffiliateQueryDto,
     AffiliateMarketplaceQueryDto,
@@ -37,6 +38,13 @@ export class AffiliateController {
         @GetUser() admin: RequestWithUser['user'],
     ): Promise<PaginatedAffiliateCommissionResponseDto> {
         return this.affiliateService.getMyCommissions(admin.id, query);
+    }
+
+    @Get('sellers')
+    @ApiOperation({ summary: 'Listar afiliados que venderam os livros do admin autenticado' })
+    @ApiResponse({ status: 200, type: [AffiliateSellerResponseDto] })
+    async getSellers(@GetUser() admin: RequestWithUser['user']): Promise<AffiliateSellerResponseDto[]> {
+        return this.affiliateService.getAffiliatesOfMyBooks(admin.id);
     }
 
     @Get('marketplace/categories')

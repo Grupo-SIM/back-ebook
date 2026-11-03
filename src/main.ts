@@ -9,6 +9,7 @@ import {
 } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { StripDownloadUrlInterceptor } from './common/interceptors/strip-download-url.interceptor';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -37,6 +38,8 @@ async function bootstrap() {
       enableImplicitConversion: true,
     },
   }));
+
+  app.useGlobalInterceptors(new StripDownloadUrlInterceptor());
 
   console.log('✅ ValidationPipe configurado');
 

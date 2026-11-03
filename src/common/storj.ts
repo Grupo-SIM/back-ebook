@@ -1,5 +1,6 @@
 import { Upload } from "@aws-sdk/lib-storage";
-import { DeleteObjectCommand, ObjectCannedACL } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, ObjectCannedACL } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client } from "@aws-sdk/client-s3";
 import sharp from "sharp";
 import { HttpException } from "@nestjs/common";
@@ -63,7 +64,16 @@ const uploadFileS3 = async (file: Express.Multer.File) => {
     const timestamp = Date.now();
     const randomString = uuidv4().substring(0, 8);
     const fileExtension = file.mimetype.includes('pdf') ? 'pdf' : 'png';
-    key = `uploads/${timestamp}-${randomString}.${fileExtension}`;
+    // Para PDFs, embute o nome original (slug) na key para o download sair com o nome enviado
+    const originalBase = (file.originalname || '').replace(/\.[^.]*$/, '');
+    const slug = originalBase
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-zA-Z0-9_-]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
+    const nameSuffix = fileExtension === 'pdf' && slug ? `-${slug}` : '';
+    key = `uploads/${timestamp}-${randomString}${nameSuffix}.${fileExtension}`;
 
     try {
       if (file.mimetype.includes('pdf')) {
@@ -404,6 +414,46 @@ const getUrlImageByKey = (key: string): string => {
   return url;
 };
 
+/**
+ * Extrai a key do objeto a partir da URL salva no banco
+ * (https://link.storjshare.io/s/{grant}/{bucket}/{key}?wrap=0) ou aceita a key direto.
+ */
+const getKeyFromStoredUrl = (stored: string): string | null => {
+  if (!stored) return null;
+  if (!/^https?:\/\//i.test(stored)) return stored.replace(/^\/+/, '');
+  try {
+    const segments = new URL(stored).pathname.split('/').filter(Boolean).map(decodeURIComponent);
+    const bucketIndex = segments.indexOf(BUCKET as string);
+    if (bucketIndex === -1 || bucketIndex === segments.length - 1) return null;
+    return segments.slice(bucketIndex + 1).join('/');
+  } catch {
+    return null;
+  }
+};
+
+/** Gera URL assinada (S3 gateway) com validade curta para baixar o arquivo. */
+const getSignedDownloadUrl = async (stored: string, expiresInSeconds = 600): Promise<string> => {
+  const key = getKeyFromStoredUrl(stored);
+  if (!key) {
+    throw new HttpException('Não foi possível identificar o arquivo no storage', 500);
+  }
+  if (!ACCESS_KEY_ID || !SECRET_ACCESS_KEY || !BUCKET || !ENDPOINT) {
+    throw new HttpException('Configurações do Storj incompletas', 500);
+  }
+
+  const s3 = new S3Client({
+    credentials: {
+      accessKeyId: ACCESS_KEY_ID,
+      secretAccessKey: SECRET_ACCESS_KEY,
+    },
+    endpoint: ENDPOINT,
+    region: REGION || 'us-east-1',
+    forcePathStyle: true,
+  });
+
+  return getSignedUrl(s3, new GetObjectCommand({ Bucket: BUCKET, Key: key }), { expiresIn: expiresInSeconds });
+};
+
 const deleteByKey = async (key: string): Promise<string> => {
   if (!key) {
     throw new HttpException('Key não fornecida para exclusão', 400);
@@ -464,6 +514,7 @@ export {
   uploadFileS3, 
   uploadFileFromPath,
   getUrlImageByKey, 
+  getSignedDownloadUrl,
   deleteByKey, 
   validateStorjConfig, 
   testStorjCredentials,

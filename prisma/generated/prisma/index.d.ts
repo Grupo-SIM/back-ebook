@@ -7847,6 +7847,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     readingAge: string | null
+    videoUrl: string | null
     createdById: string | null
     categoryId: number | null
   }
@@ -7880,6 +7881,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     readingAge: string | null
+    videoUrl: string | null
     createdById: string | null
     categoryId: number | null
   }
@@ -7913,6 +7915,7 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     readingAge: number
+    videoUrl: number
     createdById: number
     categoryId: number
     _all: number
@@ -7976,6 +7979,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     readingAge?: true
+    videoUrl?: true
     createdById?: true
     categoryId?: true
   }
@@ -8009,6 +8013,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     readingAge?: true
+    videoUrl?: true
     createdById?: true
     categoryId?: true
   }
@@ -8042,6 +8047,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     readingAge?: true
+    videoUrl?: true
     createdById?: true
     categoryId?: true
     _all?: true
@@ -8162,6 +8168,7 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     readingAge: string | null
+    videoUrl: string | null
     createdById: string | null
     categoryId: number | null
     _count: BookCountAggregateOutputType | null
@@ -8214,6 +8221,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     readingAge?: boolean
+    videoUrl?: boolean
     createdById?: boolean
     categoryId?: boolean
     coverImage?: boolean | Book$coverImageArgs<ExtArgs>
@@ -8258,6 +8266,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     readingAge?: boolean
+    videoUrl?: boolean
     createdById?: boolean
     categoryId?: boolean
     coverImage?: boolean | Book$coverImageArgs<ExtArgs>
@@ -8294,6 +8303,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     readingAge?: boolean
+    videoUrl?: boolean
     createdById?: boolean
     categoryId?: boolean
     coverImage?: boolean | Book$coverImageArgs<ExtArgs>
@@ -8330,11 +8340,12 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     readingAge?: boolean
+    videoUrl?: boolean
     createdById?: boolean
     categoryId?: boolean
   }
 
-  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "author" | "description" | "price" | "originalPrice" | "category" | "cover" | "coverImageId" | "language" | "printLength" | "publisher" | "publishedDate" | "rating" | "reviewCount" | "sales" | "isActive" | "isFeatured" | "isFree" | "isAffiliate" | "commissionRate" | "maxInstallments" | "fileSize" | "downloadUrl" | "downloadCount" | "createdAt" | "updatedAt" | "readingAge" | "createdById" | "categoryId", ExtArgs["result"]["book"]>
+  export type BookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "author" | "description" | "price" | "originalPrice" | "category" | "cover" | "coverImageId" | "language" | "printLength" | "publisher" | "publishedDate" | "rating" | "reviewCount" | "sales" | "isActive" | "isFeatured" | "isFree" | "isAffiliate" | "commissionRate" | "maxInstallments" | "fileSize" | "downloadUrl" | "downloadCount" | "createdAt" | "updatedAt" | "readingAge" | "videoUrl" | "createdById" | "categoryId", ExtArgs["result"]["book"]>
   export type BookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     coverImage?: boolean | Book$coverImageArgs<ExtArgs>
     createdBy?: boolean | Book$createdByArgs<ExtArgs>
@@ -8402,6 +8413,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       readingAge: string | null
+      videoUrl: string | null
       createdById: string | null
       categoryId: number | null
     }, ExtArgs["result"]["book"]>
@@ -8865,6 +8877,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Book", 'DateTime'>
     readonly updatedAt: FieldRef<"Book", 'DateTime'>
     readonly readingAge: FieldRef<"Book", 'String'>
+    readonly videoUrl: FieldRef<"Book", 'String'>
     readonly createdById: FieldRef<"Book", 'String'>
     readonly categoryId: FieldRef<"Book", 'Int'>
   }
@@ -25591,6 +25604,7 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     readingAge: 'readingAge',
+    videoUrl: 'videoUrl',
     createdById: 'createdById',
     categoryId: 'categoryId'
   };
@@ -26321,6 +26335,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Book"> | Date | string
     updatedAt?: DateTimeFilter<"Book"> | Date | string
     readingAge?: StringNullableFilter<"Book"> | string | null
+    videoUrl?: StringNullableFilter<"Book"> | string | null
     createdById?: StringNullableFilter<"Book"> | string | null
     categoryId?: IntNullableFilter<"Book"> | number | null
     coverImage?: XOR<ImageNullableScalarRelationFilter, ImageWhereInput> | null
@@ -26364,6 +26379,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     readingAge?: SortOrderInput | SortOrder
+    videoUrl?: SortOrderInput | SortOrder
     createdById?: SortOrderInput | SortOrder
     categoryId?: SortOrderInput | SortOrder
     coverImage?: ImageOrderByWithRelationInput
@@ -26410,6 +26426,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Book"> | Date | string
     updatedAt?: DateTimeFilter<"Book"> | Date | string
     readingAge?: StringNullableFilter<"Book"> | string | null
+    videoUrl?: StringNullableFilter<"Book"> | string | null
     createdById?: StringNullableFilter<"Book"> | string | null
     categoryId?: IntNullableFilter<"Book"> | number | null
     coverImage?: XOR<ImageNullableScalarRelationFilter, ImageWhereInput> | null
@@ -26453,6 +26470,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     readingAge?: SortOrderInput | SortOrder
+    videoUrl?: SortOrderInput | SortOrder
     createdById?: SortOrderInput | SortOrder
     categoryId?: SortOrderInput | SortOrder
     _count?: BookCountOrderByAggregateInput
@@ -26494,6 +26512,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Book"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Book"> | Date | string
     readingAge?: StringNullableWithAggregatesFilter<"Book"> | string | null
+    videoUrl?: StringNullableWithAggregatesFilter<"Book"> | string | null
     createdById?: StringNullableWithAggregatesFilter<"Book"> | string | null
     categoryId?: IntNullableWithAggregatesFilter<"Book"> | number | null
   }
@@ -27974,6 +27993,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
@@ -28015,6 +28035,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
@@ -28053,6 +28074,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
@@ -28094,6 +28116,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
@@ -28134,6 +28157,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
   }
@@ -28165,6 +28189,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BookUncheckedUpdateManyInput = {
@@ -28196,6 +28221,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
   }
@@ -29834,6 +29860,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     readingAge?: SortOrder
+    videoUrl?: SortOrder
     createdById?: SortOrder
     categoryId?: SortOrder
   }
@@ -29881,6 +29908,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     readingAge?: SortOrder
+    videoUrl?: SortOrder
     createdById?: SortOrder
     categoryId?: SortOrder
   }
@@ -29914,6 +29942,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     readingAge?: SortOrder
+    videoUrl?: SortOrder
     createdById?: SortOrder
     categoryId?: SortOrder
   }
@@ -33290,6 +33319,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
     favorites?: FavoriteCreateNestedManyWithoutBookInput
@@ -33330,6 +33360,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
     cart?: CartUncheckedCreateNestedManyWithoutBookInput
@@ -33850,6 +33881,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Book"> | Date | string
     updatedAt?: DateTimeFilter<"Book"> | Date | string
     readingAge?: StringNullableFilter<"Book"> | string | null
+    videoUrl?: StringNullableFilter<"Book"> | string | null
     createdById?: StringNullableFilter<"Book"> | string | null
     categoryId?: IntNullableFilter<"Book"> | number | null
   }
@@ -34130,6 +34162,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
     favorites?: FavoriteCreateNestedManyWithoutBookInput
@@ -34169,6 +34202,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
@@ -34265,6 +34299,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     favorites?: FavoriteCreateNestedManyWithoutBookInput
@@ -34305,6 +34340,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
     cart?: CartUncheckedCreateNestedManyWithoutBookInput
@@ -35005,6 +35041,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
@@ -35045,6 +35082,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     cart?: CartUncheckedCreateNestedManyWithoutBookInput
@@ -35167,6 +35205,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
@@ -35207,6 +35246,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     cart?: CartUncheckedUpdateManyWithoutBookNestedInput
@@ -35307,6 +35347,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
@@ -35347,6 +35388,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
@@ -35469,6 +35511,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
@@ -35509,6 +35552,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
@@ -35834,6 +35878,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
@@ -35874,6 +35919,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
@@ -36003,6 +36049,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
@@ -36043,6 +36090,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
@@ -36301,6 +36349,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
@@ -36341,6 +36390,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
@@ -36463,6 +36513,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
@@ -36503,6 +36554,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
@@ -36603,6 +36655,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
@@ -36643,6 +36696,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
@@ -36851,6 +36905,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
@@ -36891,6 +36946,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
@@ -37100,6 +37156,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
@@ -37140,6 +37197,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
@@ -37291,6 +37349,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
@@ -37331,6 +37390,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
@@ -37453,6 +37513,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     coverImage?: ImageCreateNestedOneWithoutCoverOfBooksInput
     createdBy?: UserCreateNestedOneWithoutBooksCreatedInput
     categoryRef?: CategoryCreateNestedOneWithoutBooksInput
@@ -37493,6 +37554,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
     favorites?: FavoriteUncheckedCreateNestedManyWithoutBookInput
@@ -37609,6 +37671,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
@@ -37649,6 +37712,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
@@ -37963,6 +38027,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     categoryId?: number | null
   }
 
@@ -38296,6 +38361,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
     favorites?: FavoriteUpdateManyWithoutBookNestedInput
@@ -38336,6 +38402,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
     cart?: CartUncheckedUpdateManyWithoutBookNestedInput
@@ -38375,6 +38442,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
@@ -38504,6 +38572,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
     categoryId?: number | null
   }
@@ -38684,6 +38753,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     categoryRef?: CategoryUpdateOneWithoutBooksNestedInput
     favorites?: FavoriteUpdateManyWithoutBookNestedInput
@@ -38723,6 +38793,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
@@ -38762,6 +38833,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: NullableIntFieldUpdateOperationsInput | number | null
   }
@@ -38795,6 +38867,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     readingAge?: string | null
+    videoUrl?: string | null
     createdById?: string | null
   }
 
@@ -38825,6 +38898,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     coverImage?: ImageUpdateOneWithoutCoverOfBooksNestedInput
     createdBy?: UserUpdateOneWithoutBooksCreatedNestedInput
     favorites?: FavoriteUpdateManyWithoutBookNestedInput
@@ -38865,6 +38939,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     favorites?: FavoriteUncheckedUpdateManyWithoutBookNestedInput
     cart?: CartUncheckedUpdateManyWithoutBookNestedInput
@@ -38904,6 +38979,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     readingAge?: NullableStringFieldUpdateOperationsInput | string | null
+    videoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
