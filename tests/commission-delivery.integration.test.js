@@ -6,7 +6,7 @@ import { retryCommissionDeliveries } from '../src/affiliate/commission-delivery'
 
 test('disposable PostgreSQL: quarantine, immutable snapshots, retry leases and legacy-only acknowledgement', async () => {
     const container = `ebook-commission-${randomUUID()}`;
-    const sql = (query) => execFileSync('docker', ['exec', '-i', container, 'psql', '-U', 'postgres', '-v', 'ON_ERROR_STOP=1', '-At', '-c', query], { encoding: 'utf8' }).trim();
+    const sql = (query) => execFileSync('docker', ['exec', '-i', container, 'psql', '-h', '127.0.0.1', '-U', 'postgres', '-v', 'ON_ERROR_STOP=1', '-At', '-c', query], { encoding: 'utf8' }).trim();
     const previousBase = process.env.API_MACHINE_URL;
     const previousToken = process.env.API_MACHINE_INTERNAL_TOKEN;
     let status = 503;
@@ -23,6 +23,8 @@ test('disposable PostgreSQL: quarantine, immutable snapshots, retry leases and l
         sql(`CREATE TABLE affiliate_commissions (id integer PRIMARY KEY, "orderId" integer, "bookId" integer, "affiliateId" text, "commissionAmount" float, status text);
             INSERT INTO affiliate_commissions VALUES (1,1,1,'affiliate',10,'CREDITED');`);
         sql(readFileSync(new URL('../prisma/migrations/20261101120000_commission_delivery_outbox/migration.sql', import.meta.url), 'utf8'));
+        sql('CREATE TABLE orders (id integer PRIMARY KEY); INSERT INTO orders VALUES (1),(2),(3)');
+        sql(readFileSync(new URL('../prisma/migrations/20261102120000_ebook_settlement/migration.sql', import.meta.url), 'utf8'));
         expect(sql('SELECT state || funding_state FROM affiliate_commission_deliveries')).toBe('QUARANTINEDUNCONFIRMED');
         sql(`INSERT INTO affiliate_commissions VALUES (2,2,2,'affiliate',10,'CREDITED');
             INSERT INTO affiliate_commission_deliveries (commission_id,state,snapshot) VALUES (2,'PENDING','{"referenceId":"2-2","cpf":"123","cnpj":null,"amount":10,"description":"commission"}');`);

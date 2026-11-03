@@ -1,13 +1,14 @@
 import { test, expect } from 'bun:test';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { createAffiliateAttribution } from '../src/affiliate/affiliate-attribution';
 import { AffiliateService } from '../src/affiliate/affiliate.service';
 
 // Exercise the actual service transaction against disposable persisted associations.
 test('commission evidence: persisted cents, rejection, replay and delivery rollback', async () => {
     const container = `ebook-evidence-${randomUUID()}`;
-    const sql = query => execFileSync('docker', ['exec', '-i', container, 'psql', '-U', 'postgres', '-v', 'ON_ERROR_STOP=1', '-At', '-c', query], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    const sql = query => execFileSync('docker', ['exec', '-i', container, 'psql', '-h', '127.0.0.1', '-U', 'postgres', '-v', 'ON_ERROR_STOP=1', '-At', '-c', query], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     const item = { bookId: 2, totalPrice: 0.3, affiliateProductLink: { affiliateId: 'affiliate', code: 'link' },
         book: { isAffiliate: true, createdById: 'seller', commissionRate: 10 } };
     item.affiliateAttribution = createAffiliateAttribution({ id: 2, createdById: 'seller', isAffiliate: true, commissionRate: 10 }, { id: 4, bookId: 2, affiliateId: 'affiliate', code: 'link' }, 'buyer');
@@ -17,11 +18,17 @@ test('commission evidence: persisted cents, rejection, replay and delivery rollb
     let failDelivery = false;
     let snapshot;
     const literal = value => `'${JSON.stringify(value).replaceAll("'", "''")}'`;
+    const queryRaw = async (parts, ...values) => {
+        const query = parts.reduce((text, part, index) => text + part + (index < values.length ? literal(values[index]) : ''), '');
+        return JSON.parse(sql(`SELECT coalesce(json_agg(result),'[]') FROM (${query}) result`));
+    };
     const prisma = {
+        $queryRaw: queryRaw,
         user: { findUnique: async () => ({ id: 'affiliate', cpf: '123' }) },
         $transaction: async callback => {
             const statements = [];
             const tx = {
+                $queryRaw: queryRaw,
                 orderItem: { findMany: async () => JSON.parse(sql('SELECT coalesce(json_agg(evidence),\'[]\') FROM items')) },
                 affiliateCommission: { create: async ({ data }) => {
                     statements.push(`INSERT INTO commissions VALUES (1,${data.orderId},${data.bookId})`);
@@ -49,6 +56,8 @@ test('commission evidence: persisted cents, rejection, replay and delivery rollb
             try { sql('SELECT 1'); break; } catch (error) { if (n > 60) throw error; await Bun.sleep(250); }
         }
         sql('CREATE TABLE items (evidence jsonb); CREATE TABLE commissions (id int PRIMARY KEY, order_id int, book_id int, UNIQUE(order_id,book_id)); CREATE TABLE deliveries (commission_id int REFERENCES commissions(id), snapshot jsonb)');
+        sql('CREATE TABLE orders (id integer PRIMARY KEY); INSERT INTO orders VALUES (1); CREATE TABLE affiliate_commissions (id integer PRIMARY KEY)');
+        sql(readFileSync(new URL('../prisma/migrations/20261102120000_ebook_settlement/migration.sql', import.meta.url), 'utf8'));
         for (const rows of [[], [row, row], [{ ...row, orderId: 9 }], [{ ...row, bookId: 9 }],
             [{ ...row, order: { orderNumber: 'wrong' } }],
             [{ ...row, affiliateAttribution: null }],
