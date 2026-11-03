@@ -237,6 +237,25 @@ exports.Prisma.OrderScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.EbookSettlementManifestScalarFieldEnum = {
+  manifestId: 'manifestId',
+  orderId: 'orderId',
+  manifest: 'manifest',
+  settlementId: 'settlementId',
+  manifestHash: 'manifestHash',
+  revision: 'revision',
+  projection: 'projection',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EbookSettlementReceiptScalarFieldEnum = {
+  receiptId: 'receiptId',
+  manifestId: 'manifestId',
+  revision: 'revision',
+  receipt: 'receipt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.OrderItemScalarFieldEnum = {
   id: 'id',
   orderId: 'orderId',
@@ -294,7 +313,8 @@ exports.Prisma.AffiliateCommissionScalarFieldEnum = {
   commissionAmount: 'commissionAmount',
   status: 'status',
   createdAt: 'createdAt',
-  reversedAt: 'reversedAt'
+  reversedAt: 'reversedAt',
+  settlementManifestId: 'settlementManifestId'
 };
 
 exports.Prisma.AffiliateCommissionDeliveryScalarFieldEnum = {
@@ -389,6 +409,8 @@ exports.Prisma.ModelName = {
   Favorite: 'Favorite',
   Cart: 'Cart',
   Order: 'Order',
+  EbookSettlementManifest: 'EbookSettlementManifest',
+  EbookSettlementReceipt: 'EbookSettlementReceipt',
   OrderItem: 'OrderItem',
   Notification: 'Notification',
   Review: 'Review',

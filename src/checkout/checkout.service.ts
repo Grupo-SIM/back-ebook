@@ -1,3 +1,4 @@
+import { prepareSettlement, bindSettlement } from './ebook-settlement';
 import { createFixedFeeSnapshot } from './fixed-fee-snapshot';
 import { createAffiliateAttribution } from '../affiliate/affiliate-attribution';
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
@@ -330,6 +331,7 @@ export class CheckoutService {
         orderId?: string | number | null;
         orderNumber?: string | null;
         maxInstallments?: number | null;
+        existingOnly?: boolean;
     }): Promise<string> {
         const normalizedValue = this.normalizeCheckoutValue(params.value);
         if (!normalizedValue) {
@@ -341,9 +343,14 @@ export class CheckoutService {
             value: normalizedValue,
         };
 
-        const fallback = this.buildLocalCheckoutUrl(normalizedParams);
+        if (params.existingOnly) {
+            const rows = await this.prisma.$queryRaw<any[]>`SELECT "manifestId" FROM ebook_settlement_manifests WHERE "orderId" = ${Number(params.orderId)}`;
+            if (!rows.length) return '';
+        }
         const baseUrl = this.getApiMachineBaseUrl();
-        if (!baseUrl) return fallback;
+        if (!baseUrl || !process.env.API_MACHINE_INTERNAL_TOKEN || !params.orderId) throw new BadRequestException('Settlement checkout unavailable');
+        const settlement = await prepareSettlement(this.prisma, Number(params.orderId));
+        if (normalizedValue !== settlement.grossCents) throw new BadRequestException('Checkout gross mismatch');
 
         try {
             const response = await fetch(`${baseUrl}/checkout/ebook-url`, {
@@ -354,18 +361,19 @@ export class CheckoutService {
                         ? { 'x-internal-token': process.env.API_MACHINE_INTERNAL_TOKEN }
                         : {}),
                 },
-                body: JSON.stringify(normalizedParams),
+                body: JSON.stringify({ ...normalizedParams, settlement }),
             });
 
-            if (!response.ok) return fallback;
+            if (!response.ok) throw new BadRequestException('Settlement enrollment rejected');
 
             const data = await response.json();
             if (typeof data?.checkoutUrl === 'string' && data.checkoutUrl.length > 0) {
+                await bindSettlement(this.prisma, settlement.manifestId, data.settlementId, data.manifestHash);
                 return data.checkoutUrl;
             }
-            return fallback;
+            throw new BadRequestException('Invalid enrollment response');
         } catch {
-            return fallback;
+            throw new BadRequestException('Settlement checkout pending; retry without changing customer price');
         }
     }
 
@@ -991,6 +999,7 @@ export class CheckoutService {
                         orderId: orderResponse.id,
                         orderNumber: orderResponse.orderNumber,
                         maxInstallments: maxInstallmentsOrder > 1 ? maxInstallmentsOrder : null,
+                        existingOnly: true,
                     });
 
                     return { ...orderResponse, checkoutUrl };
@@ -1090,6 +1099,7 @@ export class CheckoutService {
             store: 'ebook',
             adminToken,
             maxInstallments: maxInstallmentsSingle > 1 ? maxInstallmentsSingle : null,
+            existingOnly: true,
         });
 
         return { ...orderResponse, checkoutUrl };
@@ -1177,8 +1187,8 @@ export class CheckoutService {
             id: order.id,
             orderNumber: order.orderNumber,
             status: order.status as OrderStatus,
-            totalAmount,
-            subtotal,
+            totalAmount: order.totalAmount,
+            subtotal: order.subtotal,
             discount: order.discount,
             paymentMethod: order.paymentMethod,
             paymentStatus: order.paymentStatus as PaymentStatus,

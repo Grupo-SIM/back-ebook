@@ -16,7 +16,8 @@ export async function retryCommissionDeliveries(prisma: PrismaService, limit = 2
             WHERE id = (SELECT delivery.id FROM affiliate_commission_deliveries delivery
                 WHERE protocol = 'LEGACY_RECORD_ONLY' AND state IN ('PENDING', 'RETRY')
                 AND next_attempt_at <= NOW() AND (lease_until IS NULL OR lease_until < NOW())
-                AND EXISTS (SELECT 1 FROM affiliate_commissions c WHERE c.id = delivery.commission_id AND c.status = 'CREDITED')
+                AND EXISTS (SELECT 1 FROM affiliate_commissions c WHERE c.id = delivery.commission_id AND c.status = 'CREDITED'
+                    AND NOT EXISTS (SELECT 1 FROM ebook_settlement_manifests m WHERE m."orderId" = c."orderId"))
                 ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1)
             RETURNING id, snapshot`;
         const row = rows[0];

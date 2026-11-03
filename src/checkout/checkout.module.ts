@@ -1,3 +1,4 @@
+import { SettlementReceiptsController } from './settlement-receipts.controller';
 import { Module } from '@nestjs/common';
 import { CheckoutController } from './checkout.controller';
 import { CheckoutService } from './checkout.service';
@@ -8,7 +9,7 @@ import { AppService } from 'src/app.service';
 
 @Module({
     imports: [NotificationModule],
-    controllers: [CheckoutController],
+    controllers: [CheckoutController, SettlementReceiptsController],
     providers: [CheckoutService, PrismaService, RedisService, AppService],
     exports: [CheckoutService]
 })

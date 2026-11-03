@@ -193,6 +193,30 @@ model Order {
   @@map("orders")
 }
 
+model EbookSettlementManifest {
+  manifestId String @id @db.Uuid
+  orderId Int @unique
+  manifest Json
+  settlementId String? @unique
+  manifestHash String?
+  revision Int @default(-1)
+  projection Json?
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@map("ebook_settlement_manifests")
+}
+
+model EbookSettlementReceipt {
+  receiptId String @id
+  manifestId String @db.Uuid
+  revision Int
+  receipt Json
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  @@unique([manifestId, revision])
+  @@map("ebook_settlement_receipts")
+}
+
 model OrderItem {
   id                     Int      @id @default(autoincrement())
   orderId                Int
@@ -273,6 +297,7 @@ model AffiliateCommission {
   status           AffiliateCommissionStatus @default(CREDITED)
   createdAt        DateTime                  @default(now())
   reversedAt       DateTime?
+  settlementManifestId String? @db.Uuid
 
   affiliate User  @relation("AffiliateCommissionsEarned", fields: [affiliateId], references: [id], onDelete: Cascade)
   book      Book  @relation(fields: [bookId], references: [id], onDelete: Cascade)

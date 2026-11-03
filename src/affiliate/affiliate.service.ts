@@ -169,6 +169,8 @@ export class AffiliateService {
             book: { isAffiliate: boolean; createdById: string | null; title?: string; commissionRate?: number | null };
         }>;
     }): Promise<void> {
+        const enrolled = await this.prisma.$queryRaw<Array<{ orderId: number }>>`SELECT "orderId" FROM ebook_settlement_manifests WHERE "orderId" = ${order.id}`;
+        if (enrolled.length) return;
         console.log('[affiliate][creditCommissionForOrder] pedido', order.orderNumber, 'itens:', JSON.stringify(order.orderItems.map(i => ({ bookId: i.bookId, link: i.affiliateProductLink, isAffiliate: i.book?.isAffiliate }))));
 
         for (const item of order.orderItems) {
@@ -208,6 +210,9 @@ export class AffiliateService {
 
             try {
                 await this.prisma.$transaction(async tx => {
+                await tx.$queryRaw`SELECT id FROM orders WHERE id = ${order.id} FOR UPDATE`;
+                const sticky = await tx.$queryRaw<any[]>`SELECT "orderId" FROM ebook_settlement_manifests WHERE "orderId" = ${order.id}`;
+                if (sticky.length) return;
                 const orderItems = await tx.orderItem.findMany({
                     where: { orderId: order.id, bookId: item.bookId },
                     select: { id: true, orderId: true, bookId: true, quantity: true, unitPrice: true, totalPrice: true,

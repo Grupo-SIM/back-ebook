@@ -54,6 +54,16 @@ export type Cart = $Result.DefaultSelection<Prisma.$CartPayload>
  */
 export type Order = $Result.DefaultSelection<Prisma.$OrderPayload>
 /**
+ * Model EbookSettlementManifest
+ * 
+ */
+export type EbookSettlementManifest = $Result.DefaultSelection<Prisma.$EbookSettlementManifestPayload>
+/**
+ * Model EbookSettlementReceipt
+ * 
+ */
+export type EbookSettlementReceipt = $Result.DefaultSelection<Prisma.$EbookSettlementReceiptPayload>
+/**
  * Model OrderItem
  * 
  */
@@ -326,6 +336,26 @@ export class PrismaClient<
     * ```
     */
   get order(): Prisma.OrderDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ebookSettlementManifest`: Exposes CRUD operations for the **EbookSettlementManifest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EbookSettlementManifests
+    * const ebookSettlementManifests = await prisma.ebookSettlementManifest.findMany()
+    * ```
+    */
+  get ebookSettlementManifest(): Prisma.EbookSettlementManifestDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ebookSettlementReceipt`: Exposes CRUD operations for the **EbookSettlementReceipt** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EbookSettlementReceipts
+    * const ebookSettlementReceipts = await prisma.ebookSettlementReceipt.findMany()
+    * ```
+    */
+  get ebookSettlementReceipt(): Prisma.EbookSettlementReceiptDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.orderItem`: Exposes CRUD operations for the **OrderItem** model.
@@ -858,6 +888,8 @@ export namespace Prisma {
     Favorite: 'Favorite',
     Cart: 'Cart',
     Order: 'Order',
+    EbookSettlementManifest: 'EbookSettlementManifest',
+    EbookSettlementReceipt: 'EbookSettlementReceipt',
     OrderItem: 'OrderItem',
     Notification: 'Notification',
     Review: 'Review',
@@ -882,7 +914,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "admin" | "user" | "image" | "category" | "book" | "favorite" | "cart" | "order" | "orderItem" | "notification" | "review" | "activityLog" | "affiliateCommission" | "affiliateCommissionDelivery" | "affiliateProductLink" | "affiliateFavorite" | "adminToken"
+      modelProps: "admin" | "user" | "image" | "category" | "book" | "favorite" | "cart" | "order" | "ebookSettlementManifest" | "ebookSettlementReceipt" | "orderItem" | "notification" | "review" | "activityLog" | "affiliateCommission" | "affiliateCommissionDelivery" | "affiliateProductLink" | "affiliateFavorite" | "adminToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1475,6 +1507,154 @@ export namespace Prisma {
           count: {
             args: Prisma.OrderCountArgs<ExtArgs>
             result: $Utils.Optional<OrderCountAggregateOutputType> | number
+          }
+        }
+      }
+      EbookSettlementManifest: {
+        payload: Prisma.$EbookSettlementManifestPayload<ExtArgs>
+        fields: Prisma.EbookSettlementManifestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EbookSettlementManifestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EbookSettlementManifestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>
+          }
+          findFirst: {
+            args: Prisma.EbookSettlementManifestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EbookSettlementManifestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>
+          }
+          findMany: {
+            args: Prisma.EbookSettlementManifestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>[]
+          }
+          create: {
+            args: Prisma.EbookSettlementManifestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>
+          }
+          createMany: {
+            args: Prisma.EbookSettlementManifestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EbookSettlementManifestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>[]
+          }
+          delete: {
+            args: Prisma.EbookSettlementManifestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>
+          }
+          update: {
+            args: Prisma.EbookSettlementManifestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>
+          }
+          deleteMany: {
+            args: Prisma.EbookSettlementManifestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EbookSettlementManifestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EbookSettlementManifestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>[]
+          }
+          upsert: {
+            args: Prisma.EbookSettlementManifestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementManifestPayload>
+          }
+          aggregate: {
+            args: Prisma.EbookSettlementManifestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEbookSettlementManifest>
+          }
+          groupBy: {
+            args: Prisma.EbookSettlementManifestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EbookSettlementManifestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EbookSettlementManifestCountArgs<ExtArgs>
+            result: $Utils.Optional<EbookSettlementManifestCountAggregateOutputType> | number
+          }
+        }
+      }
+      EbookSettlementReceipt: {
+        payload: Prisma.$EbookSettlementReceiptPayload<ExtArgs>
+        fields: Prisma.EbookSettlementReceiptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EbookSettlementReceiptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EbookSettlementReceiptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>
+          }
+          findFirst: {
+            args: Prisma.EbookSettlementReceiptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EbookSettlementReceiptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>
+          }
+          findMany: {
+            args: Prisma.EbookSettlementReceiptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>[]
+          }
+          create: {
+            args: Prisma.EbookSettlementReceiptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>
+          }
+          createMany: {
+            args: Prisma.EbookSettlementReceiptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EbookSettlementReceiptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>[]
+          }
+          delete: {
+            args: Prisma.EbookSettlementReceiptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>
+          }
+          update: {
+            args: Prisma.EbookSettlementReceiptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>
+          }
+          deleteMany: {
+            args: Prisma.EbookSettlementReceiptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EbookSettlementReceiptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EbookSettlementReceiptUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>[]
+          }
+          upsert: {
+            args: Prisma.EbookSettlementReceiptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookSettlementReceiptPayload>
+          }
+          aggregate: {
+            args: Prisma.EbookSettlementReceiptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEbookSettlementReceipt>
+          }
+          groupBy: {
+            args: Prisma.EbookSettlementReceiptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EbookSettlementReceiptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EbookSettlementReceiptCountArgs<ExtArgs>
+            result: $Utils.Optional<EbookSettlementReceiptCountAggregateOutputType> | number
           }
         }
       }
@@ -2260,6 +2440,8 @@ export namespace Prisma {
     favorite?: FavoriteOmit
     cart?: CartOmit
     order?: OrderOmit
+    ebookSettlementManifest?: EbookSettlementManifestOmit
+    ebookSettlementReceipt?: EbookSettlementReceiptOmit
     orderItem?: OrderItemOmit
     notification?: NotificationOmit
     review?: ReviewOmit
@@ -12935,6 +13117,2095 @@ export namespace Prisma {
 
 
   /**
+   * Model EbookSettlementManifest
+   */
+
+  export type AggregateEbookSettlementManifest = {
+    _count: EbookSettlementManifestCountAggregateOutputType | null
+    _avg: EbookSettlementManifestAvgAggregateOutputType | null
+    _sum: EbookSettlementManifestSumAggregateOutputType | null
+    _min: EbookSettlementManifestMinAggregateOutputType | null
+    _max: EbookSettlementManifestMaxAggregateOutputType | null
+  }
+
+  export type EbookSettlementManifestAvgAggregateOutputType = {
+    orderId: number | null
+    revision: number | null
+  }
+
+  export type EbookSettlementManifestSumAggregateOutputType = {
+    orderId: number | null
+    revision: number | null
+  }
+
+  export type EbookSettlementManifestMinAggregateOutputType = {
+    manifestId: string | null
+    orderId: number | null
+    settlementId: string | null
+    manifestHash: string | null
+    revision: number | null
+    createdAt: Date | null
+  }
+
+  export type EbookSettlementManifestMaxAggregateOutputType = {
+    manifestId: string | null
+    orderId: number | null
+    settlementId: string | null
+    manifestHash: string | null
+    revision: number | null
+    createdAt: Date | null
+  }
+
+  export type EbookSettlementManifestCountAggregateOutputType = {
+    manifestId: number
+    orderId: number
+    manifest: number
+    settlementId: number
+    manifestHash: number
+    revision: number
+    projection: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EbookSettlementManifestAvgAggregateInputType = {
+    orderId?: true
+    revision?: true
+  }
+
+  export type EbookSettlementManifestSumAggregateInputType = {
+    orderId?: true
+    revision?: true
+  }
+
+  export type EbookSettlementManifestMinAggregateInputType = {
+    manifestId?: true
+    orderId?: true
+    settlementId?: true
+    manifestHash?: true
+    revision?: true
+    createdAt?: true
+  }
+
+  export type EbookSettlementManifestMaxAggregateInputType = {
+    manifestId?: true
+    orderId?: true
+    settlementId?: true
+    manifestHash?: true
+    revision?: true
+    createdAt?: true
+  }
+
+  export type EbookSettlementManifestCountAggregateInputType = {
+    manifestId?: true
+    orderId?: true
+    manifest?: true
+    settlementId?: true
+    manifestHash?: true
+    revision?: true
+    projection?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EbookSettlementManifestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EbookSettlementManifest to aggregate.
+     */
+    where?: EbookSettlementManifestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookSettlementManifests to fetch.
+     */
+    orderBy?: EbookSettlementManifestOrderByWithRelationInput | EbookSettlementManifestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EbookSettlementManifestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookSettlementManifests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookSettlementManifests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EbookSettlementManifests
+    **/
+    _count?: true | EbookSettlementManifestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EbookSettlementManifestAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EbookSettlementManifestSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EbookSettlementManifestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EbookSettlementManifestMaxAggregateInputType
+  }
+
+  export type GetEbookSettlementManifestAggregateType<T extends EbookSettlementManifestAggregateArgs> = {
+        [P in keyof T & keyof AggregateEbookSettlementManifest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEbookSettlementManifest[P]>
+      : GetScalarType<T[P], AggregateEbookSettlementManifest[P]>
+  }
+
+
+
+
+  export type EbookSettlementManifestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EbookSettlementManifestWhereInput
+    orderBy?: EbookSettlementManifestOrderByWithAggregationInput | EbookSettlementManifestOrderByWithAggregationInput[]
+    by: EbookSettlementManifestScalarFieldEnum[] | EbookSettlementManifestScalarFieldEnum
+    having?: EbookSettlementManifestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EbookSettlementManifestCountAggregateInputType | true
+    _avg?: EbookSettlementManifestAvgAggregateInputType
+    _sum?: EbookSettlementManifestSumAggregateInputType
+    _min?: EbookSettlementManifestMinAggregateInputType
+    _max?: EbookSettlementManifestMaxAggregateInputType
+  }
+
+  export type EbookSettlementManifestGroupByOutputType = {
+    manifestId: string
+    orderId: number
+    manifest: JsonValue
+    settlementId: string | null
+    manifestHash: string | null
+    revision: number
+    projection: JsonValue | null
+    createdAt: Date
+    _count: EbookSettlementManifestCountAggregateOutputType | null
+    _avg: EbookSettlementManifestAvgAggregateOutputType | null
+    _sum: EbookSettlementManifestSumAggregateOutputType | null
+    _min: EbookSettlementManifestMinAggregateOutputType | null
+    _max: EbookSettlementManifestMaxAggregateOutputType | null
+  }
+
+  type GetEbookSettlementManifestGroupByPayload<T extends EbookSettlementManifestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EbookSettlementManifestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EbookSettlementManifestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EbookSettlementManifestGroupByOutputType[P]>
+            : GetScalarType<T[P], EbookSettlementManifestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EbookSettlementManifestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    manifestId?: boolean
+    orderId?: boolean
+    manifest?: boolean
+    settlementId?: boolean
+    manifestHash?: boolean
+    revision?: boolean
+    projection?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookSettlementManifest"]>
+
+  export type EbookSettlementManifestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    manifestId?: boolean
+    orderId?: boolean
+    manifest?: boolean
+    settlementId?: boolean
+    manifestHash?: boolean
+    revision?: boolean
+    projection?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookSettlementManifest"]>
+
+  export type EbookSettlementManifestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    manifestId?: boolean
+    orderId?: boolean
+    manifest?: boolean
+    settlementId?: boolean
+    manifestHash?: boolean
+    revision?: boolean
+    projection?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookSettlementManifest"]>
+
+  export type EbookSettlementManifestSelectScalar = {
+    manifestId?: boolean
+    orderId?: boolean
+    manifest?: boolean
+    settlementId?: boolean
+    manifestHash?: boolean
+    revision?: boolean
+    projection?: boolean
+    createdAt?: boolean
+  }
+
+  export type EbookSettlementManifestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"manifestId" | "orderId" | "manifest" | "settlementId" | "manifestHash" | "revision" | "projection" | "createdAt", ExtArgs["result"]["ebookSettlementManifest"]>
+
+  export type $EbookSettlementManifestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EbookSettlementManifest"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      manifestId: string
+      orderId: number
+      manifest: Prisma.JsonValue
+      settlementId: string | null
+      manifestHash: string | null
+      revision: number
+      projection: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["ebookSettlementManifest"]>
+    composites: {}
+  }
+
+  type EbookSettlementManifestGetPayload<S extends boolean | null | undefined | EbookSettlementManifestDefaultArgs> = $Result.GetResult<Prisma.$EbookSettlementManifestPayload, S>
+
+  type EbookSettlementManifestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EbookSettlementManifestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EbookSettlementManifestCountAggregateInputType | true
+    }
+
+  export interface EbookSettlementManifestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EbookSettlementManifest'], meta: { name: 'EbookSettlementManifest' } }
+    /**
+     * Find zero or one EbookSettlementManifest that matches the filter.
+     * @param {EbookSettlementManifestFindUniqueArgs} args - Arguments to find a EbookSettlementManifest
+     * @example
+     * // Get one EbookSettlementManifest
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EbookSettlementManifestFindUniqueArgs>(args: SelectSubset<T, EbookSettlementManifestFindUniqueArgs<ExtArgs>>): Prisma__EbookSettlementManifestClient<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EbookSettlementManifest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EbookSettlementManifestFindUniqueOrThrowArgs} args - Arguments to find a EbookSettlementManifest
+     * @example
+     * // Get one EbookSettlementManifest
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EbookSettlementManifestFindUniqueOrThrowArgs>(args: SelectSubset<T, EbookSettlementManifestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EbookSettlementManifestClient<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EbookSettlementManifest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementManifestFindFirstArgs} args - Arguments to find a EbookSettlementManifest
+     * @example
+     * // Get one EbookSettlementManifest
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EbookSettlementManifestFindFirstArgs>(args?: SelectSubset<T, EbookSettlementManifestFindFirstArgs<ExtArgs>>): Prisma__EbookSettlementManifestClient<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EbookSettlementManifest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementManifestFindFirstOrThrowArgs} args - Arguments to find a EbookSettlementManifest
+     * @example
+     * // Get one EbookSettlementManifest
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EbookSettlementManifestFindFirstOrThrowArgs>(args?: SelectSubset<T, EbookSettlementManifestFindFirstOrThrowArgs<ExtArgs>>): Prisma__EbookSettlementManifestClient<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EbookSettlementManifests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementManifestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EbookSettlementManifests
+     * const ebookSettlementManifests = await prisma.ebookSettlementManifest.findMany()
+     * 
+     * // Get first 10 EbookSettlementManifests
+     * const ebookSettlementManifests = await prisma.ebookSettlementManifest.findMany({ take: 10 })
+     * 
+     * // Only select the `manifestId`
+     * const ebookSettlementManifestWithManifestIdOnly = await prisma.ebookSettlementManifest.findMany({ select: { manifestId: true } })
+     * 
+     */
+    findMany<T extends EbookSettlementManifestFindManyArgs>(args?: SelectSubset<T, EbookSettlementManifestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EbookSettlementManifest.
+     * @param {EbookSettlementManifestCreateArgs} args - Arguments to create a EbookSettlementManifest.
+     * @example
+     * // Create one EbookSettlementManifest
+     * const EbookSettlementManifest = await prisma.ebookSettlementManifest.create({
+     *   data: {
+     *     // ... data to create a EbookSettlementManifest
+     *   }
+     * })
+     * 
+     */
+    create<T extends EbookSettlementManifestCreateArgs>(args: SelectSubset<T, EbookSettlementManifestCreateArgs<ExtArgs>>): Prisma__EbookSettlementManifestClient<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EbookSettlementManifests.
+     * @param {EbookSettlementManifestCreateManyArgs} args - Arguments to create many EbookSettlementManifests.
+     * @example
+     * // Create many EbookSettlementManifests
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EbookSettlementManifestCreateManyArgs>(args?: SelectSubset<T, EbookSettlementManifestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EbookSettlementManifests and returns the data saved in the database.
+     * @param {EbookSettlementManifestCreateManyAndReturnArgs} args - Arguments to create many EbookSettlementManifests.
+     * @example
+     * // Create many EbookSettlementManifests
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EbookSettlementManifests and only return the `manifestId`
+     * const ebookSettlementManifestWithManifestIdOnly = await prisma.ebookSettlementManifest.createManyAndReturn({
+     *   select: { manifestId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EbookSettlementManifestCreateManyAndReturnArgs>(args?: SelectSubset<T, EbookSettlementManifestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EbookSettlementManifest.
+     * @param {EbookSettlementManifestDeleteArgs} args - Arguments to delete one EbookSettlementManifest.
+     * @example
+     * // Delete one EbookSettlementManifest
+     * const EbookSettlementManifest = await prisma.ebookSettlementManifest.delete({
+     *   where: {
+     *     // ... filter to delete one EbookSettlementManifest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EbookSettlementManifestDeleteArgs>(args: SelectSubset<T, EbookSettlementManifestDeleteArgs<ExtArgs>>): Prisma__EbookSettlementManifestClient<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EbookSettlementManifest.
+     * @param {EbookSettlementManifestUpdateArgs} args - Arguments to update one EbookSettlementManifest.
+     * @example
+     * // Update one EbookSettlementManifest
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EbookSettlementManifestUpdateArgs>(args: SelectSubset<T, EbookSettlementManifestUpdateArgs<ExtArgs>>): Prisma__EbookSettlementManifestClient<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EbookSettlementManifests.
+     * @param {EbookSettlementManifestDeleteManyArgs} args - Arguments to filter EbookSettlementManifests to delete.
+     * @example
+     * // Delete a few EbookSettlementManifests
+     * const { count } = await prisma.ebookSettlementManifest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EbookSettlementManifestDeleteManyArgs>(args?: SelectSubset<T, EbookSettlementManifestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EbookSettlementManifests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementManifestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EbookSettlementManifests
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EbookSettlementManifestUpdateManyArgs>(args: SelectSubset<T, EbookSettlementManifestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EbookSettlementManifests and returns the data updated in the database.
+     * @param {EbookSettlementManifestUpdateManyAndReturnArgs} args - Arguments to update many EbookSettlementManifests.
+     * @example
+     * // Update many EbookSettlementManifests
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EbookSettlementManifests and only return the `manifestId`
+     * const ebookSettlementManifestWithManifestIdOnly = await prisma.ebookSettlementManifest.updateManyAndReturn({
+     *   select: { manifestId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EbookSettlementManifestUpdateManyAndReturnArgs>(args: SelectSubset<T, EbookSettlementManifestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EbookSettlementManifest.
+     * @param {EbookSettlementManifestUpsertArgs} args - Arguments to update or create a EbookSettlementManifest.
+     * @example
+     * // Update or create a EbookSettlementManifest
+     * const ebookSettlementManifest = await prisma.ebookSettlementManifest.upsert({
+     *   create: {
+     *     // ... data to create a EbookSettlementManifest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EbookSettlementManifest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EbookSettlementManifestUpsertArgs>(args: SelectSubset<T, EbookSettlementManifestUpsertArgs<ExtArgs>>): Prisma__EbookSettlementManifestClient<$Result.GetResult<Prisma.$EbookSettlementManifestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EbookSettlementManifests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementManifestCountArgs} args - Arguments to filter EbookSettlementManifests to count.
+     * @example
+     * // Count the number of EbookSettlementManifests
+     * const count = await prisma.ebookSettlementManifest.count({
+     *   where: {
+     *     // ... the filter for the EbookSettlementManifests we want to count
+     *   }
+     * })
+    **/
+    count<T extends EbookSettlementManifestCountArgs>(
+      args?: Subset<T, EbookSettlementManifestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EbookSettlementManifestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EbookSettlementManifest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementManifestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EbookSettlementManifestAggregateArgs>(args: Subset<T, EbookSettlementManifestAggregateArgs>): Prisma.PrismaPromise<GetEbookSettlementManifestAggregateType<T>>
+
+    /**
+     * Group by EbookSettlementManifest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementManifestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EbookSettlementManifestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EbookSettlementManifestGroupByArgs['orderBy'] }
+        : { orderBy?: EbookSettlementManifestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EbookSettlementManifestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEbookSettlementManifestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EbookSettlementManifest model
+   */
+  readonly fields: EbookSettlementManifestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EbookSettlementManifest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EbookSettlementManifestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EbookSettlementManifest model
+   */
+  interface EbookSettlementManifestFieldRefs {
+    readonly manifestId: FieldRef<"EbookSettlementManifest", 'String'>
+    readonly orderId: FieldRef<"EbookSettlementManifest", 'Int'>
+    readonly manifest: FieldRef<"EbookSettlementManifest", 'Json'>
+    readonly settlementId: FieldRef<"EbookSettlementManifest", 'String'>
+    readonly manifestHash: FieldRef<"EbookSettlementManifest", 'String'>
+    readonly revision: FieldRef<"EbookSettlementManifest", 'Int'>
+    readonly projection: FieldRef<"EbookSettlementManifest", 'Json'>
+    readonly createdAt: FieldRef<"EbookSettlementManifest", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EbookSettlementManifest findUnique
+   */
+  export type EbookSettlementManifestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementManifest to fetch.
+     */
+    where: EbookSettlementManifestWhereUniqueInput
+  }
+
+  /**
+   * EbookSettlementManifest findUniqueOrThrow
+   */
+  export type EbookSettlementManifestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementManifest to fetch.
+     */
+    where: EbookSettlementManifestWhereUniqueInput
+  }
+
+  /**
+   * EbookSettlementManifest findFirst
+   */
+  export type EbookSettlementManifestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementManifest to fetch.
+     */
+    where?: EbookSettlementManifestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookSettlementManifests to fetch.
+     */
+    orderBy?: EbookSettlementManifestOrderByWithRelationInput | EbookSettlementManifestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EbookSettlementManifests.
+     */
+    cursor?: EbookSettlementManifestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookSettlementManifests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookSettlementManifests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EbookSettlementManifests.
+     */
+    distinct?: EbookSettlementManifestScalarFieldEnum | EbookSettlementManifestScalarFieldEnum[]
+  }
+
+  /**
+   * EbookSettlementManifest findFirstOrThrow
+   */
+  export type EbookSettlementManifestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementManifest to fetch.
+     */
+    where?: EbookSettlementManifestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookSettlementManifests to fetch.
+     */
+    orderBy?: EbookSettlementManifestOrderByWithRelationInput | EbookSettlementManifestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EbookSettlementManifests.
+     */
+    cursor?: EbookSettlementManifestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookSettlementManifests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookSettlementManifests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EbookSettlementManifests.
+     */
+    distinct?: EbookSettlementManifestScalarFieldEnum | EbookSettlementManifestScalarFieldEnum[]
+  }
+
+  /**
+   * EbookSettlementManifest findMany
+   */
+  export type EbookSettlementManifestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementManifests to fetch.
+     */
+    where?: EbookSettlementManifestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookSettlementManifests to fetch.
+     */
+    orderBy?: EbookSettlementManifestOrderByWithRelationInput | EbookSettlementManifestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EbookSettlementManifests.
+     */
+    cursor?: EbookSettlementManifestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookSettlementManifests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookSettlementManifests.
+     */
+    skip?: number
+    distinct?: EbookSettlementManifestScalarFieldEnum | EbookSettlementManifestScalarFieldEnum[]
+  }
+
+  /**
+   * EbookSettlementManifest create
+   */
+  export type EbookSettlementManifestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EbookSettlementManifest.
+     */
+    data: XOR<EbookSettlementManifestCreateInput, EbookSettlementManifestUncheckedCreateInput>
+  }
+
+  /**
+   * EbookSettlementManifest createMany
+   */
+  export type EbookSettlementManifestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EbookSettlementManifests.
+     */
+    data: EbookSettlementManifestCreateManyInput | EbookSettlementManifestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EbookSettlementManifest createManyAndReturn
+   */
+  export type EbookSettlementManifestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * The data used to create many EbookSettlementManifests.
+     */
+    data: EbookSettlementManifestCreateManyInput | EbookSettlementManifestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EbookSettlementManifest update
+   */
+  export type EbookSettlementManifestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EbookSettlementManifest.
+     */
+    data: XOR<EbookSettlementManifestUpdateInput, EbookSettlementManifestUncheckedUpdateInput>
+    /**
+     * Choose, which EbookSettlementManifest to update.
+     */
+    where: EbookSettlementManifestWhereUniqueInput
+  }
+
+  /**
+   * EbookSettlementManifest updateMany
+   */
+  export type EbookSettlementManifestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EbookSettlementManifests.
+     */
+    data: XOR<EbookSettlementManifestUpdateManyMutationInput, EbookSettlementManifestUncheckedUpdateManyInput>
+    /**
+     * Filter which EbookSettlementManifests to update
+     */
+    where?: EbookSettlementManifestWhereInput
+    /**
+     * Limit how many EbookSettlementManifests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookSettlementManifest updateManyAndReturn
+   */
+  export type EbookSettlementManifestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * The data used to update EbookSettlementManifests.
+     */
+    data: XOR<EbookSettlementManifestUpdateManyMutationInput, EbookSettlementManifestUncheckedUpdateManyInput>
+    /**
+     * Filter which EbookSettlementManifests to update
+     */
+    where?: EbookSettlementManifestWhereInput
+    /**
+     * Limit how many EbookSettlementManifests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookSettlementManifest upsert
+   */
+  export type EbookSettlementManifestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EbookSettlementManifest to update in case it exists.
+     */
+    where: EbookSettlementManifestWhereUniqueInput
+    /**
+     * In case the EbookSettlementManifest found by the `where` argument doesn't exist, create a new EbookSettlementManifest with this data.
+     */
+    create: XOR<EbookSettlementManifestCreateInput, EbookSettlementManifestUncheckedCreateInput>
+    /**
+     * In case the EbookSettlementManifest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EbookSettlementManifestUpdateInput, EbookSettlementManifestUncheckedUpdateInput>
+  }
+
+  /**
+   * EbookSettlementManifest delete
+   */
+  export type EbookSettlementManifestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+    /**
+     * Filter which EbookSettlementManifest to delete.
+     */
+    where: EbookSettlementManifestWhereUniqueInput
+  }
+
+  /**
+   * EbookSettlementManifest deleteMany
+   */
+  export type EbookSettlementManifestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EbookSettlementManifests to delete
+     */
+    where?: EbookSettlementManifestWhereInput
+    /**
+     * Limit how many EbookSettlementManifests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookSettlementManifest without action
+   */
+  export type EbookSettlementManifestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementManifest
+     */
+    select?: EbookSettlementManifestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementManifest
+     */
+    omit?: EbookSettlementManifestOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EbookSettlementReceipt
+   */
+
+  export type AggregateEbookSettlementReceipt = {
+    _count: EbookSettlementReceiptCountAggregateOutputType | null
+    _avg: EbookSettlementReceiptAvgAggregateOutputType | null
+    _sum: EbookSettlementReceiptSumAggregateOutputType | null
+    _min: EbookSettlementReceiptMinAggregateOutputType | null
+    _max: EbookSettlementReceiptMaxAggregateOutputType | null
+  }
+
+  export type EbookSettlementReceiptAvgAggregateOutputType = {
+    revision: number | null
+  }
+
+  export type EbookSettlementReceiptSumAggregateOutputType = {
+    revision: number | null
+  }
+
+  export type EbookSettlementReceiptMinAggregateOutputType = {
+    receiptId: string | null
+    manifestId: string | null
+    revision: number | null
+    createdAt: Date | null
+  }
+
+  export type EbookSettlementReceiptMaxAggregateOutputType = {
+    receiptId: string | null
+    manifestId: string | null
+    revision: number | null
+    createdAt: Date | null
+  }
+
+  export type EbookSettlementReceiptCountAggregateOutputType = {
+    receiptId: number
+    manifestId: number
+    revision: number
+    receipt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EbookSettlementReceiptAvgAggregateInputType = {
+    revision?: true
+  }
+
+  export type EbookSettlementReceiptSumAggregateInputType = {
+    revision?: true
+  }
+
+  export type EbookSettlementReceiptMinAggregateInputType = {
+    receiptId?: true
+    manifestId?: true
+    revision?: true
+    createdAt?: true
+  }
+
+  export type EbookSettlementReceiptMaxAggregateInputType = {
+    receiptId?: true
+    manifestId?: true
+    revision?: true
+    createdAt?: true
+  }
+
+  export type EbookSettlementReceiptCountAggregateInputType = {
+    receiptId?: true
+    manifestId?: true
+    revision?: true
+    receipt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EbookSettlementReceiptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EbookSettlementReceipt to aggregate.
+     */
+    where?: EbookSettlementReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookSettlementReceipts to fetch.
+     */
+    orderBy?: EbookSettlementReceiptOrderByWithRelationInput | EbookSettlementReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EbookSettlementReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookSettlementReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookSettlementReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EbookSettlementReceipts
+    **/
+    _count?: true | EbookSettlementReceiptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EbookSettlementReceiptAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EbookSettlementReceiptSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EbookSettlementReceiptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EbookSettlementReceiptMaxAggregateInputType
+  }
+
+  export type GetEbookSettlementReceiptAggregateType<T extends EbookSettlementReceiptAggregateArgs> = {
+        [P in keyof T & keyof AggregateEbookSettlementReceipt]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEbookSettlementReceipt[P]>
+      : GetScalarType<T[P], AggregateEbookSettlementReceipt[P]>
+  }
+
+
+
+
+  export type EbookSettlementReceiptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EbookSettlementReceiptWhereInput
+    orderBy?: EbookSettlementReceiptOrderByWithAggregationInput | EbookSettlementReceiptOrderByWithAggregationInput[]
+    by: EbookSettlementReceiptScalarFieldEnum[] | EbookSettlementReceiptScalarFieldEnum
+    having?: EbookSettlementReceiptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EbookSettlementReceiptCountAggregateInputType | true
+    _avg?: EbookSettlementReceiptAvgAggregateInputType
+    _sum?: EbookSettlementReceiptSumAggregateInputType
+    _min?: EbookSettlementReceiptMinAggregateInputType
+    _max?: EbookSettlementReceiptMaxAggregateInputType
+  }
+
+  export type EbookSettlementReceiptGroupByOutputType = {
+    receiptId: string
+    manifestId: string
+    revision: number
+    receipt: JsonValue
+    createdAt: Date
+    _count: EbookSettlementReceiptCountAggregateOutputType | null
+    _avg: EbookSettlementReceiptAvgAggregateOutputType | null
+    _sum: EbookSettlementReceiptSumAggregateOutputType | null
+    _min: EbookSettlementReceiptMinAggregateOutputType | null
+    _max: EbookSettlementReceiptMaxAggregateOutputType | null
+  }
+
+  type GetEbookSettlementReceiptGroupByPayload<T extends EbookSettlementReceiptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EbookSettlementReceiptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EbookSettlementReceiptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EbookSettlementReceiptGroupByOutputType[P]>
+            : GetScalarType<T[P], EbookSettlementReceiptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EbookSettlementReceiptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    receiptId?: boolean
+    manifestId?: boolean
+    revision?: boolean
+    receipt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookSettlementReceipt"]>
+
+  export type EbookSettlementReceiptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    receiptId?: boolean
+    manifestId?: boolean
+    revision?: boolean
+    receipt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookSettlementReceipt"]>
+
+  export type EbookSettlementReceiptSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    receiptId?: boolean
+    manifestId?: boolean
+    revision?: boolean
+    receipt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookSettlementReceipt"]>
+
+  export type EbookSettlementReceiptSelectScalar = {
+    receiptId?: boolean
+    manifestId?: boolean
+    revision?: boolean
+    receipt?: boolean
+    createdAt?: boolean
+  }
+
+  export type EbookSettlementReceiptOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"receiptId" | "manifestId" | "revision" | "receipt" | "createdAt", ExtArgs["result"]["ebookSettlementReceipt"]>
+
+  export type $EbookSettlementReceiptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EbookSettlementReceipt"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      receiptId: string
+      manifestId: string
+      revision: number
+      receipt: Prisma.JsonValue
+      createdAt: Date
+    }, ExtArgs["result"]["ebookSettlementReceipt"]>
+    composites: {}
+  }
+
+  type EbookSettlementReceiptGetPayload<S extends boolean | null | undefined | EbookSettlementReceiptDefaultArgs> = $Result.GetResult<Prisma.$EbookSettlementReceiptPayload, S>
+
+  type EbookSettlementReceiptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EbookSettlementReceiptFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EbookSettlementReceiptCountAggregateInputType | true
+    }
+
+  export interface EbookSettlementReceiptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EbookSettlementReceipt'], meta: { name: 'EbookSettlementReceipt' } }
+    /**
+     * Find zero or one EbookSettlementReceipt that matches the filter.
+     * @param {EbookSettlementReceiptFindUniqueArgs} args - Arguments to find a EbookSettlementReceipt
+     * @example
+     * // Get one EbookSettlementReceipt
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EbookSettlementReceiptFindUniqueArgs>(args: SelectSubset<T, EbookSettlementReceiptFindUniqueArgs<ExtArgs>>): Prisma__EbookSettlementReceiptClient<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EbookSettlementReceipt that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EbookSettlementReceiptFindUniqueOrThrowArgs} args - Arguments to find a EbookSettlementReceipt
+     * @example
+     * // Get one EbookSettlementReceipt
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EbookSettlementReceiptFindUniqueOrThrowArgs>(args: SelectSubset<T, EbookSettlementReceiptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EbookSettlementReceiptClient<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EbookSettlementReceipt that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementReceiptFindFirstArgs} args - Arguments to find a EbookSettlementReceipt
+     * @example
+     * // Get one EbookSettlementReceipt
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EbookSettlementReceiptFindFirstArgs>(args?: SelectSubset<T, EbookSettlementReceiptFindFirstArgs<ExtArgs>>): Prisma__EbookSettlementReceiptClient<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EbookSettlementReceipt that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementReceiptFindFirstOrThrowArgs} args - Arguments to find a EbookSettlementReceipt
+     * @example
+     * // Get one EbookSettlementReceipt
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EbookSettlementReceiptFindFirstOrThrowArgs>(args?: SelectSubset<T, EbookSettlementReceiptFindFirstOrThrowArgs<ExtArgs>>): Prisma__EbookSettlementReceiptClient<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EbookSettlementReceipts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementReceiptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EbookSettlementReceipts
+     * const ebookSettlementReceipts = await prisma.ebookSettlementReceipt.findMany()
+     * 
+     * // Get first 10 EbookSettlementReceipts
+     * const ebookSettlementReceipts = await prisma.ebookSettlementReceipt.findMany({ take: 10 })
+     * 
+     * // Only select the `receiptId`
+     * const ebookSettlementReceiptWithReceiptIdOnly = await prisma.ebookSettlementReceipt.findMany({ select: { receiptId: true } })
+     * 
+     */
+    findMany<T extends EbookSettlementReceiptFindManyArgs>(args?: SelectSubset<T, EbookSettlementReceiptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EbookSettlementReceipt.
+     * @param {EbookSettlementReceiptCreateArgs} args - Arguments to create a EbookSettlementReceipt.
+     * @example
+     * // Create one EbookSettlementReceipt
+     * const EbookSettlementReceipt = await prisma.ebookSettlementReceipt.create({
+     *   data: {
+     *     // ... data to create a EbookSettlementReceipt
+     *   }
+     * })
+     * 
+     */
+    create<T extends EbookSettlementReceiptCreateArgs>(args: SelectSubset<T, EbookSettlementReceiptCreateArgs<ExtArgs>>): Prisma__EbookSettlementReceiptClient<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EbookSettlementReceipts.
+     * @param {EbookSettlementReceiptCreateManyArgs} args - Arguments to create many EbookSettlementReceipts.
+     * @example
+     * // Create many EbookSettlementReceipts
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EbookSettlementReceiptCreateManyArgs>(args?: SelectSubset<T, EbookSettlementReceiptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EbookSettlementReceipts and returns the data saved in the database.
+     * @param {EbookSettlementReceiptCreateManyAndReturnArgs} args - Arguments to create many EbookSettlementReceipts.
+     * @example
+     * // Create many EbookSettlementReceipts
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EbookSettlementReceipts and only return the `receiptId`
+     * const ebookSettlementReceiptWithReceiptIdOnly = await prisma.ebookSettlementReceipt.createManyAndReturn({
+     *   select: { receiptId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EbookSettlementReceiptCreateManyAndReturnArgs>(args?: SelectSubset<T, EbookSettlementReceiptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EbookSettlementReceipt.
+     * @param {EbookSettlementReceiptDeleteArgs} args - Arguments to delete one EbookSettlementReceipt.
+     * @example
+     * // Delete one EbookSettlementReceipt
+     * const EbookSettlementReceipt = await prisma.ebookSettlementReceipt.delete({
+     *   where: {
+     *     // ... filter to delete one EbookSettlementReceipt
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EbookSettlementReceiptDeleteArgs>(args: SelectSubset<T, EbookSettlementReceiptDeleteArgs<ExtArgs>>): Prisma__EbookSettlementReceiptClient<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EbookSettlementReceipt.
+     * @param {EbookSettlementReceiptUpdateArgs} args - Arguments to update one EbookSettlementReceipt.
+     * @example
+     * // Update one EbookSettlementReceipt
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EbookSettlementReceiptUpdateArgs>(args: SelectSubset<T, EbookSettlementReceiptUpdateArgs<ExtArgs>>): Prisma__EbookSettlementReceiptClient<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EbookSettlementReceipts.
+     * @param {EbookSettlementReceiptDeleteManyArgs} args - Arguments to filter EbookSettlementReceipts to delete.
+     * @example
+     * // Delete a few EbookSettlementReceipts
+     * const { count } = await prisma.ebookSettlementReceipt.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EbookSettlementReceiptDeleteManyArgs>(args?: SelectSubset<T, EbookSettlementReceiptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EbookSettlementReceipts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementReceiptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EbookSettlementReceipts
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EbookSettlementReceiptUpdateManyArgs>(args: SelectSubset<T, EbookSettlementReceiptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EbookSettlementReceipts and returns the data updated in the database.
+     * @param {EbookSettlementReceiptUpdateManyAndReturnArgs} args - Arguments to update many EbookSettlementReceipts.
+     * @example
+     * // Update many EbookSettlementReceipts
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EbookSettlementReceipts and only return the `receiptId`
+     * const ebookSettlementReceiptWithReceiptIdOnly = await prisma.ebookSettlementReceipt.updateManyAndReturn({
+     *   select: { receiptId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EbookSettlementReceiptUpdateManyAndReturnArgs>(args: SelectSubset<T, EbookSettlementReceiptUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EbookSettlementReceipt.
+     * @param {EbookSettlementReceiptUpsertArgs} args - Arguments to update or create a EbookSettlementReceipt.
+     * @example
+     * // Update or create a EbookSettlementReceipt
+     * const ebookSettlementReceipt = await prisma.ebookSettlementReceipt.upsert({
+     *   create: {
+     *     // ... data to create a EbookSettlementReceipt
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EbookSettlementReceipt we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EbookSettlementReceiptUpsertArgs>(args: SelectSubset<T, EbookSettlementReceiptUpsertArgs<ExtArgs>>): Prisma__EbookSettlementReceiptClient<$Result.GetResult<Prisma.$EbookSettlementReceiptPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EbookSettlementReceipts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementReceiptCountArgs} args - Arguments to filter EbookSettlementReceipts to count.
+     * @example
+     * // Count the number of EbookSettlementReceipts
+     * const count = await prisma.ebookSettlementReceipt.count({
+     *   where: {
+     *     // ... the filter for the EbookSettlementReceipts we want to count
+     *   }
+     * })
+    **/
+    count<T extends EbookSettlementReceiptCountArgs>(
+      args?: Subset<T, EbookSettlementReceiptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EbookSettlementReceiptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EbookSettlementReceipt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementReceiptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EbookSettlementReceiptAggregateArgs>(args: Subset<T, EbookSettlementReceiptAggregateArgs>): Prisma.PrismaPromise<GetEbookSettlementReceiptAggregateType<T>>
+
+    /**
+     * Group by EbookSettlementReceipt.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookSettlementReceiptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EbookSettlementReceiptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EbookSettlementReceiptGroupByArgs['orderBy'] }
+        : { orderBy?: EbookSettlementReceiptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EbookSettlementReceiptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEbookSettlementReceiptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EbookSettlementReceipt model
+   */
+  readonly fields: EbookSettlementReceiptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EbookSettlementReceipt.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EbookSettlementReceiptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EbookSettlementReceipt model
+   */
+  interface EbookSettlementReceiptFieldRefs {
+    readonly receiptId: FieldRef<"EbookSettlementReceipt", 'String'>
+    readonly manifestId: FieldRef<"EbookSettlementReceipt", 'String'>
+    readonly revision: FieldRef<"EbookSettlementReceipt", 'Int'>
+    readonly receipt: FieldRef<"EbookSettlementReceipt", 'Json'>
+    readonly createdAt: FieldRef<"EbookSettlementReceipt", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EbookSettlementReceipt findUnique
+   */
+  export type EbookSettlementReceiptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementReceipt to fetch.
+     */
+    where: EbookSettlementReceiptWhereUniqueInput
+  }
+
+  /**
+   * EbookSettlementReceipt findUniqueOrThrow
+   */
+  export type EbookSettlementReceiptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementReceipt to fetch.
+     */
+    where: EbookSettlementReceiptWhereUniqueInput
+  }
+
+  /**
+   * EbookSettlementReceipt findFirst
+   */
+  export type EbookSettlementReceiptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementReceipt to fetch.
+     */
+    where?: EbookSettlementReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookSettlementReceipts to fetch.
+     */
+    orderBy?: EbookSettlementReceiptOrderByWithRelationInput | EbookSettlementReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EbookSettlementReceipts.
+     */
+    cursor?: EbookSettlementReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookSettlementReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookSettlementReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EbookSettlementReceipts.
+     */
+    distinct?: EbookSettlementReceiptScalarFieldEnum | EbookSettlementReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * EbookSettlementReceipt findFirstOrThrow
+   */
+  export type EbookSettlementReceiptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementReceipt to fetch.
+     */
+    where?: EbookSettlementReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookSettlementReceipts to fetch.
+     */
+    orderBy?: EbookSettlementReceiptOrderByWithRelationInput | EbookSettlementReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EbookSettlementReceipts.
+     */
+    cursor?: EbookSettlementReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookSettlementReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookSettlementReceipts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EbookSettlementReceipts.
+     */
+    distinct?: EbookSettlementReceiptScalarFieldEnum | EbookSettlementReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * EbookSettlementReceipt findMany
+   */
+  export type EbookSettlementReceiptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookSettlementReceipts to fetch.
+     */
+    where?: EbookSettlementReceiptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookSettlementReceipts to fetch.
+     */
+    orderBy?: EbookSettlementReceiptOrderByWithRelationInput | EbookSettlementReceiptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EbookSettlementReceipts.
+     */
+    cursor?: EbookSettlementReceiptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookSettlementReceipts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookSettlementReceipts.
+     */
+    skip?: number
+    distinct?: EbookSettlementReceiptScalarFieldEnum | EbookSettlementReceiptScalarFieldEnum[]
+  }
+
+  /**
+   * EbookSettlementReceipt create
+   */
+  export type EbookSettlementReceiptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EbookSettlementReceipt.
+     */
+    data: XOR<EbookSettlementReceiptCreateInput, EbookSettlementReceiptUncheckedCreateInput>
+  }
+
+  /**
+   * EbookSettlementReceipt createMany
+   */
+  export type EbookSettlementReceiptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EbookSettlementReceipts.
+     */
+    data: EbookSettlementReceiptCreateManyInput | EbookSettlementReceiptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EbookSettlementReceipt createManyAndReturn
+   */
+  export type EbookSettlementReceiptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * The data used to create many EbookSettlementReceipts.
+     */
+    data: EbookSettlementReceiptCreateManyInput | EbookSettlementReceiptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EbookSettlementReceipt update
+   */
+  export type EbookSettlementReceiptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EbookSettlementReceipt.
+     */
+    data: XOR<EbookSettlementReceiptUpdateInput, EbookSettlementReceiptUncheckedUpdateInput>
+    /**
+     * Choose, which EbookSettlementReceipt to update.
+     */
+    where: EbookSettlementReceiptWhereUniqueInput
+  }
+
+  /**
+   * EbookSettlementReceipt updateMany
+   */
+  export type EbookSettlementReceiptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EbookSettlementReceipts.
+     */
+    data: XOR<EbookSettlementReceiptUpdateManyMutationInput, EbookSettlementReceiptUncheckedUpdateManyInput>
+    /**
+     * Filter which EbookSettlementReceipts to update
+     */
+    where?: EbookSettlementReceiptWhereInput
+    /**
+     * Limit how many EbookSettlementReceipts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookSettlementReceipt updateManyAndReturn
+   */
+  export type EbookSettlementReceiptUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * The data used to update EbookSettlementReceipts.
+     */
+    data: XOR<EbookSettlementReceiptUpdateManyMutationInput, EbookSettlementReceiptUncheckedUpdateManyInput>
+    /**
+     * Filter which EbookSettlementReceipts to update
+     */
+    where?: EbookSettlementReceiptWhereInput
+    /**
+     * Limit how many EbookSettlementReceipts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookSettlementReceipt upsert
+   */
+  export type EbookSettlementReceiptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EbookSettlementReceipt to update in case it exists.
+     */
+    where: EbookSettlementReceiptWhereUniqueInput
+    /**
+     * In case the EbookSettlementReceipt found by the `where` argument doesn't exist, create a new EbookSettlementReceipt with this data.
+     */
+    create: XOR<EbookSettlementReceiptCreateInput, EbookSettlementReceiptUncheckedCreateInput>
+    /**
+     * In case the EbookSettlementReceipt was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EbookSettlementReceiptUpdateInput, EbookSettlementReceiptUncheckedUpdateInput>
+  }
+
+  /**
+   * EbookSettlementReceipt delete
+   */
+  export type EbookSettlementReceiptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+    /**
+     * Filter which EbookSettlementReceipt to delete.
+     */
+    where: EbookSettlementReceiptWhereUniqueInput
+  }
+
+  /**
+   * EbookSettlementReceipt deleteMany
+   */
+  export type EbookSettlementReceiptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EbookSettlementReceipts to delete
+     */
+    where?: EbookSettlementReceiptWhereInput
+    /**
+     * Limit how many EbookSettlementReceipts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookSettlementReceipt without action
+   */
+  export type EbookSettlementReceiptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookSettlementReceipt
+     */
+    select?: EbookSettlementReceiptSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookSettlementReceipt
+     */
+    omit?: EbookSettlementReceiptOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model OrderItem
    */
 
@@ -17500,6 +19771,7 @@ export namespace Prisma {
     status: $Enums.AffiliateCommissionStatus | null
     createdAt: Date | null
     reversedAt: Date | null
+    settlementManifestId: string | null
   }
 
   export type AffiliateCommissionMaxAggregateOutputType = {
@@ -17514,6 +19786,7 @@ export namespace Prisma {
     status: $Enums.AffiliateCommissionStatus | null
     createdAt: Date | null
     reversedAt: Date | null
+    settlementManifestId: string | null
   }
 
   export type AffiliateCommissionCountAggregateOutputType = {
@@ -17528,6 +19801,7 @@ export namespace Prisma {
     status: number
     createdAt: number
     reversedAt: number
+    settlementManifestId: number
     _all: number
   }
 
@@ -17562,6 +19836,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     reversedAt?: true
+    settlementManifestId?: true
   }
 
   export type AffiliateCommissionMaxAggregateInputType = {
@@ -17576,6 +19851,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     reversedAt?: true
+    settlementManifestId?: true
   }
 
   export type AffiliateCommissionCountAggregateInputType = {
@@ -17590,6 +19866,7 @@ export namespace Prisma {
     status?: true
     createdAt?: true
     reversedAt?: true
+    settlementManifestId?: true
     _all?: true
   }
 
@@ -17691,6 +19968,7 @@ export namespace Prisma {
     status: $Enums.AffiliateCommissionStatus
     createdAt: Date
     reversedAt: Date | null
+    settlementManifestId: string | null
     _count: AffiliateCommissionCountAggregateOutputType | null
     _avg: AffiliateCommissionAvgAggregateOutputType | null
     _sum: AffiliateCommissionSumAggregateOutputType | null
@@ -17724,6 +20002,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     reversedAt?: boolean
+    settlementManifestId?: boolean
     affiliate?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
     order?: boolean | OrderDefaultArgs<ExtArgs>
@@ -17742,6 +20021,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     reversedAt?: boolean
+    settlementManifestId?: boolean
     affiliate?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
     order?: boolean | OrderDefaultArgs<ExtArgs>
@@ -17759,6 +20039,7 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     reversedAt?: boolean
+    settlementManifestId?: boolean
     affiliate?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
     order?: boolean | OrderDefaultArgs<ExtArgs>
@@ -17776,9 +20057,10 @@ export namespace Prisma {
     status?: boolean
     createdAt?: boolean
     reversedAt?: boolean
+    settlementManifestId?: boolean
   }
 
-  export type AffiliateCommissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "affiliateId" | "bookId" | "orderId" | "orderNumber" | "grossAmount" | "commissionRate" | "commissionAmount" | "status" | "createdAt" | "reversedAt", ExtArgs["result"]["affiliateCommission"]>
+  export type AffiliateCommissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "affiliateId" | "bookId" | "orderId" | "orderNumber" | "grossAmount" | "commissionRate" | "commissionAmount" | "status" | "createdAt" | "reversedAt" | "settlementManifestId", ExtArgs["result"]["affiliateCommission"]>
   export type AffiliateCommissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     affiliate?: boolean | UserDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
@@ -17816,6 +20098,7 @@ export namespace Prisma {
       status: $Enums.AffiliateCommissionStatus
       createdAt: Date
       reversedAt: Date | null
+      settlementManifestId: string | null
     }, ExtArgs["result"]["affiliateCommission"]>
     composites: {}
   }
@@ -18254,6 +20537,7 @@ export namespace Prisma {
     readonly status: FieldRef<"AffiliateCommission", 'AffiliateCommissionStatus'>
     readonly createdAt: FieldRef<"AffiliateCommission", 'DateTime'>
     readonly reversedAt: FieldRef<"AffiliateCommission", 'DateTime'>
+    readonly settlementManifestId: FieldRef<"AffiliateCommission", 'String'>
   }
     
 
@@ -23364,6 +25648,31 @@ export namespace Prisma {
   export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
 
 
+  export const EbookSettlementManifestScalarFieldEnum: {
+    manifestId: 'manifestId',
+    orderId: 'orderId',
+    manifest: 'manifest',
+    settlementId: 'settlementId',
+    manifestHash: 'manifestHash',
+    revision: 'revision',
+    projection: 'projection',
+    createdAt: 'createdAt'
+  };
+
+  export type EbookSettlementManifestScalarFieldEnum = (typeof EbookSettlementManifestScalarFieldEnum)[keyof typeof EbookSettlementManifestScalarFieldEnum]
+
+
+  export const EbookSettlementReceiptScalarFieldEnum: {
+    receiptId: 'receiptId',
+    manifestId: 'manifestId',
+    revision: 'revision',
+    receipt: 'receipt',
+    createdAt: 'createdAt'
+  };
+
+  export type EbookSettlementReceiptScalarFieldEnum = (typeof EbookSettlementReceiptScalarFieldEnum)[keyof typeof EbookSettlementReceiptScalarFieldEnum]
+
+
   export const OrderItemScalarFieldEnum: {
     id: 'id',
     orderId: 'orderId',
@@ -23433,7 +25742,8 @@ export namespace Prisma {
     commissionAmount: 'commissionAmount',
     status: 'status',
     createdAt: 'createdAt',
-    reversedAt: 'reversedAt'
+    reversedAt: 'reversedAt',
+    settlementManifestId: 'settlementManifestId'
   };
 
   export type AffiliateCommissionScalarFieldEnum = (typeof AffiliateCommissionScalarFieldEnum)[keyof typeof AffiliateCommissionScalarFieldEnum]
@@ -24458,6 +26768,130 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Order"> | Date | string
   }
 
+  export type EbookSettlementManifestWhereInput = {
+    AND?: EbookSettlementManifestWhereInput | EbookSettlementManifestWhereInput[]
+    OR?: EbookSettlementManifestWhereInput[]
+    NOT?: EbookSettlementManifestWhereInput | EbookSettlementManifestWhereInput[]
+    manifestId?: UuidFilter<"EbookSettlementManifest"> | string
+    orderId?: IntFilter<"EbookSettlementManifest"> | number
+    manifest?: JsonFilter<"EbookSettlementManifest">
+    settlementId?: StringNullableFilter<"EbookSettlementManifest"> | string | null
+    manifestHash?: StringNullableFilter<"EbookSettlementManifest"> | string | null
+    revision?: IntFilter<"EbookSettlementManifest"> | number
+    projection?: JsonNullableFilter<"EbookSettlementManifest">
+    createdAt?: DateTimeFilter<"EbookSettlementManifest"> | Date | string
+  }
+
+  export type EbookSettlementManifestOrderByWithRelationInput = {
+    manifestId?: SortOrder
+    orderId?: SortOrder
+    manifest?: SortOrder
+    settlementId?: SortOrderInput | SortOrder
+    manifestHash?: SortOrderInput | SortOrder
+    revision?: SortOrder
+    projection?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookSettlementManifestWhereUniqueInput = Prisma.AtLeast<{
+    manifestId?: string
+    orderId?: number
+    settlementId?: string
+    AND?: EbookSettlementManifestWhereInput | EbookSettlementManifestWhereInput[]
+    OR?: EbookSettlementManifestWhereInput[]
+    NOT?: EbookSettlementManifestWhereInput | EbookSettlementManifestWhereInput[]
+    manifest?: JsonFilter<"EbookSettlementManifest">
+    manifestHash?: StringNullableFilter<"EbookSettlementManifest"> | string | null
+    revision?: IntFilter<"EbookSettlementManifest"> | number
+    projection?: JsonNullableFilter<"EbookSettlementManifest">
+    createdAt?: DateTimeFilter<"EbookSettlementManifest"> | Date | string
+  }, "manifestId" | "orderId" | "settlementId">
+
+  export type EbookSettlementManifestOrderByWithAggregationInput = {
+    manifestId?: SortOrder
+    orderId?: SortOrder
+    manifest?: SortOrder
+    settlementId?: SortOrderInput | SortOrder
+    manifestHash?: SortOrderInput | SortOrder
+    revision?: SortOrder
+    projection?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: EbookSettlementManifestCountOrderByAggregateInput
+    _avg?: EbookSettlementManifestAvgOrderByAggregateInput
+    _max?: EbookSettlementManifestMaxOrderByAggregateInput
+    _min?: EbookSettlementManifestMinOrderByAggregateInput
+    _sum?: EbookSettlementManifestSumOrderByAggregateInput
+  }
+
+  export type EbookSettlementManifestScalarWhereWithAggregatesInput = {
+    AND?: EbookSettlementManifestScalarWhereWithAggregatesInput | EbookSettlementManifestScalarWhereWithAggregatesInput[]
+    OR?: EbookSettlementManifestScalarWhereWithAggregatesInput[]
+    NOT?: EbookSettlementManifestScalarWhereWithAggregatesInput | EbookSettlementManifestScalarWhereWithAggregatesInput[]
+    manifestId?: UuidWithAggregatesFilter<"EbookSettlementManifest"> | string
+    orderId?: IntWithAggregatesFilter<"EbookSettlementManifest"> | number
+    manifest?: JsonWithAggregatesFilter<"EbookSettlementManifest">
+    settlementId?: StringNullableWithAggregatesFilter<"EbookSettlementManifest"> | string | null
+    manifestHash?: StringNullableWithAggregatesFilter<"EbookSettlementManifest"> | string | null
+    revision?: IntWithAggregatesFilter<"EbookSettlementManifest"> | number
+    projection?: JsonNullableWithAggregatesFilter<"EbookSettlementManifest">
+    createdAt?: DateTimeWithAggregatesFilter<"EbookSettlementManifest"> | Date | string
+  }
+
+  export type EbookSettlementReceiptWhereInput = {
+    AND?: EbookSettlementReceiptWhereInput | EbookSettlementReceiptWhereInput[]
+    OR?: EbookSettlementReceiptWhereInput[]
+    NOT?: EbookSettlementReceiptWhereInput | EbookSettlementReceiptWhereInput[]
+    receiptId?: StringFilter<"EbookSettlementReceipt"> | string
+    manifestId?: UuidFilter<"EbookSettlementReceipt"> | string
+    revision?: IntFilter<"EbookSettlementReceipt"> | number
+    receipt?: JsonFilter<"EbookSettlementReceipt">
+    createdAt?: DateTimeFilter<"EbookSettlementReceipt"> | Date | string
+  }
+
+  export type EbookSettlementReceiptOrderByWithRelationInput = {
+    receiptId?: SortOrder
+    manifestId?: SortOrder
+    revision?: SortOrder
+    receipt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookSettlementReceiptWhereUniqueInput = Prisma.AtLeast<{
+    receiptId?: string
+    manifestId_revision?: EbookSettlementReceiptManifestIdRevisionCompoundUniqueInput
+    AND?: EbookSettlementReceiptWhereInput | EbookSettlementReceiptWhereInput[]
+    OR?: EbookSettlementReceiptWhereInput[]
+    NOT?: EbookSettlementReceiptWhereInput | EbookSettlementReceiptWhereInput[]
+    manifestId?: UuidFilter<"EbookSettlementReceipt"> | string
+    revision?: IntFilter<"EbookSettlementReceipt"> | number
+    receipt?: JsonFilter<"EbookSettlementReceipt">
+    createdAt?: DateTimeFilter<"EbookSettlementReceipt"> | Date | string
+  }, "receiptId" | "manifestId_revision">
+
+  export type EbookSettlementReceiptOrderByWithAggregationInput = {
+    receiptId?: SortOrder
+    manifestId?: SortOrder
+    revision?: SortOrder
+    receipt?: SortOrder
+    createdAt?: SortOrder
+    _count?: EbookSettlementReceiptCountOrderByAggregateInput
+    _avg?: EbookSettlementReceiptAvgOrderByAggregateInput
+    _max?: EbookSettlementReceiptMaxOrderByAggregateInput
+    _min?: EbookSettlementReceiptMinOrderByAggregateInput
+    _sum?: EbookSettlementReceiptSumOrderByAggregateInput
+  }
+
+  export type EbookSettlementReceiptScalarWhereWithAggregatesInput = {
+    AND?: EbookSettlementReceiptScalarWhereWithAggregatesInput | EbookSettlementReceiptScalarWhereWithAggregatesInput[]
+    OR?: EbookSettlementReceiptScalarWhereWithAggregatesInput[]
+    NOT?: EbookSettlementReceiptScalarWhereWithAggregatesInput | EbookSettlementReceiptScalarWhereWithAggregatesInput[]
+    receiptId?: StringWithAggregatesFilter<"EbookSettlementReceipt"> | string
+    manifestId?: UuidWithAggregatesFilter<"EbookSettlementReceipt"> | string
+    revision?: IntWithAggregatesFilter<"EbookSettlementReceipt"> | number
+    receipt?: JsonWithAggregatesFilter<"EbookSettlementReceipt">
+    createdAt?: DateTimeWithAggregatesFilter<"EbookSettlementReceipt"> | Date | string
+  }
+
   export type OrderItemWhereInput = {
     AND?: OrderItemWhereInput | OrderItemWhereInput[]
     OR?: OrderItemWhereInput[]
@@ -24776,6 +27210,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFilter<"AffiliateCommission"> | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFilter<"AffiliateCommission"> | Date | string
     reversedAt?: DateTimeNullableFilter<"AffiliateCommission"> | Date | string | null
+    settlementManifestId?: UuidNullableFilter<"AffiliateCommission"> | string | null
     affiliate?: XOR<UserScalarRelationFilter, UserWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
@@ -24794,6 +27229,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     reversedAt?: SortOrderInput | SortOrder
+    settlementManifestId?: SortOrderInput | SortOrder
     affiliate?: UserOrderByWithRelationInput
     book?: BookOrderByWithRelationInput
     order?: OrderOrderByWithRelationInput
@@ -24816,6 +27252,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFilter<"AffiliateCommission"> | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFilter<"AffiliateCommission"> | Date | string
     reversedAt?: DateTimeNullableFilter<"AffiliateCommission"> | Date | string | null
+    settlementManifestId?: UuidNullableFilter<"AffiliateCommission"> | string | null
     affiliate?: XOR<UserScalarRelationFilter, UserWhereInput>
     book?: XOR<BookScalarRelationFilter, BookWhereInput>
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
@@ -24834,6 +27271,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     reversedAt?: SortOrderInput | SortOrder
+    settlementManifestId?: SortOrderInput | SortOrder
     _count?: AffiliateCommissionCountOrderByAggregateInput
     _avg?: AffiliateCommissionAvgOrderByAggregateInput
     _max?: AffiliateCommissionMaxOrderByAggregateInput
@@ -24856,6 +27294,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusWithAggregatesFilter<"AffiliateCommission"> | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeWithAggregatesFilter<"AffiliateCommission"> | Date | string
     reversedAt?: DateTimeNullableWithAggregatesFilter<"AffiliateCommission"> | Date | string | null
+    settlementManifestId?: UuidNullableWithAggregatesFilter<"AffiliateCommission"> | string | null
   }
 
   export type AffiliateCommissionDeliveryWhereInput = {
@@ -26042,6 +28481,139 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EbookSettlementManifestCreateInput = {
+    manifestId: string
+    orderId: number
+    manifest: JsonNullValueInput | InputJsonValue
+    settlementId?: string | null
+    manifestHash?: string | null
+    revision?: number
+    projection?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type EbookSettlementManifestUncheckedCreateInput = {
+    manifestId: string
+    orderId: number
+    manifest: JsonNullValueInput | InputJsonValue
+    settlementId?: string | null
+    manifestHash?: string | null
+    revision?: number
+    projection?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type EbookSettlementManifestUpdateInput = {
+    manifestId?: StringFieldUpdateOperationsInput | string
+    orderId?: IntFieldUpdateOperationsInput | number
+    manifest?: JsonNullValueInput | InputJsonValue
+    settlementId?: NullableStringFieldUpdateOperationsInput | string | null
+    manifestHash?: NullableStringFieldUpdateOperationsInput | string | null
+    revision?: IntFieldUpdateOperationsInput | number
+    projection?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookSettlementManifestUncheckedUpdateInput = {
+    manifestId?: StringFieldUpdateOperationsInput | string
+    orderId?: IntFieldUpdateOperationsInput | number
+    manifest?: JsonNullValueInput | InputJsonValue
+    settlementId?: NullableStringFieldUpdateOperationsInput | string | null
+    manifestHash?: NullableStringFieldUpdateOperationsInput | string | null
+    revision?: IntFieldUpdateOperationsInput | number
+    projection?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookSettlementManifestCreateManyInput = {
+    manifestId: string
+    orderId: number
+    manifest: JsonNullValueInput | InputJsonValue
+    settlementId?: string | null
+    manifestHash?: string | null
+    revision?: number
+    projection?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type EbookSettlementManifestUpdateManyMutationInput = {
+    manifestId?: StringFieldUpdateOperationsInput | string
+    orderId?: IntFieldUpdateOperationsInput | number
+    manifest?: JsonNullValueInput | InputJsonValue
+    settlementId?: NullableStringFieldUpdateOperationsInput | string | null
+    manifestHash?: NullableStringFieldUpdateOperationsInput | string | null
+    revision?: IntFieldUpdateOperationsInput | number
+    projection?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookSettlementManifestUncheckedUpdateManyInput = {
+    manifestId?: StringFieldUpdateOperationsInput | string
+    orderId?: IntFieldUpdateOperationsInput | number
+    manifest?: JsonNullValueInput | InputJsonValue
+    settlementId?: NullableStringFieldUpdateOperationsInput | string | null
+    manifestHash?: NullableStringFieldUpdateOperationsInput | string | null
+    revision?: IntFieldUpdateOperationsInput | number
+    projection?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookSettlementReceiptCreateInput = {
+    receiptId: string
+    manifestId: string
+    revision: number
+    receipt: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type EbookSettlementReceiptUncheckedCreateInput = {
+    receiptId: string
+    manifestId: string
+    revision: number
+    receipt: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type EbookSettlementReceiptUpdateInput = {
+    receiptId?: StringFieldUpdateOperationsInput | string
+    manifestId?: StringFieldUpdateOperationsInput | string
+    revision?: IntFieldUpdateOperationsInput | number
+    receipt?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookSettlementReceiptUncheckedUpdateInput = {
+    receiptId?: StringFieldUpdateOperationsInput | string
+    manifestId?: StringFieldUpdateOperationsInput | string
+    revision?: IntFieldUpdateOperationsInput | number
+    receipt?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookSettlementReceiptCreateManyInput = {
+    receiptId: string
+    manifestId: string
+    revision: number
+    receipt: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type EbookSettlementReceiptUpdateManyMutationInput = {
+    receiptId?: StringFieldUpdateOperationsInput | string
+    manifestId?: StringFieldUpdateOperationsInput | string
+    revision?: IntFieldUpdateOperationsInput | number
+    receipt?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookSettlementReceiptUncheckedUpdateManyInput = {
+    receiptId?: StringFieldUpdateOperationsInput | string
+    manifestId?: StringFieldUpdateOperationsInput | string
+    revision?: IntFieldUpdateOperationsInput | number
+    receipt?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type OrderItemCreateInput = {
     quantity: number
     unitPrice: number
@@ -26357,6 +28929,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     affiliate: UserCreateNestedOneWithoutAffiliateCommissionsInput
     book: BookCreateNestedOneWithoutAffiliateCommissionsInput
     order: OrderCreateNestedOneWithoutAffiliateCommissionsInput
@@ -26375,6 +28948,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     delivery?: AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput
   }
 
@@ -26386,6 +28960,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliate?: UserUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     book?: BookUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     order?: OrderUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
@@ -26404,6 +28979,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     delivery?: AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput
   }
 
@@ -26419,6 +28995,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
   }
 
   export type AffiliateCommissionUpdateManyMutationInput = {
@@ -26429,6 +29006,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AffiliateCommissionUncheckedUpdateManyInput = {
@@ -26443,6 +29021,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AffiliateCommissionDeliveryCreateInput = {
@@ -27622,6 +30201,156 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type UuidFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidFilter<$PrismaModel> | string
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type EbookSettlementManifestCountOrderByAggregateInput = {
+    manifestId?: SortOrder
+    orderId?: SortOrder
+    manifest?: SortOrder
+    settlementId?: SortOrder
+    manifestHash?: SortOrder
+    revision?: SortOrder
+    projection?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookSettlementManifestAvgOrderByAggregateInput = {
+    orderId?: SortOrder
+    revision?: SortOrder
+  }
+
+  export type EbookSettlementManifestMaxOrderByAggregateInput = {
+    manifestId?: SortOrder
+    orderId?: SortOrder
+    settlementId?: SortOrder
+    manifestHash?: SortOrder
+    revision?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookSettlementManifestMinOrderByAggregateInput = {
+    manifestId?: SortOrder
+    orderId?: SortOrder
+    settlementId?: SortOrder
+    manifestHash?: SortOrder
+    revision?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookSettlementManifestSumOrderByAggregateInput = {
+    orderId?: SortOrder
+    revision?: SortOrder
+  }
+
+  export type UuidWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidWithAggregatesFilter<$PrismaModel> | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type EbookSettlementReceiptManifestIdRevisionCompoundUniqueInput = {
+    manifestId: string
+    revision: number
+  }
+
+  export type EbookSettlementReceiptCountOrderByAggregateInput = {
+    receiptId?: SortOrder
+    manifestId?: SortOrder
+    revision?: SortOrder
+    receipt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookSettlementReceiptAvgOrderByAggregateInput = {
+    revision?: SortOrder
+  }
+
+  export type EbookSettlementReceiptMaxOrderByAggregateInput = {
+    receiptId?: SortOrder
+    manifestId?: SortOrder
+    revision?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookSettlementReceiptMinOrderByAggregateInput = {
+    receiptId?: SortOrder
+    manifestId?: SortOrder
+    revision?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookSettlementReceiptSumOrderByAggregateInput = {
+    revision?: SortOrder
+  }
+
   export type OrderScalarRelationFilter = {
     is?: OrderWhereInput
     isNot?: OrderWhereInput
@@ -27820,6 +30549,18 @@ export namespace Prisma {
     not?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel> | $Enums.AffiliateCommissionStatus
   }
 
+  export type UuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
   export type AffiliateCommissionDeliveryNullableScalarRelationFilter = {
     is?: AffiliateCommissionDeliveryWhereInput | null
     isNot?: AffiliateCommissionDeliveryWhereInput | null
@@ -27842,6 +30583,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     reversedAt?: SortOrder
+    settlementManifestId?: SortOrder
   }
 
   export type AffiliateCommissionAvgOrderByAggregateInput = {
@@ -27865,6 +30607,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     reversedAt?: SortOrder
+    settlementManifestId?: SortOrder
   }
 
   export type AffiliateCommissionMinOrderByAggregateInput = {
@@ -27879,6 +30622,7 @@ export namespace Prisma {
     status?: SortOrder
     createdAt?: SortOrder
     reversedAt?: SortOrder
+    settlementManifestId?: SortOrder
   }
 
   export type AffiliateCommissionSumOrderByAggregateInput = {
@@ -27899,28 +30643,20 @@ export namespace Prisma {
     _min?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
     _max?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
   }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
 
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  export type UuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type AffiliateCommissionScalarRelationFilter = {
@@ -27987,32 +30723,6 @@ export namespace Prisma {
     id?: SortOrder
     commissionId?: SortOrder
     attempts?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type AffiliateProductLinkBookIdAffiliateIdCompoundUniqueInput = {
@@ -29969,21 +32679,29 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedEnumAffiliateCommissionStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.AffiliateCommissionStatus | EnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.AffiliateCommissionStatus[] | ListEnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AffiliateCommissionStatus[] | ListEnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel> | $Enums.AffiliateCommissionStatus
+  export type NestedUuidFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidFilter<$PrismaModel> | string
   }
 
-  export type NestedEnumAffiliateCommissionStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AffiliateCommissionStatus | EnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.AffiliateCommissionStatus[] | ListEnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AffiliateCommissionStatus[] | ListEnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumAffiliateCommissionStatusWithAggregatesFilter<$PrismaModel> | $Enums.AffiliateCommissionStatus
+  export type NestedUuidWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel>
+    in?: string[] | ListStringFieldRefInput<$PrismaModel>
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
-    _max?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
+    _min?: NestedStringFilter<$PrismaModel>
+    _max?: NestedStringFilter<$PrismaModel>
   }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -30007,6 +32725,48 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumAffiliateCommissionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AffiliateCommissionStatus | EnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AffiliateCommissionStatus[] | ListEnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AffiliateCommissionStatus[] | ListEnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel> | $Enums.AffiliateCommissionStatus
+  }
+
+  export type NestedUuidNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableFilter<$PrismaModel> | string | null
+  }
+
+  export type NestedEnumAffiliateCommissionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AffiliateCommissionStatus | EnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AffiliateCommissionStatus[] | ListEnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AffiliateCommissionStatus[] | ListEnumAffiliateCommissionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAffiliateCommissionStatusWithAggregatesFilter<$PrismaModel> | $Enums.AffiliateCommissionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
+    _max?: NestedEnumAffiliateCommissionStatusFilter<$PrismaModel>
+  }
+
+  export type NestedUuidNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedUuidNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutAdminInput = {
@@ -30623,6 +33383,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     book: BookCreateNestedOneWithoutAffiliateCommissionsInput
     order: OrderCreateNestedOneWithoutAffiliateCommissionsInput
     delivery?: AffiliateCommissionDeliveryCreateNestedOneWithoutCommissionInput
@@ -30639,6 +33400,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     delivery?: AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput
   }
 
@@ -31154,6 +33916,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFilter<"AffiliateCommission"> | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFilter<"AffiliateCommission"> | Date | string
     reversedAt?: DateTimeNullableFilter<"AffiliateCommission"> | Date | string | null
+    settlementManifestId?: UuidNullableFilter<"AffiliateCommission"> | string | null
   }
 
   export type AffiliateProductLinkUpsertWithWhereUniqueWithoutAffiliateInput = {
@@ -31814,6 +34577,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     affiliate: UserCreateNestedOneWithoutAffiliateCommissionsInput
     order: OrderCreateNestedOneWithoutAffiliateCommissionsInput
     delivery?: AffiliateCommissionDeliveryCreateNestedOneWithoutCommissionInput
@@ -31830,6 +34594,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     delivery?: AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput
   }
 
@@ -32860,6 +35625,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     affiliate: UserCreateNestedOneWithoutAffiliateCommissionsInput
     book: BookCreateNestedOneWithoutAffiliateCommissionsInput
     delivery?: AffiliateCommissionDeliveryCreateNestedOneWithoutCommissionInput
@@ -32876,6 +35642,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     delivery?: AffiliateCommissionDeliveryUncheckedCreateNestedOneWithoutCommissionInput
   }
 
@@ -34240,6 +37007,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
     affiliate: UserCreateNestedOneWithoutAffiliateCommissionsInput
     book: BookCreateNestedOneWithoutAffiliateCommissionsInput
     order: OrderCreateNestedOneWithoutAffiliateCommissionsInput
@@ -34257,6 +37025,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
   }
 
   export type AffiliateCommissionCreateOrConnectWithoutDeliveryInput = {
@@ -34283,6 +37052,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliate?: UserUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     book?: BookUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     order?: OrderUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
@@ -34300,6 +37070,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BookCreateWithoutAffiliateProductLinksInput = {
@@ -35206,6 +37977,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
   }
 
   export type AffiliateProductLinkCreateManyAffiliateInput = {
@@ -35614,6 +38386,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     book?: BookUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     order?: OrderUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     delivery?: AffiliateCommissionDeliveryUpdateOneWithoutCommissionNestedInput
@@ -35630,6 +38403,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     delivery?: AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput
   }
 
@@ -35644,6 +38418,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AffiliateProductLinkUpdateWithoutAffiliateInput = {
@@ -36182,6 +38957,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
   }
 
   export type AffiliateProductLinkCreateManyBookInput = {
@@ -36318,6 +39094,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliate?: UserUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     order?: OrderUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     delivery?: AffiliateCommissionDeliveryUpdateOneWithoutCommissionNestedInput
@@ -36334,6 +39111,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     delivery?: AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput
   }
 
@@ -36348,6 +39126,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AffiliateProductLinkUpdateWithoutBookInput = {
@@ -36413,6 +39192,7 @@ export namespace Prisma {
     status?: $Enums.AffiliateCommissionStatus
     createdAt?: Date | string
     reversedAt?: Date | string | null
+    settlementManifestId?: string | null
   }
 
   export type OrderItemUpdateWithoutOrderInput = {
@@ -36461,6 +39241,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliate?: UserUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     book?: BookUpdateOneRequiredWithoutAffiliateCommissionsNestedInput
     delivery?: AffiliateCommissionDeliveryUpdateOneWithoutCommissionNestedInput
@@ -36477,6 +39258,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
     delivery?: AffiliateCommissionDeliveryUncheckedUpdateOneWithoutCommissionNestedInput
   }
 
@@ -36491,6 +39273,7 @@ export namespace Prisma {
     status?: EnumAffiliateCommissionStatusFieldUpdateOperationsInput | $Enums.AffiliateCommissionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     reversedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    settlementManifestId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type OrderItemCreateManyAffiliateProductLinkInput = {
