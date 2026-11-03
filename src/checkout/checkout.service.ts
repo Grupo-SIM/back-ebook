@@ -1,4 +1,5 @@
 import { createFixedFeeSnapshot } from './fixed-fee-snapshot';
+import { createAffiliateAttribution } from '../affiliate/affiliate-attribution';
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -698,6 +699,7 @@ export class CheckoutService {
                             unitPrice: item.book.price,
                             totalPrice: item.book.price * item.quantity,
                             affiliateProductLinkId,
+                            affiliateAttribution: createAffiliateAttribution(item.book, link ?? null, userId),
                         }
                     });
                 })
@@ -852,6 +854,7 @@ export class CheckoutService {
                     unitPrice: book.price,
                     totalPrice: book.price * quantity,
                     affiliateProductLinkId,
+                    affiliateAttribution: createAffiliateAttribution(book, productLink ?? null, userId),
                 }
             });
             return order;

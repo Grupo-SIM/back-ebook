@@ -1,6 +1,7 @@
 import { test, expect } from 'bun:test';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+import { createAffiliateAttribution } from '../src/affiliate/affiliate-attribution';
 import { AffiliateService } from '../src/affiliate/affiliate.service';
 
 // Exercise the actual service transaction against disposable persisted associations.
@@ -9,9 +10,10 @@ test('commission evidence: persisted cents, rejection, replay and delivery rollb
     const sql = query => execFileSync('docker', ['exec', '-i', container, 'psql', '-U', 'postgres', '-v', 'ON_ERROR_STOP=1', '-At', '-c', query], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
     const item = { bookId: 2, totalPrice: 0.3, affiliateProductLink: { affiliateId: 'affiliate', code: 'link' },
         book: { isAffiliate: true, createdById: 'seller', commissionRate: 10 } };
-    const order = { id: 1, orderNumber: 'order-1', orderItems: [item] };
+    item.affiliateAttribution = createAffiliateAttribution({ id: 2, createdById: 'seller', isAffiliate: true, commissionRate: 10 }, { id: 4, bookId: 2, affiliateId: 'affiliate', code: 'link' }, 'buyer');
+    const order = { userId: 'buyer', id: 1, orderNumber: 'order-1', orderItems: [item] };
     const row = { id: 3, orderId: 1, bookId: 2, quantity: 3, unitPrice: 0.1, totalPrice: 0.3,
-        order: { orderNumber: 'order-1' }, book: { createdById: 'seller' }, affiliateProductLink: item.affiliateProductLink };
+        affiliateAttribution: item.affiliateAttribution, affiliateProductLinkId: 4, order: { orderNumber: 'order-1', userId: 'buyer' }, book: { createdById: 'seller' }, affiliateProductLink: item.affiliateProductLink };
     let failDelivery = false;
     let snapshot;
     const literal = value => `'${JSON.stringify(value).replaceAll("'", "''")}'`;
@@ -48,8 +50,9 @@ test('commission evidence: persisted cents, rejection, replay and delivery rollb
         }
         sql('CREATE TABLE items (evidence jsonb); CREATE TABLE commissions (id int PRIMARY KEY, order_id int, book_id int, UNIQUE(order_id,book_id)); CREATE TABLE deliveries (commission_id int REFERENCES commissions(id), snapshot jsonb)');
         for (const rows of [[], [row, row], [{ ...row, orderId: 9 }], [{ ...row, bookId: 9 }],
-            [{ ...row, order: { orderNumber: 'wrong' } }], [{ ...row, book: { createdById: 'other' } }],
-            [{ ...row, affiliateProductLink: null }], [{ ...row, quantity: 2 }],
+            [{ ...row, order: { orderNumber: 'wrong' } }],
+            [{ ...row, affiliateAttribution: null }],
+            ...['bookId', 'ownerId', 'buyerId', 'affiliateId', 'code', 'linkId', 'commissionRate'].map(key => [{ ...row, affiliateAttribution: { ...row.affiliateAttribution, [key]: typeof row.affiliateAttribution[key] === 'number' ? 999 : 'mismatch' } }]), [{ ...row, quantity: 2 }],
             [{ ...row, unitPrice: 0.101 }], [{ ...row, totalPrice: 0.301 }],
             [{ ...row, unitPrice: 0.2, totalPrice: 0.6 }]]) {
             setRows(rows);
@@ -57,17 +60,20 @@ test('commission evidence: persisted cents, rejection, replay and delivery rollb
             expect(sql('SELECT count(*) FROM commissions')).toBe('0');
             expect(sql('SELECT count(*) FROM deliveries')).toBe('0');
         }
-        setRows([row]);
+        setRows([{ ...row, book: { createdById: 'changed-owner' }, affiliateProductLink: null }]);
+        item.book = { isAffiliate: false, createdById: 'changed-owner', commissionRate: 99 };
+        item.affiliateProductLink = null;
         failDelivery = true;
         await service.creditCommissionForOrder(order);
         expect(sql('SELECT count(*) FROM commissions')).toBe('0');
         failDelivery = false;
         await service.creditCommissionForOrder(order);
-        expect(snapshot.evidenceVersion).toBe(1);
+        expect(snapshot.evidenceVersion).toBe(2);
         expect(snapshot.grossCents).toBe(30);
         expect(snapshot.commissionCents).toBe(3);
         expect(snapshot.orderItems[0].unitPriceCents).toBe(10);
         expect(snapshot.amount).toBe(0.03);
+        expect(snapshot.attribution.buyerId).toBe('buyer');
         expect(snapshot.fundingRule).toBe('SELLER_FUNDED_GROSS_COMMISSION');
         const persisted = sql('SELECT snapshot FROM deliveries');
         await service.creditCommissionForOrder(order);
@@ -77,4 +83,4 @@ test('commission evidence: persisted cents, rejection, replay and delivery rollb
     } finally {
         execFileSync('docker', ['rm', '-f', container]);
     }
-}, 60000);
+}, 180000);

@@ -13001,6 +13001,7 @@ export namespace Prisma {
     totalPrice: number
     fixedFeeItemId: number
     affiliateProductLinkId: number
+    affiliateAttribution: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -13062,6 +13063,7 @@ export namespace Prisma {
     totalPrice?: true
     fixedFeeItemId?: true
     affiliateProductLinkId?: true
+    affiliateAttribution?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -13162,6 +13164,7 @@ export namespace Prisma {
     totalPrice: number
     fixedFeeItemId: string | null
     affiliateProductLinkId: number | null
+    affiliateAttribution: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: OrderItemCountAggregateOutputType | null
@@ -13194,6 +13197,7 @@ export namespace Prisma {
     totalPrice?: boolean
     fixedFeeItemId?: boolean
     affiliateProductLinkId?: boolean
+    affiliateAttribution?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
@@ -13210,6 +13214,7 @@ export namespace Prisma {
     totalPrice?: boolean
     fixedFeeItemId?: boolean
     affiliateProductLinkId?: boolean
+    affiliateAttribution?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
@@ -13226,6 +13231,7 @@ export namespace Prisma {
     totalPrice?: boolean
     fixedFeeItemId?: boolean
     affiliateProductLinkId?: boolean
+    affiliateAttribution?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     order?: boolean | OrderDefaultArgs<ExtArgs>
@@ -13242,11 +13248,12 @@ export namespace Prisma {
     totalPrice?: boolean
     fixedFeeItemId?: boolean
     affiliateProductLinkId?: boolean
+    affiliateAttribution?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type OrderItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "bookId" | "quantity" | "unitPrice" | "totalPrice" | "fixedFeeItemId" | "affiliateProductLinkId" | "createdAt" | "updatedAt", ExtArgs["result"]["orderItem"]>
+  export type OrderItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderId" | "bookId" | "quantity" | "unitPrice" | "totalPrice" | "fixedFeeItemId" | "affiliateProductLinkId" | "affiliateAttribution" | "createdAt" | "updatedAt", ExtArgs["result"]["orderItem"]>
   export type OrderItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     order?: boolean | OrderDefaultArgs<ExtArgs>
     book?: boolean | BookDefaultArgs<ExtArgs>
@@ -13279,6 +13286,7 @@ export namespace Prisma {
       totalPrice: number
       fixedFeeItemId: string | null
       affiliateProductLinkId: number | null
+      affiliateAttribution: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["orderItem"]>
@@ -13715,6 +13723,7 @@ export namespace Prisma {
     readonly totalPrice: FieldRef<"OrderItem", 'Float'>
     readonly fixedFeeItemId: FieldRef<"OrderItem", 'String'>
     readonly affiliateProductLinkId: FieldRef<"OrderItem", 'Int'>
+    readonly affiliateAttribution: FieldRef<"OrderItem", 'Json'>
     readonly createdAt: FieldRef<"OrderItem", 'DateTime'>
     readonly updatedAt: FieldRef<"OrderItem", 'DateTime'>
   }
@@ -23364,6 +23373,7 @@ export namespace Prisma {
     totalPrice: 'totalPrice',
     fixedFeeItemId: 'fixedFeeItemId',
     affiliateProductLinkId: 'affiliateProductLinkId',
+    affiliateAttribution: 'affiliateAttribution',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -24460,6 +24470,7 @@ export namespace Prisma {
     totalPrice?: FloatFilter<"OrderItem"> | number
     fixedFeeItemId?: StringNullableFilter<"OrderItem"> | string | null
     affiliateProductLinkId?: IntNullableFilter<"OrderItem"> | number | null
+    affiliateAttribution?: JsonNullableFilter<"OrderItem">
     createdAt?: DateTimeFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeFilter<"OrderItem"> | Date | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
@@ -24476,6 +24487,7 @@ export namespace Prisma {
     totalPrice?: SortOrder
     fixedFeeItemId?: SortOrderInput | SortOrder
     affiliateProductLinkId?: SortOrderInput | SortOrder
+    affiliateAttribution?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     order?: OrderOrderByWithRelationInput
@@ -24495,6 +24507,7 @@ export namespace Prisma {
     unitPrice?: FloatFilter<"OrderItem"> | number
     totalPrice?: FloatFilter<"OrderItem"> | number
     affiliateProductLinkId?: IntNullableFilter<"OrderItem"> | number | null
+    affiliateAttribution?: JsonNullableFilter<"OrderItem">
     createdAt?: DateTimeFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeFilter<"OrderItem"> | Date | string
     order?: XOR<OrderScalarRelationFilter, OrderWhereInput>
@@ -24511,6 +24524,7 @@ export namespace Prisma {
     totalPrice?: SortOrder
     fixedFeeItemId?: SortOrderInput | SortOrder
     affiliateProductLinkId?: SortOrderInput | SortOrder
+    affiliateAttribution?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OrderItemCountOrderByAggregateInput
@@ -24532,6 +24546,7 @@ export namespace Prisma {
     totalPrice?: FloatWithAggregatesFilter<"OrderItem"> | number
     fixedFeeItemId?: StringNullableWithAggregatesFilter<"OrderItem"> | string | null
     affiliateProductLinkId?: IntNullableWithAggregatesFilter<"OrderItem"> | number | null
+    affiliateAttribution?: JsonNullableWithAggregatesFilter<"OrderItem">
     createdAt?: DateTimeWithAggregatesFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"OrderItem"> | Date | string
   }
@@ -26032,6 +26047,7 @@ export namespace Prisma {
     unitPrice: number
     totalPrice: number
     fixedFeeItemId?: string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     order: OrderCreateNestedOneWithoutOrderItemsInput
@@ -26048,6 +26064,7 @@ export namespace Prisma {
     totalPrice: number
     fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26057,6 +26074,7 @@ export namespace Prisma {
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -26073,6 +26091,7 @@ export namespace Prisma {
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26086,6 +26105,7 @@ export namespace Prisma {
     totalPrice: number
     fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26095,6 +26115,7 @@ export namespace Prisma {
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26108,6 +26129,7 @@ export namespace Prisma {
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -27619,6 +27641,7 @@ export namespace Prisma {
     totalPrice?: SortOrder
     fixedFeeItemId?: SortOrder
     affiliateProductLinkId?: SortOrder
+    affiliateAttribution?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -31726,6 +31749,7 @@ export namespace Prisma {
     unitPrice: number
     totalPrice: number
     fixedFeeItemId?: string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     order: OrderCreateNestedOneWithoutOrderItemsInput
@@ -31740,6 +31764,7 @@ export namespace Prisma {
     totalPrice: number
     fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -32056,6 +32081,7 @@ export namespace Prisma {
     totalPrice?: FloatFilter<"OrderItem"> | number
     fixedFeeItemId?: StringNullableFilter<"OrderItem"> | string | null
     affiliateProductLinkId?: IntNullableFilter<"OrderItem"> | number | null
+    affiliateAttribution?: JsonNullableFilter<"OrderItem">
     createdAt?: DateTimeFilter<"OrderItem"> | Date | string
     updatedAt?: DateTimeFilter<"OrderItem"> | Date | string
   }
@@ -32796,6 +32822,7 @@ export namespace Prisma {
     unitPrice: number
     totalPrice: number
     fixedFeeItemId?: string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     book: BookCreateNestedOneWithoutOrderItemsInput
@@ -32810,6 +32837,7 @@ export namespace Prisma {
     totalPrice: number
     fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -34424,6 +34452,7 @@ export namespace Prisma {
     unitPrice: number
     totalPrice: number
     fixedFeeItemId?: string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     order: OrderCreateNestedOneWithoutOrderItemsInput
@@ -34438,6 +34467,7 @@ export namespace Prisma {
     unitPrice: number
     totalPrice: number
     fixedFeeItemId?: string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36127,6 +36157,7 @@ export namespace Prisma {
     totalPrice: number
     fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36220,6 +36251,7 @@ export namespace Prisma {
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -36234,6 +36266,7 @@ export namespace Prisma {
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36246,6 +36279,7 @@ export namespace Prisma {
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36363,6 +36397,7 @@ export namespace Prisma {
     totalPrice: number
     fixedFeeItemId?: string | null
     affiliateProductLinkId?: number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36385,6 +36420,7 @@ export namespace Prisma {
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     book?: BookUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -36399,6 +36435,7 @@ export namespace Prisma {
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36411,6 +36448,7 @@ export namespace Prisma {
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
     affiliateProductLinkId?: NullableIntFieldUpdateOperationsInput | number | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36463,6 +36501,7 @@ export namespace Prisma {
     unitPrice: number
     totalPrice: number
     fixedFeeItemId?: string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -36472,6 +36511,7 @@ export namespace Prisma {
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     order?: OrderUpdateOneRequiredWithoutOrderItemsNestedInput
@@ -36486,6 +36526,7 @@ export namespace Prisma {
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36498,6 +36539,7 @@ export namespace Prisma {
     unitPrice?: FloatFieldUpdateOperationsInput | number
     totalPrice?: FloatFieldUpdateOperationsInput | number
     fixedFeeItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    affiliateAttribution?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

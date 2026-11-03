@@ -1,5 +1,6 @@
 import { retryCommissionDeliveries } from './commission-delivery';
 import { validateCommissionEvidence } from './commission-evidence';
+import { readAffiliateAttribution } from './affiliate-attribution';
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { randomBytes } from 'crypto';
@@ -162,6 +163,7 @@ export class AffiliateService {
         userId?: string;
         orderItems: Array<{
             bookId: number;
+            affiliateAttribution?: unknown;
             totalPrice: number;
             affiliateProductLink: { affiliateId: string; code: string } | null;
             book: { isAffiliate: boolean; createdById: string | null; title?: string; commissionRate?: number | null };
@@ -170,10 +172,21 @@ export class AffiliateService {
         console.log('[affiliate][creditCommissionForOrder] pedido', order.orderNumber, 'itens:', JSON.stringify(order.orderItems.map(i => ({ bookId: i.bookId, link: i.affiliateProductLink, isAffiliate: i.book?.isAffiliate }))));
 
         for (const item of order.orderItems) {
-            const link = item.affiliateProductLink;
-            if (!link || !item.book?.isAffiliate) continue;
+            if (item.affiliateAttribution == null) {
+                this.logger.warn(`[Affiliate] Legacy/unconfirmed attribution order=${order.id} book=${item.bookId}`);
+                continue;
+            }
+            let attribution: ReturnType<typeof readAffiliateAttribution>;
+            try {
+                attribution = readAffiliateAttribution(item.affiliateAttribution);
+            } catch (error) {
+                this.logger.warn(`[Affiliate] Invalid attribution order=${order.id} book=${item.bookId}: ${error.message}`);
+                continue;
+            }
+            if (!attribution.affiliateId || attribution.rateSource === 'UNCONFIRMED') continue;
+            const link = { affiliateId: attribution.affiliateId, code: attribution.code };
 
-            const rate = item.book.commissionRate;
+            const rate = attribution.commissionRate;
             if (!rate || rate <= 0) continue;
 
             // Afiliado não ganha comissão comprando com o próprio link (autocompra)
@@ -181,7 +194,7 @@ export class AffiliateService {
 
             // Afiliado não pode ser o dono do livro (defesa extra: o link pode ter sido
             // criado antes do livro trocar de dono)
-            if (item.book.createdById && item.book.createdById === link.affiliateId) continue;
+            if (attribution.ownerId === link.affiliateId) continue;
 
             const affiliate = await this.prisma.user.findUnique({ where: { id: link.affiliateId } });
             if (!affiliate) {
@@ -198,20 +211,22 @@ export class AffiliateService {
                 const orderItems = await tx.orderItem.findMany({
                     where: { orderId: order.id, bookId: item.bookId },
                     select: { id: true, orderId: true, bookId: true, quantity: true, unitPrice: true, totalPrice: true,
-                        order: { select: { orderNumber: true } },
+                        affiliateAttribution: true, affiliateProductLinkId: true,
+                        order: { select: { orderNumber: true, userId: true } },
                         book: { select: { createdById: true } },
                         affiliateProductLink: { select: { affiliateId: true, code: true } } },
                     orderBy: { id: 'asc' },
                 });
                 const evidence = validateCommissionEvidence(orderItems, {
                     orderId: order.id, orderNumber: order.orderNumber, bookId: item.bookId,
-                    sellerId: item.book.createdById, affiliateId: affiliate.id, code: link.code, grossAmount, commissionAmount,
+                    sellerId: attribution.ownerId, affiliateId: affiliate.id, code: link.code, grossAmount, commissionAmount,
+                    commissionRate: rate, buyerId: order.userId,
                 });
                 const snapshot = JSON.stringify({
                     ...evidence,
                     referenceId: `${order.id}-${item.bookId}`, orderId: order.id,
                     orderNumber: order.orderNumber, bookId: item.bookId,
-                    sellerId: item.book.createdById || null, affiliateId: affiliate.id,
+                    sellerId: attribution.ownerId || null, affiliateId: affiliate.id,
                     cpf: affiliate.cpf || null, cnpj: affiliate.cnpj || null,
                     amount: commissionAmount, currency: 'BRL', grossAmount, commissionRate: rate,
                     description: `Comissão de afiliado — ${item.book.title ?? `livro #${item.bookId}`} (pedido ${order.orderNumber})`,

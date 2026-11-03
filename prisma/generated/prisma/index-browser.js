@@ -246,6 +246,7 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   totalPrice: 'totalPrice',
   fixedFeeItemId: 'fixedFeeItemId',
   affiliateProductLinkId: 'affiliateProductLinkId',
+  affiliateAttribution: 'affiliateAttribution',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
