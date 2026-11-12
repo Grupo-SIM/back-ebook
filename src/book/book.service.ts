@@ -1302,11 +1302,14 @@ export class BookService {
     async userHasPurchasedBook(bookId: number, userId: string): Promise<boolean> {
         const orderItem = await this.prisma.orderItem.findFirst({
             where: {
-                bookId,
                 order: {
                     userId,
                     status: 'paid',
                 },
+                OR: [
+                    { bookId },
+                    { comboBooks: { some: { bookId } } },
+                ],
             },
         });
         return !!orderItem;

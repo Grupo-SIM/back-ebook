@@ -1332,6 +1332,21 @@ export class CheckoutService {
         if (status === 'paid') {
             for (const item of updatedOrder.orderItems) {
                 const book = item.book;
+                if (book?.type === 'COMBO') {
+                    const members = await this.prisma.bookComboItem.findMany({
+                        where: { comboId: book.id },
+                        select: { bookId: true, position: true },
+                        orderBy: { position: 'asc' },
+                    });
+                    await this.prisma.orderComboBook.createMany({
+                        data: members.map((member) => ({
+                            orderItemId: item.id,
+                            bookId: member.bookId,
+                            position: member.position,
+                        })),
+                        skipDuplicates: true,
+                    });
+                }
                 if (book && book.createdById) {
                     // Criar log de atividade
                     await this.prisma['activityLog'].create({
