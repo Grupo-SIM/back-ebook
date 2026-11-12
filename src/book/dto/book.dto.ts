@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum, IsBoolean, Validate, MaxLength } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsUrl, Min, Max, IsEnum, IsBoolean, Validate, MaxLength, IsArray, ArrayMinSize } from 'class-validator';
 import { Transform, type TransformFnParams, Type } from 'class-transformer';
 
 const parseBoolean = ({ obj, key }: TransformFnParams): boolean => {
@@ -113,6 +113,18 @@ export class BookQueryDto extends PaginationDto {
 }
 
 export class CreateBookDto {
+    @ApiProperty({ enum: ['SINGLE', 'COMBO'], required: false, default: 'SINGLE' })
+    @IsOptional()
+    @IsEnum(['SINGLE', 'COMBO'])
+    type?: 'SINGLE' | 'COMBO' = 'SINGLE';
+
+    @ApiProperty({ type: [Number], required: false, description: 'Ebooks do próprio vendedor incluídos no combo' })
+    @IsOptional()
+    @IsArray()
+    @ArrayMinSize(2)
+    @Type(() => Number)
+    @IsNumber({}, { each: true })
+    comboBookIds?: number[];
     @ApiProperty({ example: 'O Senhor dos Anéis' })
     @IsString()
     title: string;

@@ -6,6 +6,7 @@ import { Prisma } from '../../prisma/generated/prisma';
 import { FavoriteService } from '../favorite/favorite.service';
 import { CheckoutService } from '../checkout/checkout.service';
 import { normalizeVideoUrl } from './video-url.util';
+import { validateComboBookIds } from './combo.validation';
 
 @Injectable()
 export class BookService {
@@ -63,6 +64,16 @@ export class BookService {
     }
 
     async createBook(data: CreateBookDto, createdById: string): Promise<BookResponseDto> {
+        const type = data.type ?? 'SINGLE';
+        const comboBookIds = data.comboBookIds ?? [];
+        if (type === 'COMBO') {
+            const comboBooks = await this.prisma.book.findMany({
+                where: { id: { in: comboBookIds } },
+                select: { id: true, type: true, isActive: true, createdById: true },
+            });
+            validateComboBookIds(comboBookIds, createdById, comboBooks);
+        }
+
         // Verificar se a categoria existe
         const category = await this.prisma.category.findUnique({
             where: { id: data.categoryId }
@@ -97,6 +108,7 @@ export class BookService {
 
         const book = await this.prisma.book.create({
             data: {
+                type,
                 title: data.title,
                 author: data.author,
                 price: data.price,
@@ -121,6 +133,11 @@ export class BookService {
                 isActive: data.isActive ?? true,
                 isAffiliate: (data as any).isAffiliate ?? false,
                 commissionRate: (data as any).isAffiliate ? (data as any).commissionRate : null,
+                ...(type === 'COMBO' ? {
+                    comboItems: {
+                        create: comboBookIds.map((bookId, position) => ({ bookId, position })),
+                    },
+                } : {}),
                 ...(coverImageId ? { coverImageId } : {}),
             },
             include: {
