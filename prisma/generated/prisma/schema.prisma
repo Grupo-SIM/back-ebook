@@ -13,6 +13,11 @@ enum Role {
   CUSTOMER
 }
 
+enum BookType {
+  SINGLE
+  COMBO
+}
+
 model Admin {
   id        String   @id @default(uuid())
   adminUser User     @relation("AdminToUser", fields: [userId], references: [id], onDelete: Cascade)
@@ -90,6 +95,7 @@ model Category {
 
 model Book {
   id              Int      @id @default(autoincrement())
+  type            BookType @default(SINGLE)
   title           String
   author          String
   description     String
@@ -127,6 +133,9 @@ model Book {
   favorites             Favorite[]
   cart                  Cart[]
   orderItems            OrderItem[]
+  comboItems            BookComboItem[]        @relation("ComboItems")
+  memberOfCombos        BookComboItem[]        @relation("ComboMembers")
+  comboOrderItems       OrderComboBook[]
   reviews               Review[]
   affiliateCommissions  AffiliateCommission[]
   affiliateProductLinks AffiliateProductLink[] @relation("AffiliateProductLinksForBook")
@@ -234,8 +243,39 @@ model OrderItem {
   order                Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
   book                 Book                  @relation(fields: [bookId], references: [id])
   affiliateProductLink AffiliateProductLink? @relation(fields: [affiliateProductLinkId], references: [id])
+  comboBooks           OrderComboBook[]
 
   @@map("order_items")
+}
+
+model BookComboItem {
+  id       Int @id @default(autoincrement())
+  comboId  Int
+  bookId   Int
+  position Int @default(0)
+
+  combo Book @relation("ComboItems", fields: [comboId], references: [id], onDelete: Cascade)
+  book  Book @relation("ComboMembers", fields: [bookId], references: [id], onDelete: Restrict)
+
+  @@unique([comboId, bookId])
+  @@unique([comboId, position])
+  @@index([bookId])
+  @@map("book_combo_items")
+}
+
+model OrderComboBook {
+  id          Int @id @default(autoincrement())
+  orderItemId Int
+  bookId      Int
+  position    Int @default(0)
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  book      Book      @relation(fields: [bookId], references: [id], onDelete: Restrict)
+
+  @@unique([orderItemId, bookId])
+  @@unique([orderItemId, position])
+  @@index([bookId])
+  @@map("order_combo_books")
 }
 
 model Notification {

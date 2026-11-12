@@ -165,6 +165,7 @@ exports.Prisma.CategoryScalarFieldEnum = {
 
 exports.Prisma.BookScalarFieldEnum = {
   id: 'id',
+  type: 'type',
   title: 'title',
   author: 'author',
   description: 'description',
@@ -269,6 +270,20 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   affiliateAttribution: 'affiliateAttribution',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BookComboItemScalarFieldEnum = {
+  id: 'id',
+  comboId: 'comboId',
+  bookId: 'bookId',
+  position: 'position'
+};
+
+exports.Prisma.OrderComboBookScalarFieldEnum = {
+  id: 'id',
+  orderItemId: 'orderItemId',
+  bookId: 'bookId',
+  position: 'position'
 };
 
 exports.Prisma.NotificationScalarFieldEnum = {
@@ -395,6 +410,11 @@ exports.Role = exports.$Enums.Role = {
   CUSTOMER: 'CUSTOMER'
 };
 
+exports.BookType = exports.$Enums.BookType = {
+  SINGLE: 'SINGLE',
+  COMBO: 'COMBO'
+};
+
 exports.AffiliateCommissionStatus = exports.$Enums.AffiliateCommissionStatus = {
   PENDING: 'PENDING',
   CREDITED: 'CREDITED',
@@ -413,6 +433,8 @@ exports.Prisma.ModelName = {
   EbookSettlementManifest: 'EbookSettlementManifest',
   EbookSettlementReceipt: 'EbookSettlementReceipt',
   OrderItem: 'OrderItem',
+  BookComboItem: 'BookComboItem',
+  OrderComboBook: 'OrderComboBook',
   Notification: 'Notification',
   Review: 'Review',
   ActivityLog: 'ActivityLog',
