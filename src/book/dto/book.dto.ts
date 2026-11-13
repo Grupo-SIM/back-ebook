@@ -110,6 +110,11 @@ export class BookQueryDto extends PaginationDto {
     @IsOptional()
     @IsString()
     createdById?: string;
+
+    @ApiProperty({ enum: ['SINGLE', 'COMBO'], required: false, description: 'Filtrar pelo tipo do item' })
+    @IsOptional()
+    @IsEnum(['SINGLE', 'COMBO'])
+    bookType?: 'SINGLE' | 'COMBO';
 }
 
 export class CreateBookDto {
@@ -393,6 +398,14 @@ export class UpdateBookDto {
     @Min(5)
     @Max(100)
     commissionRate?: number;
+
+    @ApiProperty({ type: [Number], required: false, description: 'Ebooks incluídos no combo' })
+    @IsOptional()
+    @IsArray()
+    @ArrayMinSize(2)
+    @Type(() => Number)
+    @IsNumber({}, { each: true })
+    comboBookIds?: number[];
 }
 
 export class ReviewResponseDto {
@@ -497,6 +510,12 @@ export class BookResponseDto {
 
     @ApiProperty({ example: 10, required: false, nullable: true, description: 'Percentual de comissão de afiliado definido pelo criador do livro' })
     commissionRate?: number | null;
+
+    @ApiProperty({ enum: ['SINGLE', 'COMBO'] })
+    type?: 'SINGLE' | 'COMBO';
+
+    @ApiProperty({ required: false, description: 'Itens que compõem o combo' })
+    comboBooks?: Array<Pick<BookResponseDto, 'id' | 'type' | 'title' | 'author' | 'cover' | 'description' | 'price' | 'categoryId' | 'categoryName' | 'isActive' | 'isFree' | 'downloadUrl'>>;
 }
 
 export class PaginatedBookResponseDto {

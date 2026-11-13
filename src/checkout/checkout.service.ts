@@ -100,8 +100,14 @@ export class CheckoutService {
         const attachments: Array<{ filename: string; content: Buffer; contentType?: string }> = [];
         let totalBytes = 0;
 
-        for (const item of orderItems) {
-            const downloadUrl = item.book?.downloadUrl;
+        const purchasedBooks = orderItems.flatMap((item) =>
+            item.book?.type === 'COMBO'
+                ? (item.comboBooks ?? []).map((comboBook) => comboBook.book)
+                : [item.book],
+        ).filter(Boolean);
+
+        for (const book of purchasedBooks) {
+            const downloadUrl = book.downloadUrl;
             if (!downloadUrl) continue;
 
             try {
@@ -122,14 +128,14 @@ export class CheckoutService {
 
                 const urlPath = isRemoteUrl ? new URL(downloadUrl).pathname : downloadUrl;
                 const extension = path.extname(urlPath) || '.pdf';
-                const safeTitle = String(item.book.title || 'ebook')
+                const safeTitle = String(book.title || 'ebook')
                     .replace(/[^a-zA-Z0-9À-ÿ _-]/g, '')
                     .trim()
                     .replace(/\s+/g, '-') || 'ebook';
 
                 // Base64 aumenta ~33%; acima disso Gmail/Outlook recusam o email inteiro
                 if (totalBytes + content.length > PURCHASE_EMAIL_MAX_ATTACHMENT_BYTES) {
-                    console.warn(`⚠️ Ebook "${item.book.title}" não anexado: ${(content.length / 1024 / 1024).toFixed(1)}MB excede o limite do email`);
+                    console.warn(`⚠️ Ebook "${book.title}" não anexado: ${(content.length / 1024 / 1024).toFixed(1)}MB excede o limite do email`);
                     continue;
                 }
                 totalBytes += content.length;
@@ -140,7 +146,7 @@ export class CheckoutService {
                     contentType: extension.toLowerCase() === '.pdf' ? 'application/pdf' : undefined,
                 });
             } catch (error) {
-                console.warn(`⚠️ Não foi possível anexar o ebook "${item.book?.title || 'sem título'}":`, error?.message || error);
+                console.warn(`⚠️ Não foi possível anexar o ebook "${book?.title || 'sem título'}":`, error?.message || error);
             }
         }
 
@@ -1373,13 +1379,26 @@ export class CheckoutService {
      */
     async sendPurchaseConfirmationEmail(orderId: number, customerEmail?: string): Promise<void> {
         try {
+            // Persistir os títulos que pertenciam ao combo no momento da compra.
+            const comboItems = await this.prisma.orderItem.findMany({
+                where: { orderId, book: { type: 'COMBO' } },
+                include: { book: { include: { comboItems: true } } },
+            });
+            for (const item of comboItems) {
+                await this.prisma.orderComboBook.createMany({
+                    data: item.book.comboItems.map((member) => ({ orderItemId: item.id, bookId: member.bookId, position: member.position })),
+                    skipDuplicates: true,
+                });
+            }
+
             // Buscar o pedido com todos os dados necessários
             const order = await this.prisma.order.findUnique({
                 where: { id: orderId },
                 include: {
                     orderItems: {
                         include: {
-                            book: true
+                            book: true,
+                            comboBooks: { include: { book: true }, orderBy: { position: 'asc' } },
                         }
                     },
                     user: true
@@ -1389,6 +1408,10 @@ export class CheckoutService {
             if (!order || !order.user) {
                 throw new Error(`Pedido ${orderId} não encontrado ou usuário inválido`);
             }
+
+            const purchasedBooks = order.orderItems.flatMap((item) =>
+                item.book.type === 'COMBO' ? item.comboBooks.map((comboBook) => comboBook.book) : [item.book],
+            );
 
             // Preparar dados para o email
             const userName = order.user.name;
@@ -1401,8 +1424,8 @@ export class CheckoutService {
             const purchaseDate = new Date().toLocaleDateString('pt-BR');
 
             // Listar os livros comprados
-            const booksList = order.orderItems.map(item => 
-                `• ${item.book.title} - ${item.book.author} (Qtd: ${item.quantity})`
+            const booksList = purchasedBooks.map(book =>
+                `• ${book.title} - ${book.author}`
             ).join('\n');
 
             const firstBook = order.orderItems[0]?.book;
@@ -1411,7 +1434,7 @@ export class CheckoutService {
             const appUrl = (process.env.FRONTEND_URL || 'https://ebooksim.com').replace(/\/+$/, '');
             const attachments = await this.buildPurchaseEmailAttachments(order.orderItems);
             const isFreeOrder = order.paymentMethod === 'free' || order.totalAmount === 0;
-            const allAttached = attachments.length === order.orderItems.filter(item => item.book?.downloadUrl).length;
+            const allAttached = attachments.length === purchasedBooks.filter(book => book.downloadUrl).length;
             const introText = `${isFreeOrder ? 'Seu ebook gratuito já é seu.' : 'Sua compra foi confirmada com sucesso.'}<br>${allAttached
                 ? 'O conteúdo já está disponível na sua biblioteca e o arquivo está anexado a este email.'
                 : 'O conteúdo já está disponível na sua biblioteca. Use o botão abaixo para baixar o arquivo.'}`;
@@ -1456,13 +1479,13 @@ export class CheckoutService {
           <tr>
             <td style="background:#18181b;padding:28px 40px 0;">
               <p style="margin:0 0 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#71717a;">Você adquiriu</p>
-              ${order.orderItems.map(item => `
+              ${purchasedBooks.map(book => `
               <div style="background:#27272a;border:1px solid #3f3f46;border-radius:10px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;">
                 <div style="width:40px;height:40px;background:linear-gradient(135deg,#10b981,#0891b2);border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;">📖</div>
                 <div style="margin-left:16px;">
-                  <p style="margin:0;font-size:15px;font-weight:600;color:#f4f4f5;">${item.book.title}</p>
-                  <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${item.book.author}</p>
-                  ${item.book.downloadUrl ? `<a href="${appUrl}/library" style="display:inline-block;margin-top:10px;color:#34d399;font-size:13px;font-weight:600;text-decoration:none;">Baixar PDF →</a>` : ''}
+                  <p style="margin:0;font-size:15px;font-weight:600;color:#f4f4f5;">${book.title}</p>
+                  <p style="margin:4px 0 0;font-size:13px;color:#a1a1aa;">${book.author}</p>
+                  ${book.downloadUrl ? `<a href="${appUrl}/library" style="display:inline-block;margin-top:10px;color:#34d399;font-size:13px;font-weight:600;text-decoration:none;">Baixar PDF →</a>` : ''}
                 </div>
               </div>`).join('')}
             </td>

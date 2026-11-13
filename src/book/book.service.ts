@@ -158,6 +158,7 @@ export class BookService {
 
         return {
             id: book.id,
+            type: book.type,
             title: book.title,
             author: book.author,
             price: book.price,
@@ -207,8 +208,9 @@ export class BookService {
             sortBy,
             sortOrder,
             type,
-            createdById
-        } = { ...convertedQuery, type: query.type, createdById: query.createdById };
+            createdById,
+            bookType,
+        } = { ...convertedQuery, type: query.type, createdById: query.createdById, bookType: query.bookType };
 
         const skip = (page - 1) * limit;
 
@@ -260,6 +262,10 @@ export class BookService {
             where.createdById = createdById;
         }
 
+        if (bookType) {
+            where.type = bookType;
+        }
+
         // Obter configuração de ordenação
         const sortConfig = this.getSortConfig(sortOption, sortBy, sortOrder);
 
@@ -307,6 +313,7 @@ export class BookService {
 
         const data = books.map(book => ({
             id: book.id,
+            type: book.type,
             title: book.title,
             author: book.author,
             price: book.price,
@@ -371,6 +378,10 @@ export class BookService {
             },
             include: {
                 categoryRef: true,
+                comboItems: {
+                    orderBy: { position: 'asc' },
+                    include: { book: { include: { categoryRef: true } } },
+                },
             },
         });
 
@@ -408,6 +419,21 @@ export class BookService {
 
         const response = {
             id: book.id,
+            type: book.type,
+            comboBooks: book.type === 'COMBO' ? book.comboItems.map(item => ({
+                id: item.book.id,
+                type: item.book.type,
+                title: item.book.title,
+                author: item.book.author,
+                cover: item.book.cover,
+                description: item.book.description,
+                price: item.book.price,
+                categoryId: item.book.categoryId,
+                categoryName: item.book.category,
+                isActive: item.book.isActive,
+                isFree: item.book.isFree,
+                downloadUrl: item.book.downloadUrl ?? undefined,
+            })) : undefined,
             title: book.title,
             author: book.author,
             price: book.price,
@@ -538,6 +564,7 @@ export class BookService {
 
         const data = books.map(book => ({
             id: book.id,
+            type: book.type,
             title: book.title,
             author: book.author,
             price: book.price,
@@ -654,6 +681,7 @@ export class BookService {
 
         const data = books.map(book => ({
             id: book.id,
+            type: book.type,
             title: book.title,
             author: book.author,
             price: book.price,
@@ -763,6 +791,17 @@ export class BookService {
         if (data.isActive !== undefined) updateData.isActive = data.isActive;
         if ((data as any).isAffiliate !== undefined) updateData.isAffiliate = (data as any).isAffiliate;
         if ((data as any).commissionRate !== undefined) updateData.commissionRate = (data as any).commissionRate;
+        if (existingBook.type === 'COMBO' && data.comboBookIds !== undefined) {
+            const comboBooks = await this.prisma.book.findMany({
+                where: { id: { in: data.comboBookIds } },
+                select: { id: true, type: true, isActive: true, createdById: true },
+            });
+            validateComboBookIds(data.comboBookIds, adminId ?? existingBook.createdById ?? '', comboBooks);
+            updateData.comboItems = {
+                deleteMany: {},
+                create: data.comboBookIds.map((bookId, position) => ({ bookId, position })),
+            };
+        }
 
         const effectiveIsAffiliate = updateData.isAffiliate !== undefined ? updateData.isAffiliate : existingBook.isAffiliate;
         if (effectiveIsAffiliate) {
@@ -920,6 +959,7 @@ export class BookService {
         ]);
         const data = books.map(book => ({
             id: book.id,
+            type: book.type,
             title: book.title,
             author: book.author,
             price: book.price,
@@ -961,6 +1001,7 @@ export class BookService {
         });
         return books.map(book => ({
             id: book.id,
+            type: book.type,
             title: book.title,
             author: book.author,
             price: book.price,
@@ -1201,6 +1242,7 @@ export class BookService {
 
         const data = books.map(book => ({
             id: book.id,
+            type: book.type,
             title: book.title,
             author: book.author,
             price: book.price,
