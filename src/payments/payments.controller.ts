@@ -12,12 +12,28 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuardAdmin } from 'src/auth/guard/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/user.decorator';
-import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
+import type { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { PrismaService } from '../../prisma/prisma.service';
 import { isValidCpf, isValidCnpj, normalizeCpf } from 'src/common/utils/cpf.util';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, Min } from 'class-validator';
+import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { calcNetAmount, getSellerFees, parseSellerFees, SellerFees } from 'src/common/seller-fees';
+import {
+  isMerchantNotAssociated,
+  isMerchantWithoutAccount,
+  merchantQuote,
+  merchantSummary,
+  merchantWithdraw,
+  merchantWithdrawals,
+  SimintpayPlatformError,
+} from 'src/common/simintpay-platform';
+import {
+  grossForNet,
+  isCanonicalFinanceEnabled,
+  mapCanonicalSummary,
+  mapCanonicalWithdrawals,
+  withdrawalIdempotencyKey,
+} from './canonical-finance';
 
 export class WithdrawRequestDto {
   @ApiProperty({ description: 'Valor a ser sacado', example: 100.50 })
@@ -28,6 +44,14 @@ export class WithdrawRequestDto {
   @ApiProperty({ description: 'Chave PIX para recebimento', example: '12345678909' })
   @IsString()
   pixKey: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Chave de idempotência opcional (também aceita no header Idempotency-Key). Sem ela, é derivada de usuário+valor+PIX+minuto.',
+  })
+  @IsOptional()
+  @IsString()
+  idempotencyKey?: string;
 }
 
 @ApiTags('Payments')
@@ -385,10 +409,56 @@ export class PaymentsController {
     return mergedSorted;
   }
 
+  /** Traduz erros do SimIntPay canônico para exceções HTTP (sem vazar token). */
+  private canonicalError(error: unknown, action: string): never {
+    if (error instanceof SimintpayPlatformError) {
+      if (error.status === 400 || error.status === 409 || error.status === 422) {
+        throw new BadRequestException(`${action}: ${error.body.slice(0, 300)}`);
+      }
+      throw new ServiceUnavailableException(`${action}: SimIntPay respondeu ${error.status}`);
+    }
+    throw new ServiceUnavailableException(`${action}: SimIntPay indisponível`);
+  }
+
+  /** Campos do summary que o contrato canônico ainda não expõe (TODO plano 'taxas por modalidade'): vêm do legado. */
+  private async legacyFeeFields(cpf: string) {
+    try {
+      return await this.machineGet('/internal/ebook/finance/summary', cpf);
+    } catch {
+      return null;
+    }
+  }
+
+  private async canonicalSummary(user: RequestWithUser['user'], cpf: string) {
+    let canonical;
+    try {
+      canonical = await merchantSummary(cpf);
+    } catch (error) {
+      if (isMerchantNotAssociated(error) || isMerchantWithoutAccount(error)) {
+        // Sem comerciante no SimIntPay: mantém o fallback de saldo estimado local (accountExists:false).
+        const legacy = await this.legacyFeeFields(cpf);
+        return {
+          availableBalance: 0,
+          pendingWithdraws: 0,
+          lockedBalance: 0,
+          minimumWithdrawalAmount: legacy?.minimumWithdrawalAmount,
+          withdrawalFeeBrl: legacy?.withdrawalFeeBrl,
+          pixFeePercent: legacy?.pixFeePercent,
+          transactionFeeBrl: legacy?.transactionFeeBrl,
+          accountExists: false,
+        };
+      }
+      this.canonicalError(error, 'Falha ao consultar saldo');
+    }
+    return mapCanonicalSummary(canonical, await this.legacyFeeFields(cpf));
+  }
+
   @Get('summary')
   async summary(@GetUser() user: RequestWithUser['user']) {
     const cpf = await this.getCpfFromUser(user);
-    const machineSummary = await this.machineGet('/internal/ebook/finance/summary', cpf);
+    const machineSummary = isCanonicalFinanceEnabled()
+      ? await this.canonicalSummary(user, cpf)
+      : await this.machineGet('/internal/ebook/finance/summary', cpf);
 
     // Sem conta ativa no Simintpay: gateway não tem onde guardar saldo.
     // Calcula um saldo estimado a partir dos pedidos pagos localmente, só para exibição —
@@ -539,6 +609,22 @@ export class PaymentsController {
     @Query('limit') limit?: string,
   ) {
     const cpf = await this.getCpfFromUser(user);
+    if (isCanonicalFinanceEnabled()) {
+      try {
+        const result = await merchantWithdrawals(
+          cpf,
+          Math.max(1, Number(page || 1)),
+          Math.min(Math.max(1, Number(limit || 10)), 100), // canônico limita a 100 por página
+        );
+        const dbUser = await this.prisma.user.findUnique({ where: { id: user.id }, select: { name: true, email: true } });
+        return mapCanonicalWithdrawals(result, { id: user.id, ...dbUser });
+      } catch (error) {
+        if (isMerchantNotAssociated(error) || isMerchantWithoutAccount(error)) {
+          return { withdrawals: [], meta: { currentPage: 1, itemsPerPage: 10, totalItems: 0, totalPages: 1 } };
+        }
+        this.canonicalError(error, 'Falha ao listar saques');
+      }
+    }
     return this.machineGet('/internal/ebook/finance/withdrawals', cpf, {
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
@@ -550,6 +636,7 @@ export class PaymentsController {
   async withdraw(
     @GetUser() user: RequestWithUser['user'],
     @Body() body: WithdrawRequestDto,
+    @Headers('idempotency-key') idempotencyHeader?: string,
   ) {
     if (!body.amount || isNaN(Number(body.amount)) || body.amount <= 0) {
       throw new BadRequestException('Valor de saque inválido ou não informado.');
@@ -559,6 +646,9 @@ export class PaymentsController {
     }
 
     const cpf = await this.getCpfFromUser(user);
+    if (isCanonicalFinanceEnabled()) {
+      return this.canonicalWithdraw(user, cpf, body, idempotencyHeader);
+    }
     const response = await fetch(`${this.getApiMachineUrl()}/internal/ebook/finance/withdraw`, {
       method: 'POST',
       headers: {
@@ -576,6 +666,42 @@ export class PaymentsController {
       throw new ServiceUnavailableException(`Falha ao solicitar saque: ${response.status} ${text}`);
     }
     return response.json();
+  }
+
+  /**
+   * Saque canônico. `amount` é o valor LÍQUIDO desejado (semântica legada: taxa somada por cima);
+   * o canônico recebe o bruto, calculado a partir da feePolicy e conferido com /withdrawals/quote.
+   */
+  private async canonicalWithdraw(
+    user: RequestWithUser['user'],
+    cpf: string,
+    body: WithdrawRequestDto,
+    idempotencyHeader?: string,
+  ) {
+    const netCents = Math.round(Number(body.amount) * 100);
+    try {
+      const summary = await merchantSummary(cpf);
+      if (!summary.feePolicy) throw new Error('feePolicy ausente no summary canônico');
+      let grossCents = grossForNet(netCents, summary.feePolicy);
+      const quote = await merchantQuote(cpf, grossCents);
+      if (quote.netAmountCents < netCents) grossCents += netCents - quote.netAmountCents;
+      const idempotencyKey = withdrawalIdempotencyKey({
+        userId: user.id,
+        grossCents,
+        pixKey: body.pixKey,
+        clientKey: body.idempotencyKey ?? idempotencyHeader,
+      });
+      const result = await merchantWithdraw(cpf, { amountCents: grossCents, pixKey: body.pixKey.trim(), idempotencyKey });
+      return { success: true, id: result.id, status: result.status };
+    } catch (error) {
+      if (isMerchantNotAssociated(error)) {
+        throw new BadRequestException('Nenhuma conta encontrada para este CPF');
+      }
+      if (error instanceof Error && !(error instanceof SimintpayPlatformError) && /idempotencyKey|feePolicy|Política/.test(error.message)) {
+        throw new BadRequestException(error.message);
+      }
+      this.canonicalError(error, 'Falha ao solicitar saque');
+    }
   }
 
   @Get('all-transactions-excel')
