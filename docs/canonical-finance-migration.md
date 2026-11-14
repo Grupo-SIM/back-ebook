@@ -17,11 +17,15 @@ Tudo abaixo só vale com `EBOOK_CANONICAL_FINANCE=true`; o formato de resposta a
 | `GET /payments/withdrawals`                          | `finance/withdrawals`                                                             |
 | histórico, dashboard, excel, receita mensal          | `finance/transactions` (200 por página, o back-ebook pagina até 5000)             |
 | taxas do checkout (`seller-fees.ts`)                 | `finance/fees`; sem comerciante/erro, cai no legado                               |
-| venda pendente (`checkout.service.notifyPending...`) | `POST finance/entries` `kind: pending` (net calculado com `finance/fees`); erro cai no legado (mesmo `domPaymentId`) |
+| venda pendente (`checkout.service.notifyPending...`) | `POST finance/entries` `kind: pending` (sem `netAmountCents`: o líquido é calculado pelo SimIntPay); com a flag ligada não há fallback legado (falha só é logada) |
 | config de líquido/taxa fixa (checkout)               | `GET /platforms/EBOOK/finance/config`                                             |
-| comissão de afiliado (`commission-delivery.ts`)      | `POST finance/entries` `kind: commission` (afiliado precisa estar provisionado; 404/400 vira RETRY com erro `SimIntPay HTTP n`) |
+| comissão de afiliado (`commission-delivery.ts`)      | `POST finance/entries` `kind: commission` com `orderNumber` (credita a carteira; afiliado precisa estar provisionado; 404/400 vira RETRY com erro `SimIntPay HTTP n`; `skipped: SETTLEMENT_CREDITS_AFFILIATE` = sucesso) |
+| confirmação de pedido pago (checkout / relatórios)   | `GET finance/transactions?status=COMPLETED&description=<orderNumber>` (substitui a heurística de `/admin/transacoes-dom`) |
+| conta do vendedor/afiliado                           | `PUT /platforms/EBOOK/merchants/:id` com `{cnpj, legalName, email}` (cria a conta SimIntPay se necessário) |
 
-**Não alterados (sem substituto canônico):** `/admin/transacoes-dom`, `/checkout/ebook-url`, `/auth/*`, `/custom-fees`, conciliação de pedido pago.
+**Removidos (fase 2):** `syncUserWithApiDom` e as rotas `/auth/sync-tokens`, `get-api-dom-tokens` (era pública e devolvia tokens para qualquer e-mail/senha), `force-sync-user`, `force-sync-by-email`, `test-sync`, `test-connection`, `test-custom-fees`; `/admin/tokens*` e `GET /checkout/test/admin-token/:bookId`; o `adminToken` da URL de checkout e do corpo de `/checkout/ebook-url`; `/custom-fees`; `/auth/register`, `/auth/generate-token`, `/auth/list-tokens` (esses três nem existem no SimIntPay: eram de um serviço legado separado).
+
+**Mantidos (sem substituto canônico):** `POST /checkout/ebook-url` (matrícula da liquidação) e o recebimento de recibos (`settlements/receipts`, sentido inverso).
 
 ## Variáveis de ambiente
 
@@ -47,34 +51,25 @@ Tudo abaixo só vale com `EBOOK_CANONICAL_FINANCE=true`; o formato de resposta a
 - **Histórico de saques** (`GET /payments/withdrawals`): cada item traz `grossAmount`, `fee` e `netAmount`; `amount` = líquido (o efetivamente sacado = bruto − taxa).
 - **Idempotência do saque:** `idempotencyKey` do corpo (ou header `Idempotency-Key`); sem ela, `ebook-` + sha256(usuário | bruto | chave PIX | bucket de 1 minuto). Recomendado: o frontend enviar uma chave por tentativa de formulário.
 - **Transações:** `PAID` é enviado como `COMPLETED`; campos mapeados para o formato legado (`fee` = taxa da plataforma, `dom_fee` = custo da adquirente, `taxa_fixa_transacao`, `amountWithoutAllFee` = `sellerNetCents`). `paymentId` passa a ser o id da transação (a deduplicação com pedidos locais usa o número do pedido na descrição).
-- **Venda pendente:** `netAmountCents` = bruto − bruto × taxa de processamento da modalidade (PIX ou cartão); a taxa fixa por venda é aplicada pelo SimIntPay na leitura.
+- **Venda pendente / comissão:** `amountCents` = o que o comprador pagou (juros incluídos); **nunca** enviamos `netAmountCents` (o SimIntPay calcula o líquido; divergência seria 409 `LEDGER_NET_MISMATCH`). Limitação conhecida: o pedido nasce antes de o comprador escolher PIX/cartão e parcelas no app de checkout, e o `Order` do back-ebook não guarda parcelas nem juros; por isso a entrada pendente sai como `PIX`, `installments: 1`, com o valor do pedido (menos a comissão do afiliado, como antes). O pagamento real (cartão, parcelas, juros) só é conhecido pelo SimIntPay/DOM no webhook. Se for preciso registrar juros/parcelas na entrada, o app de checkout/SimIntPay precisa devolver essas informações (ex.: no recibo ou webhook) para o back-ebook reenviar a entrada, ou o SimIntPay deve atualizar a entrada ao concluir o pagamento (fora do escopo aqui).
+- **Comissão:** exige `orderNumber`; credita a carteira (`BalanceLog EBOOK_COMMISSION`). Só é enviada para pedidos SEM manifesto de liquidação (`retryCommissionDeliveries` filtra `NOT EXISTS ebook_settlement_manifests` e `prepareSettlement` recusa pedido com comissão legada existente: essa trava impede crédito duplo e deve ser mantida). Se mesmo assim o SimIntPay responder `{skipped: 'SETTLEMENT_CREDITS_AFFILIATE'}`, a entrega é marcada como concluída.
 
 ## Provisionamento de comerciantes
 
-O SimIntPay só cria o comerciante (`PUT .../merchants/:id`, idempotente) se **já existir um usuário SimIntPay ativo com esse
-CPF/CNPJ**; senão responde 400 "Comerciante exige conta ativa previamente cadastrada".
-
-### Como o CPF chega (ou não) ao usuário SimIntPay
-
-O back-ebook registra o usuário no SimIntPay legado (`syncUserWithApiDom` -> `POST /auth/register`) enviando **apenas
-nome, e-mail e senha**. O CPF/CNPJ **não é enviado** em nenhum momento (nem no cadastro, nem em `updateUser`/perfil). Portanto,
-o documento só entra no usuário SimIntPay por fora do back-ebook (vínculo/cadastro feito no próprio SimIntPay, ex.: portal do
-cliente ou operação), e é isso que hoje permite o legado achar a conta por `?cpf=`.
-
-Consequência: o auto-provisionamento logo após o cadastro **só terá sucesso se a conta SimIntPay já tiver o documento**; no
-fluxo atual ele normalmente retornará 400 ("no-account") e será apenas logado. **Dependência (em andamento no SimIntPay):** fazer o `PUT /platforms/EBOOK/merchants/:id` criar a conta SimIntPay quando ela ainda
-não existir; até lá mantém-se a chamada best-effort e o provisionamento automático no cadastro só funciona para quem já tem conta
-com o documento. Lacuna a resolver no SimIntPay: aceitar/gravar
-o documento no register (o use case do SimIntPay tem `cpf`/`cnpj` opcionais, mas o nome do campo no DTO precisa ser confirmado
-antes de o back-ebook enviá-lo) ou expor um endpoint de vínculo de documento.
+O `PUT /platforms/EBOOK/merchants/:id` (idempotente) recebe `{cnpj, legalName, email, adoptByEmail?}` e **cria a conta SimIntPay**
+quando nenhuma possui o documento: senha aleatória inutilizável; o titular define a senha por `POST /auth/forgot-password` com o
+mesmo e-mail. Resposta: `{id, externalMerchantId, cnpj, legalName, accountCreated}`. `adoptByEmail: true` vincula o documento a uma
+conta ativa `USER` **sem documento** que já usa o e-mail (mantém senha e carteira). Conta existente nunca é assumida por e-mail sem
+essa opção (409). O back-ebook **nunca** envia `adoptByEmail` automaticamente (o e-mail do cadastro não é verificado).
 
 ### Auto-provisionamento (best-effort)
 
-Roda sem bloquear nem falhar o fluxo, apenas se `SIMINTPAY_URL` e `SIMINTPAY_PLATFORM_TOKEN` estiverem definidos (independe
-da flag), para vendedores **e afiliados** (papéis ADMIN e USER) com CPF/CNPJ válido:
+Roda sem bloquear nem falhar o fluxo, apenas se `SIMINTPAY_URL` e `SIMINTPAY_PLATFORM_TOKEN` estiverem definidos (independe da flag),
+para vendedores **e afiliados** (papéis ADMIN e USER) com CPF/CNPJ válido **e e-mail**:
 
 - ao final do registro (`auth.service`) quando há documento;
-- na criação de usuário e quando `document` é definido/alterado em `updateUser`.
+- na criação de usuário (`user.service.createUser`) e quando `document` é definido/alterado em `updateUser`;
+- como rede de segurança em `prepareSettlement` (antes de matricular a liquidação, fora da transação): dono e afiliado de cada item.
 
 Erros são logados sem token (apenas status e final do documento).
 
@@ -82,26 +77,62 @@ Erros são logados sem token (apenas status e final do documento).
 
 ```
 bun run provision:merchants                        # DRY-RUN (padrão): lista, não chama a API
-bun run provision:merchants -- --apply             # chama a API
+bun run provision:merchants -- --apply             # chama a API (cria contas que faltam)
+bun run provision:merchants -- --apply --adopt-by-email   # só se os e-mails forem verificados
 bun run provision:merchants -- --roles=ADMIN --delay-ms=500 --limit=50
 ```
 
 - Seleciona usuários ativos com CPF/CNPJ que sejam **ADMIN** ou **USER** (vendedores e afiliados) **ou** que, em qualquer papel
-  (inclusive CUSTOMER), sejam donos de livros ou tenham comissões de afiliado (`affiliate_commissions`). Não se limita a donos de livros.
-- Idempotente: com `--apply`, `GET summary` detecta comerciantes existentes (`already-ok`) e não refaz o PUT (que também
-  atualiza o nome do usuário SimIntPay).
+  (inclusive CUSTOMER), sejam donos de livros ou tenham comissões de afiliado (`affiliate_commissions`).
+- `--adopt-by-email` (padrão **desligado**): vincula contas SimIntPay antigas (cadastradas pelo `/auth/register` legado, que não
+  enviava documento) pelo e-mail. **Só é seguro quando os e-mails são verificados**; do contrário quem digitou o e-mail de
+  outra pessoa reivindicaria a conta. Sem a flag, e-mail já usado por outra conta resulta em erro (409) no relatório.
+- Idempotente: com `--apply`, `GET summary` detecta comerciantes existentes (`already-ok`) e não refaz o PUT.
 - Rate-limit simples (`--delay-ms`, padrão 250 ms), tabela por usuário com documento mascarado, resumo
-  (provisioned / already-ok / no-account / invalid-document / errors) e exit code 1 se houver erros.
+  (provisioned / already-ok / no-account / invalid-document / errors) e exit code 1 se houver erros. Usuário sem e-mail é `invalid-document`.
 - Não grava no banco local e não imprime tokens. Precisa de `DATABASE_URL` (leitura) e, com `--apply`, do token com `merchants:manage` + `finance:read`.
+
+## Chamadas `API_MACHINE_*` restantes
+
+Com `EBOOK_CANONICAL_FINANCE=true` **e** `SIMINTPAY_URL`/`SIMINTPAY_PLATFORM_TOKEN` definidos, o back-ebook só usa `API_MACHINE_*` em:
+
+1. `POST {API_MACHINE_URL}/checkout/ebook-url` com `x-internal-token` = `API_MACHINE_INTERNAL_TOKEN` (matrícula da liquidação; `checkout.service.buildCheckoutUrl`).
+2. Recebimento de recibos de liquidação / webhook `payment-confirmation` (sentido inverso: SimIntPay chama o back-ebook, validado com `API_MACHINE_INTERNAL_TOKEN`/`INTERNAL_SERVICE_TOKEN`/`WEBHOOK_SECRET`; também `internal-stats.controller`).
+3. `API_MACHINE_URL` ainda serve de fallback de **base URL** para `SIMINTPAY_URL` (mesmo host); defina `SIMINTPAY_URL` e dispensa isso.
+
+Nenhuma chamada a `/internal/ebook/finance/*`, `/admin/transacoes-dom`, `/auth/*` ou `/custom-fees` sobra com a flag ligada: fallbacks legados de taxas do vendedor, de config da plataforma e de venda pendente só valem com a flag desligada (rollback). Com a flag ligada e falha do SimIntPay, a entrada pendente é só logada (o pedido segue; é preciso reenviar/reconciliar manualmente se o webhook DOM chegar sem a entrada).
+
+## Confirmação de pedido pago
+
+`tryReconcileEbookOrderPaid` (checkout) e a listagem de transações locais (`payments.controller`, até 50 pedidos pendentes por consulta)
+consultam `GET .../merchants/<dono>/finance/transactions?status=COMPLETED&description=<orderNumber>` e marcam o pedido como pago quando há
+transação concluída. Pedidos com **liquidação** não aparecem nessa consulta: são confirmados pelos recibos/webhook (caminho preservado).
+Funciona sempre que o SimIntPay está configurado (independe da flag); erro/404 = não confirma (oportunista).
+
+## Tokens de admin (`admin_tokens`)
+
+O código não lê nem grava mais `admin_tokens` (nem `adminToken` na URL/corpo do checkout). O app de checkout só usa `adminToken` em
+fluxos de link de pagamento/planos/cupom (pagatg); o checkout de ebook (`store=ebook`) paga cartão por endpoint próprio sem `x-access-token`,
+então a ausência do parâmetro é segura (o SimIntPay trata `adminToken` como opcional). **A tabela `admin_tokens` e o model Prisma
+`AdminToken` foram mantidos** (sem migração destrutiva); podem ser removidos depois em migração própria. O front admin-ebook
+(`src/services/api/admin/tokens.ts`) chamava `/admin/tokens*` e deve parar de usar.
 
 ## Ordem de rollout
 
-1. Garantir que cada vendedor tenha conta SimIntPay ativa com o mesmo CPF/CNPJ (resolver a lacuna acima; `no-account` no relatório indica quem falta).
-2. Rodar `provision:merchants` em **dry-run** e revisar a lista (documentos inválidos, papéis).
-3. Definir `SIMINTPAY_URL` e `SIMINTPAY_PLATFORM_TOKEN` (escopos acima) e rodar `provision:merchants -- --apply`; repetir até `no-account=0` e `errors=0`.
-4. Garantir `ledger:write` no `INBOUND_OPERATIONS` e afiliados provisionados (comissões). Fazer deploy com `EBOOK_CANONICAL_FINANCE` ausente/`false` (nenhuma mudança de comportamento) e depois definir `EBOOK_CANONICAL_FINANCE=true`.
-5. Verificar: `GET /payments/summary` (saldo, `accountExists: true`), `GET /payments/withdrawals`, um saque de teste de baixo valor
-   e a ausência de erros 4xx/5xx do SimIntPay nos logs.
+1. Confirmar `INBOUND_OPERATIONS=merchants:manage,finance:read,finance:withdraw,ledger:write` no token da plataforma EBOOK (SimIntPay).
+2. Rodar `provision:merchants` em **dry-run** e revisar a lista (documentos inválidos, usuários sem e-mail, papéis).
+3. Definir `SIMINTPAY_URL` e `SIMINTPAY_PLATFORM_TOKEN` e rodar `provision:merchants -- --apply` (cria as contas que faltam; os titulares definem a senha por "esqueci minha senha"). Só use `--adopt-by-email` se os e-mails forem verificados. Repetir até `errors=0`.
+4. Deploy com `EBOOK_CANONICAL_FINANCE` ausente/`false` (sem mudança de comportamento financeiro) e depois `EBOOK_CANONICAL_FINANCE=true`.
+5. Verificar: `GET /payments/summary` (saldo, `accountExists: true`), `GET /payments/withdrawals`, um saque de teste de baixo valor, uma venda PIX (entrada pendente criada e concluída), uma comissão sem liquidação (saldo do afiliado) e a ausência de 4xx/5xx do SimIntPay e de chamadas legadas nos logs.
+6. Avisar o admin-ebook para remover o uso de `/admin/tokens*` e as telas de token.
+
+## O que ainda resta
+
+- Entrada pendente de cartão: parcelas/juros reais não são conhecidos no momento do pedido (ver "Venda pendente / comissão").
+- Remover a tabela `admin_tokens` / model `AdminToken` (migração própria, fora desta etapa).
+- Remover `API_MACHINE_*` do deploy depois que `/checkout/ebook-url` e os recibos migrarem para rota canônica (hoje não existe).
+- Comissões legadas já gravadas sem crédito (record-only): decisão de backfill é do SimIntPay/dono.
+- Teste ponta a ponta contra o SimIntPay local.
 
 ## Rollback
 
