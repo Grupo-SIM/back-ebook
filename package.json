@@ -13,6 +13,7 @@
     "migrate": "npx prisma migrate deploy --name init",
     "start:dev": "nest start --watch",
     "seeds": "ts-node seeds/index.ts",
+    "provision:merchants": "bun scripts/provision-merchants.ts",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

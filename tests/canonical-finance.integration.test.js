@@ -130,3 +130,38 @@ test('auto-provision: only seller roles with a valid document, CNPJ first, never
     delete process.env.SIMINTPAY_PLATFORM_TOKEN;
     provisionSellerMerchantInBackground({ role: 'USER', name: 'Maria', cpf: CPF });
 });
+
+test('provision-merchants script: dry-run never calls the API, apply is idempotent and classifies outcomes', async () => {
+    const { provisionAll, maskDocument } = await import('../scripts/provision-merchants');
+    const users = [
+        { id: '1', name: 'Maria', email: 'maria@x.com', role: 'ADMIN', cpf: CPF, cnpj: null },
+        { id: '2', name: 'Joao', email: 'joao@x.com', role: 'USER', cpf: '11111111111', cnpj: null },
+        { id: '3', name: 'Ana', email: 'ana@x.com', role: 'USER', cpf: null, cnpj: '11222333000181' },
+        { id: '4', name: 'Rui', email: 'rui@x.com', role: 'USER', cpf: '39053344705', cnpj: null },
+    ];
+    const lines = [];
+    const { SimintpayPlatformError } = await import('../src/common/simintpay-platform');
+    const forbidden = () => { throw new Error('API must not be called in dry-run'); };
+    const dry = await provisionAll(users, { apply: false, delayMs: 0 }, { summary: forbidden, provision: forbidden, sleep: async () => {}, log: l => lines.push(l) });
+    expect(dry.counts).toMatchObject({ 'would-provision': 3, 'invalid-document': 1, error: 0 });
+    expect(dry.exitCode).toBe(0);
+    expect(lines.join('\n')).not.toContain(CPF);
+    expect(maskDocument(CPF)).toBe('529******25');
+
+    const provisioned = [];
+    const apply = await provisionAll(users, { apply: true, delayMs: 0 }, {
+        summary: async doc => { if (doc === CPF) return {}; if (doc === '39053344705') throw new SimintpayPlatformError(500, 'boom', 'x'); throw new SimintpayPlatformError(404, 'Comerciante não associado ou inativo', 'x'); },
+        provision: async doc => { provisioned.push(doc); },
+        sleep: async () => {}, log: () => {},
+    });
+    expect(apply.counts).toMatchObject({ 'already-ok': 1, provisioned: 1, 'invalid-document': 1, error: 1 });
+    expect(provisioned).toEqual(['11222333000181']);
+    expect(apply.exitCode).toBe(1);
+    const noAccount = await provisionAll([users[0]], { apply: true, delayMs: 0 }, {
+        summary: async () => { throw new SimintpayPlatformError(404, 'Comerciante não associado', 'x'); },
+        provision: async () => { throw new SimintpayPlatformError(400, 'Comerciante exige conta ativa previamente cadastrada', 'x'); },
+        sleep: async () => {}, log: () => {},
+    });
+    expect(noAccount.counts['no-account']).toBe(1);
+    expect(noAccount.exitCode).toBe(0);
+});

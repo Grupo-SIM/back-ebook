@@ -18,8 +18,8 @@ export function sellerDocument(user: { cpf?: string | null; cnpj?: string | null
 /**
  * Provisionamento best-effort (nunca lança, não bloqueia o fluxo chamador, sem segredos nos logs).
  * Só tem efeito se SIMINTPAY_URL/SIMINTPAY_PLATFORM_TOKEN estiverem configurados. Se o usuário SimIntPay ainda
- * não possui o documento, o SimIntPay responde 400 e o resultado é 'no-account' — o script provision:merchants cobre
- * — rodar provision:merchants depois que o documento estiver na conta SimIntPay.
+ * não possui o documento, o SimIntPay responde 400 e o resultado é 'no-account' — rode o script
+ * provision:merchants depois que o documento estiver na conta SimIntPay.
  */
 export function provisionSellerMerchantInBackground(user: {
   role?: string | null;
