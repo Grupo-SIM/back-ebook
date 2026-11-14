@@ -89,51 +89,6 @@ export class AdminRevenuePeriodDto {
   booksSold: number;
 }
 
-export class AdminTokenDto {
-  @ApiProperty()
-  id: string;
-
-  @ApiProperty()
-  adminId: string;
-
-  @ApiProperty()
-  token: string;
-
-  @ApiProperty({ required: false })
-  title?: string;
-
-  @ApiProperty()
-  isActive: boolean;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-}
-
-export class CreateAdminTokenDto {
-  @ApiProperty()
-  adminId: string;
-
-  @ApiProperty()
-  token: string;
-
-  @ApiProperty({ required: false })
-  title?: string;
-}
-
-export class UpdateAdminTokenDto {
-  @ApiProperty({ required: false })
-  token?: string;
-
-  @ApiProperty({ required: false })
-  title?: string;
-
-  @ApiProperty({ required: false })
-  isActive?: boolean;
-}
-
 export class AdminRevenueDetailedDto extends AdminRevenueDto {
   @ApiProperty({ type: [AdminRevenuePeriodDto], description: 'Receita por período (últimos 12 meses)' })
   monthlyRevenue: AdminRevenuePeriodDto[];

@@ -222,59 +222,6 @@ export class AdminController {
     return this.adminService.getAdminRevenueDetailedByUserId(admin.id);
   }
 
-  // Endpoints para gerenciar tokens dos admins
-  @Get('tokens')
-  @UseGuards(JwtAuthGuardAdmin)
-  @ApiOperation({ summary: 'Get all admin tokens' })
-  @ApiResponse({ status: 200, description: 'Admin tokens retrieved successfully.' })
-  async getAllAdminTokens() {
-    return this.adminService.getAllAdminTokens();
-  }
-
-  @Get('tokens/:adminId')
-  @UseGuards(JwtAuthGuardAdmin)
-  @ApiOperation({ summary: 'Get admin token by admin ID' })
-  @ApiResponse({ status: 200, description: 'Admin token retrieved successfully.' })
-  @ApiResponse({ status: 404, description: 'Admin token not found.' })
-  async getAdminToken(@Param('adminId') adminId: string) {
-    const token = await this.adminService.getAdminToken(adminId);
-    if (!token) {
-      throw new NotFoundException('Token do admin não encontrado');
-    }
-    return token;
-  }
-
-  @Post('tokens')
-  @UseGuards(JwtAuthGuardAdmin)
-  @ApiOperation({ summary: 'Create admin token' })
-  @ApiResponse({ status: 201, description: 'Admin token created successfully.' })
-  @ApiResponse({ status: 409, description: 'Admin already has a token.' })
-  async createAdminToken(@Body() data: { adminId: string; token: string; title?: string }) {
-    return this.adminService.createAdminToken(data);
-  }
-
-  @Put('tokens/:adminId')
-  @UseGuards(JwtAuthGuardAdmin)
-  @ApiOperation({ summary: 'Update admin token' })
-  @ApiResponse({ status: 200, description: 'Admin token updated successfully.' })
-  @ApiResponse({ status: 404, description: 'Admin token not found.' })
-  async updateAdminToken(
-    @Param('adminId') adminId: string,
-    @Body() data: { token?: string; title?: string; isActive?: boolean }
-  ) {
-    return this.adminService.updateAdminToken(adminId, data);
-  }
-
-  @Delete('tokens/:adminId')
-  @UseGuards(JwtAuthGuardAdmin)
-  @ApiOperation({ summary: 'Delete admin token' })
-  @ApiResponse({ status: 200, description: 'Admin token deleted successfully.' })
-  @ApiResponse({ status: 404, description: 'Admin token not found.' })
-  async deleteAdminToken(@Param('adminId') adminId: string) {
-    await this.adminService.deleteAdminToken(adminId);
-    return { message: 'Token do admin deletado com sucesso' };
-  }
-
   // ========== GET ROUTES WITH PARAMETERS (LAST) ==========
   @Get(':id')
   @ApiOperation({ summary: 'Get an admin by id' })
