@@ -20,6 +20,7 @@ import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { calcNetAmount, getSellerFees, parseSellerFees, SellerFees } from 'src/common/seller-fees';
 import {
   isMerchantNotAssociated,
+  isOrderPaymentCompleted,
   isMerchantWithoutAccount,
   merchantFees,
   merchantQuote,
@@ -76,16 +77,6 @@ export class PaymentsController {
     if (!input) return undefined;
     const d = new Date(`${input}T23:59:59.999Z`);
     return Number.isNaN(d.getTime()) ? undefined : d;
-  }
-
-  private parseDomDate(raw?: string): Date | null {
-    if (!raw) return null;
-    const normalized = raw.trim().replace(' ', 'T');
-    const withTimezone = normalized.includes('Z') || /[+-]\d{2}:\d{2}$/.test(normalized)
-      ? normalized
-      : `${normalized}-03:00`;
-    const d = new Date(withTimezone);
-    return Number.isNaN(d.getTime()) ? null : d;
   }
 
   private getApiMachineUrl() {
@@ -156,101 +147,22 @@ export class PaymentsController {
     return response.json();
   }
 
-  private async machineGetDomTransactions(params: {
-    beginDate: string;
-    endDate: string;
-    page: number;
-    limit: number;
-  }): Promise<any[]> {
-    const search = new URLSearchParams({
-      page: String(params.page),
-      limit: String(params.limit),
-      begin_date: params.beginDate,
-      end_date: params.endDate,
-      status: 'paid',
-    });
-
-    const response = await fetch(`${this.getApiMachineUrl()}/admin/transacoes-dom?${search.toString()}`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
-
-    if (!response.ok) return [];
-    const data = await response.json();
-    return Array.isArray(data?.data?.transactions) ? data.data.transactions : [];
-  }
-
-  private normalizeText(value: string | null | undefined): string {
-    return String(value ?? '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
-  }
-
-  private async reconcileLocalPendingOrdersWithDom(orders: any[]): Promise<Set<number>> {
-    if (orders.length === 0) return new Set<number>();
-
-    const minDate = new Date(
-      Math.min(...orders.map((o) => new Date(o.createdAt).getTime())),
-    );
-    const maxDate = new Date();
-    const beginDate = minDate.toISOString().slice(0, 10);
-    const endDate = maxDate.toISOString().slice(0, 10);
-
-    const domTxs: any[] = [];
-    for (let page = 1; page <= 10; page++) {
-      const chunk = await this.machineGetDomTransactions({
-        beginDate,
-        endDate,
-        page,
-        limit: 200,
-      });
-      if (chunk.length === 0) break;
-      domTxs.push(...chunk);
-      if (chunk.length < 200) break;
-    }
-
-    if (domTxs.length === 0) return new Set<number>();
-
+  /**
+   * Confirma pedidos pendentes consultando o SimIntPay por número do pedido
+   * (finance/transactions?status=COMPLETED&description=<orderNumber> do vendedor). Substitui a heurística de
+   * /admin/transacoes-dom (e-mail + valor + título + janela). Pedidos com liquidação não aparecem aqui
+   * (são confirmados por recibos/webhook).
+   */
+  private async reconcileLocalPendingOrders(orders: any[], document: string): Promise<Set<number>> {
     const paidOrderIds = new Set<number>();
-    for (const order of orders) {
-      const orderEmail = this.normalizeText(order?.user?.email);
-      const orderAmount = Number(order?.totalAmount ?? 0);
-      const orderTitle = this.normalizeText(order?.orderItems?.[0]?.book?.title);
-      const orderCreatedAt = new Date(order.createdAt).getTime();
-
-      if (!orderEmail || !orderTitle || !Number.isFinite(orderAmount)) continue;
-
-      const matched = domTxs.find((tx) => {
-        const txStatus = this.normalizeText(tx?.status);
-        if (!['paid', 'approved', 'completed'].includes(txStatus)) return false;
-
-        const txEmail = this.normalizeText(tx?.customer_email);
-        const txTitle = this.normalizeText(tx?.product_first);
-        const txAmount = Number(tx?.amount ?? 0);
-        const txCreatedAt = this.parseDomDate(tx?.created_at)?.getTime();
-
-        if (!txEmail || txEmail !== orderEmail) return false;
-        if (Math.abs(txAmount - orderAmount) > 0.0001) return false;
-        if (!(txTitle.includes(orderTitle) || orderTitle.includes(txTitle))) return false;
-        if (!txCreatedAt) return false;
-
-        // Janela de 6h para evitar casar com compra antiga
-        return Math.abs(txCreatedAt - orderCreatedAt) <= 6 * 60 * 60 * 1000;
-      });
-
-      if (!matched) continue;
-
+    for (const order of orders.slice(0, 50)) {
+      if (!(await isOrderPaymentCompleted(document, String(order.orderNumber ?? '')))) continue;
       await this.prisma.order.update({
         where: { id: order.id },
-        data: {
-          status: 'paid',
-          paymentStatus: 'paid',
-        },
+        data: { status: 'paid', paymentStatus: 'paid' },
       });
       paidOrderIds.add(order.id);
     }
-
     return paidOrderIds;
   }
 
@@ -307,7 +219,7 @@ export class PaymentsController {
     const pendingOrders = orders.filter(
       (o) => o.status === 'pending' || o.paymentStatus === 'pending',
     );
-    const reconciledPaidOrderIds = await this.reconcileLocalPendingOrdersWithDom(pendingOrders);
+    const reconciledPaidOrderIds = await this.reconcileLocalPendingOrders(pendingOrders, params.cpf);
 
     const normalizedDescription = String(params.description || '').trim().toLowerCase();
     const sellerFees = orders.some((o) => o.netAmount == null) ? await getSellerFees(params.cpf) : null;

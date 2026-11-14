@@ -27,7 +27,7 @@ test('disposable PostgreSQL: quarantine, immutable snapshots, retry leases and l
         sql(readFileSync(new URL('../prisma/migrations/20261102120000_ebook_settlement/migration.sql', import.meta.url), 'utf8'));
         expect(sql('SELECT state || funding_state FROM affiliate_commission_deliveries')).toBe('QUARANTINEDUNCONFIRMED');
         sql(`INSERT INTO affiliate_commissions VALUES (2,2,2,'affiliate',10,'CREDITED');
-            INSERT INTO affiliate_commission_deliveries (commission_id,state,snapshot) VALUES (2,'PENDING','{"referenceId":"2-2","cpf":"123","cnpj":null,"amount":10,"description":"commission"}');`);
+            INSERT INTO affiliate_commission_deliveries (commission_id,state,snapshot) VALUES (2,'PENDING','{"referenceId":"2-2","orderNumber":"ORD-2","cpf":"123","cnpj":null,"amount":10,"description":"commission"}');`);
         expect(() => sql(`UPDATE affiliate_commission_deliveries SET snapshot = '{}' WHERE commission_id = 2`)).toThrow();
         expect(() => sql(`INSERT INTO affiliate_commission_deliveries (commission_id,snapshot) VALUES (2,'{}')`)).toThrow();
         // Real SQL executes through psql without installing a database driver for the test.

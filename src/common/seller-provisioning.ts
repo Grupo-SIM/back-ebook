@@ -17,18 +17,31 @@ export function sellerDocument(user: { cpf?: string | null; cnpj?: string | null
 
 /**
  * Provisionamento best-effort (nunca lança, não bloqueia o fluxo chamador, sem segredos nos logs).
- * Só tem efeito se SIMINTPAY_URL/SIMINTPAY_PLATFORM_TOKEN estiverem configurados. Se o usuário SimIntPay ainda
- * não possui o documento, o SimIntPay responde 400 e o resultado é 'no-account' — rode o script
- * provision:merchants depois que o documento estiver na conta SimIntPay.
+ * Só tem efeito se SIMINTPAY_URL/SIMINTPAY_PLATFORM_TOKEN estiverem configurados. O SimIntPay cria a conta do
+ * vendedor/afiliado quando nenhuma possui o documento (o `email` é obrigatório para isso); a senha é definida pelo
+ * titular via POST /auth/forgot-password. Nunca usa adoptByEmail (o e-mail do cadastro não é verificado).
  */
 export function provisionSellerMerchantInBackground(user: {
   role?: string | null;
   name?: string | null;
+  email?: string | null;
   cpf?: string | null;
   cnpj?: string | null;
 }): void {
   if (!SELLER_ROLES.includes(String(user.role) as (typeof SELLER_ROLES)[number])) return;
   const document = sellerDocument(user);
   if (!document) return;
-  void provisionMerchantSafe(document, user.name).catch(() => undefined);
+  void provisionMerchantSafe(document, user.name, user.email).catch(() => undefined);
+}
+
+/** Variante aguardável para a rede de segurança do prepareSettlement (nunca lança). */
+export async function provisionSellerMerchant(user: {
+  name?: string | null;
+  email?: string | null;
+  cpf?: string | null;
+  cnpj?: string | null;
+}): Promise<void> {
+  const document = sellerDocument(user);
+  if (!document) return;
+  await provisionMerchantSafe(document, user.name, user.email).catch(() => undefined);
 }

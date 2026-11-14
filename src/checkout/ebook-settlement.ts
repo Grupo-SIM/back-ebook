@@ -11,9 +11,33 @@ export function manifestHash(value: any): string {
     return createHash('sha256').update(canonicalManifest(value)).digest('hex');
 }
 import { readAffiliateAttribution } from '../affiliate/affiliate-attribution';
+import { provisionSellerMerchant } from '../common/seller-provisioning';
+
+/**
+ * Rede de segurança (best-effort, fora da transação para não segurar o lock da ordem durante chamadas de rede):
+ * garante que dono e afiliado do pedido tenham conta/comerciante no SimIntPay antes de matricular a liquidação
+ * (o SimIntPay exige exatamente uma conta ativa por documento). Idempotente; nunca lança.
+ */
+async function ensureBeneficiariesProvisioned(prisma: any, orderId: number) {
+    try {
+        const items = await prisma.orderItem.findMany({ where: { orderId }, select: { affiliateAttribution: true } });
+        const ids = new Set<string>();
+        for (const item of items) {
+            try {
+                const attribution = readAffiliateAttribution(item.affiliateAttribution);
+                if (attribution.ownerId) ids.add(attribution.ownerId);
+                if (attribution.affiliateId) ids.add(attribution.affiliateId);
+            } catch { /* evidência inválida é tratada (e rejeitada) por prepareSettlement */ }
+        }
+        if (!ids.size) return;
+        const users = await prisma.user.findMany({ where: { id: { in: [...ids] } }, select: { name: true, email: true, cpf: true, cnpj: true } });
+        for (const user of users) await provisionSellerMerchant(user);
+    } catch { /* best-effort */ }
+}
 
 // Persistence deliberately uses parameterized SQL: no checked-in generated client edits.
 export async function prepareSettlement(prisma: any, orderId: number) {
+    await ensureBeneficiariesProvisioned(prisma, orderId);
     return prisma.$transaction(async (tx: any) => {
         await tx.$queryRaw`SELECT id FROM orders WHERE id = ${orderId} FOR UPDATE`;
         const existing = await tx.$queryRaw`SELECT * FROM ebook_settlement_manifests WHERE "orderId" = ${orderId}`;

@@ -3,7 +3,13 @@
  *
  *   bun scripts/provision-merchants.ts                 # DRY-RUN (padrão): não chama a API, só lista o que faria
  *   bun scripts/provision-merchants.ts --apply         # chama a API (exige SIMINTPAY_URL + SIMINTPAY_PLATFORM_TOKEN)
- *   opções: --roles=ADMIN,USER  --delay-ms=250  --limit=N
+ *   opções: --roles=ADMIN,USER  --delay-ms=250  --limit=N  --adopt-by-email
+ *
+ * O PUT envia {cnpj, legalName, email}: o SimIntPay CRIA a conta do vendedor/afiliado se nenhuma possuir o documento
+ * (senha aleatória inutilizável; o titular define a senha por POST /auth/forgot-password).
+ * --adopt-by-email (padrão DESLIGADO): vincula o documento a uma conta SimIntPay ativa USER sem documento que já use o
+ * e-mail (mantém senha e carteira). SÓ É SEGURO se os e-mails do back-ebook forem verificados; senão alguém que digitou
+ * o e-mail de outra pessoa reivindicaria a conta. Sem a flag, e-mail já usado por outra conta resulta em erro 409.
  *
  * Idempotente: com --apply, um GET de summary (finance:read) detecta comerciantes já provisionados e pula o PUT
  * (que sobrescreveria o nome do usuário SimIntPay com o legalName local). Nunca escreve no banco local nem imprime tokens.
@@ -16,7 +22,7 @@ export type SellerRow = { id: string; name: string | null; email: string; role: 
 export type Outcome = 'provisioned' | 'would-provision' | 'already-ok' | 'no-account' | 'invalid-document' | 'error';
 export type Deps = {
   summary: (document: string) => Promise<unknown>;
-  provision: (document: string, legalName: string) => Promise<unknown>;
+  provision: (document: string, legalName: string, email: string, options?: { adoptByEmail?: boolean }) => Promise<unknown>;
   sleep: (ms: number) => Promise<void>;
   log: (line: string) => void;
 };
@@ -32,7 +38,7 @@ export function documentOf(user: Pick<SellerRow, 'cpf' | 'cnpj'>): string | null
   return isValidCpf(cpf) ? cpf : null;
 }
 
-export async function provisionAll(users: SellerRow[], options: { apply: boolean; delayMs: number }, deps: Deps) {
+export async function provisionAll(users: SellerRow[], options: { apply: boolean; delayMs: number; adoptByEmail?: boolean }, deps: Deps) {
   const counts: Record<Outcome, number> = { provisioned: 0, 'would-provision': 0, 'already-ok': 0, 'no-account': 0, 'invalid-document': 0, error: 0 };
   const rows: Array<{ user: string; role: string; document: string; outcome: Outcome; detail: string }> = [];
   let calledApi = false;
@@ -40,9 +46,9 @@ export async function provisionAll(users: SellerRow[], options: { apply: boolean
     const document = documentOf(user);
     let outcome: Outcome;
     let detail = '';
-    if (!document || !user.name?.trim()) {
+    if (!document || !user.name?.trim() || !user.email?.trim()) {
       outcome = 'invalid-document';
-      detail = document ? 'sem nome (legalName)' : 'CPF/CNPJ ausente ou inválido';
+      detail = !document ? 'CPF/CNPJ ausente ou inválido' : !user.name?.trim() ? 'sem nome (legalName)' : 'sem e-mail';
     } else if (!options.apply) {
       outcome = 'would-provision';
     } else {
@@ -58,13 +64,13 @@ export async function provisionAll(users: SellerRow[], options: { apply: boolean
         }
         if (exists) outcome = 'already-ok';
         else {
-          await deps.provision(document, user.name);
+          await deps.provision(document, user.name, user.email, { adoptByEmail: options.adoptByEmail });
           outcome = 'provisioned';
         }
       } catch (error) {
         if (isMerchantWithoutAccount(error)) {
           outcome = 'no-account';
-          detail = 'sem conta SimIntPay ativa com este documento';
+          detail = 'SimIntPay recusou criar a conta (sem e-mail?)';
         } else {
           outcome = 'error';
           detail = error instanceof SimintpayPlatformError ? `HTTP ${error.status}` : 'falha de rede';
@@ -87,6 +93,7 @@ export function parseArgs(argv: string[]) {
   const flag = (name: string) => argv.find((arg) => arg.startsWith(`--${name}=`))?.split('=')[1];
   return {
     apply: argv.includes('--apply'),
+    adoptByEmail: argv.includes('--adopt-by-email'),
     roles: (flag('roles') ?? 'ADMIN,USER').split(',').map((r) => r.trim().toUpperCase()).filter(Boolean),
     delayMs: Number(flag('delay-ms') ?? 250),
     limit: flag('limit') ? Number(flag('limit')) : undefined,
@@ -119,7 +126,7 @@ async function main() {
       orderBy: { createdAt: 'asc' },
       take: args.limit,
     })) as SellerRow[];
-    console.log(`${args.apply ? 'APPLY' : 'DRY-RUN (use --apply para chamar a API)'} — ${users.length} usuário(s), papéis: ${args.roles.join(',')}`);
+    console.log(`${args.apply ? 'APPLY' : 'DRY-RUN (use --apply para chamar a API)'} — ${users.length} usuário(s), papéis: ${args.roles.join(',')}, adopt-by-email=${args.adoptByEmail}`);
     const result = await provisionAll(users, args, {
       summary: merchantSummary,
       provision: provisionMerchant,

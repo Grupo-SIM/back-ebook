@@ -82,20 +82,6 @@ export function entryPaymentMethod(method?: string | null): 'PIX' | 'CREDIT_CARD
   return /card|credit|cart/i.test(String(method ?? '')) ? 'CREDIT_CARD' : 'PIX';
 }
 
-/** Taxa de processamento (%) da modalidade/parcelas do pedido; null se indisponível. */
-export function entryPercent(fees: SimintpayMerchantFees, method: 'PIX' | 'CREDIT_CARD', installments = 1): number | null {
-  const modality =
-    method === 'PIX' ? fees.pix : fees.credit?.find((c) => c.installments === installments) ?? fees.credit?.[0];
-  return modality?.available && Number.isFinite(Number(modality.processingRatePpm))
-    ? Number(modality.processingRatePpm) / 10_000
-    : null;
-}
-
-/** Líquido do lançamento (netAmountCents) = bruto − bruto × taxa de processamento (a taxa fixa por venda é aplicada à parte pelo SimIntPay). */
-export function entryNetCents(amountCents: number, percent: number | null | undefined): number {
-  return Math.max(0, amountCents - Math.round((amountCents * (percent ?? 0)) / 100));
-}
-
 /** Lista canônica (centavos, paginação page/limit) → formato legado `{ withdrawals, meta }` (R$, currentPage/itemsPerPage). */
 export function mapCanonicalWithdrawals(
   page: SimintpayWithdrawalPage,

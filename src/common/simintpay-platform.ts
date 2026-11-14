@@ -103,11 +103,15 @@ export type SimintpayTransactionPage = {
     meta: { page: number; limit: number; total: number; totalPages: number };
 };
 
+/**
+ * `amountCents` = o que o COMPRADOR pagou (juros incluídos). O líquido do vendedor é calculado SEMPRE pelo SimIntPay
+ * (nunca enviar netAmountCents: divergência = 409 LEDGER_NET_MISMATCH). Comissão exige `orderNumber`.
+ */
 export type SimintpayEntryInput = {
     referenceId: string;
+    orderNumber?: string;
     kind: 'pending' | 'commission';
     amountCents: number;
-    netAmountCents: number;
     paymentMethod: 'PIX' | 'CREDIT_CARD';
     installments?: number;
     description?: string;
@@ -155,14 +159,33 @@ async function request<T>(method: 'GET' | 'POST' | 'PUT', path: string, body?: u
 const merchantPath = (document: string) =>
     `/platforms/${SIMINTPAY_PLATFORM_TAG}/merchants/${encodeURIComponent(merchantIdFromDocument(document))}`;
 
-/** PUT idempotente. Exige usuário SimIntPay ativo que já possua o CPF/CNPJ (senão 400). Escopo merchants:manage. */
-export function provisionMerchant(document: string, legalName: string) {
+export type ProvisionedMerchant = {
+    cnpj: string;
+    externalMerchantId: string;
+    id: string;
+    legalName: string;
+    accountCreated: boolean;
+};
+
+/**
+ * PUT idempotente. Escopo merchants:manage. Se nenhuma conta SimIntPay possui o documento, o SimIntPay a CRIA
+ * (senha aleatória inutilizável; o titular define a senha por POST /auth/forgot-password com o mesmo e-mail).
+ * `adoptByEmail` vincula o documento a uma conta ativa USER sem documento que já use o e-mail (mantém senha e carteira);
+ * só é seguro quando o e-mail foi verificado (senão um e-mail digitado por terceiros poderia reivindicar a conta).
+ */
+export function provisionMerchant(
+    document: string,
+    legalName: string,
+    email: string,
+    options: { adoptByEmail?: boolean } = {},
+) {
     const digits = merchantIdFromDocument(document);
-    return request<{ cnpj: string; externalMerchantId: string; id: string; legalName: string }>(
-        'PUT',
-        merchantPath(digits),
-        { cnpj: digits, legalName: legalName.trim() },
-    );
+    return request<ProvisionedMerchant>('PUT', merchantPath(digits), {
+        cnpj: digits,
+        legalName: legalName.trim(),
+        email: email.trim().toLowerCase(),
+        ...(options.adoptByEmail ? { adoptByEmail: true } : {}),
+    });
 }
 
 export function merchantSummary(document: string) {
@@ -184,9 +207,31 @@ export function merchantTransactions(
     return request<SimintpayTransactionPage>('GET', `${merchantPath(document)}/finance/transactions?${search}`);
 }
 
+/**
+ * Pagamento concluído de um pedido do vendedor: `finance/transactions?status=COMPLETED&description=<orderNumber>`
+ * (a descrição do lançamento pendente leva o ORD-AAAA-NNNNNN; o webhook DOM o conclui). Substitui a heurística de
+ * `/admin/transacoes-dom`. Pedidos com liquidação NÃO aparecem aqui (são confirmados por recibos/webhook).
+ * Retorna false em qualquer erro (404 vendedor não provisionado, rede etc.): a reconciliação é só oportunista.
+ */
+export async function isOrderPaymentCompleted(document: string, orderNumber: string): Promise<boolean> {
+    if (!isSimintpayPlatformConfigured() || !orderNumber) return false;
+    try {
+        const page = await merchantTransactions(document, { status: 'COMPLETED', description: orderNumber, limit: 20 });
+        return page.data.some(
+            (tx) => String(tx.status).toUpperCase() === 'COMPLETED' && String(tx.description ?? '').includes(orderNumber),
+        );
+    } catch {
+        return false;
+    }
+}
+
 /** Escopo ledger:write. Idempotente por referenceId (409 se o replay divergir). */
 export function merchantEntry(document: string, entry: SimintpayEntryInput) {
-    return request<{ success: boolean; id: string; created: boolean }>('POST', `${merchantPath(document)}/finance/entries`, entry);
+    return request<{ success: boolean; id?: string; created: boolean; skipped?: 'SETTLEMENT_CREDITS_AFFILIATE' }>(
+        'POST',
+        `${merchantPath(document)}/finance/entries`,
+        entry,
+    );
 }
 
 export function platformFinanceConfig() {
@@ -225,17 +270,19 @@ export function isMerchantWithoutAccount(error: unknown): boolean {
 
 export type ProvisionOutcome = 'provisioned' | 'no-account' | 'invalid-document' | 'error' | 'disabled';
 
-/** Provisiona sem nunca lançar; erros são logados sem segredos. */
+/** Provisiona sem nunca lançar; erros são logados sem segredos. Sem e-mail não há como criar a conta (invalid-document). */
 export async function provisionMerchantSafe(
     document: string | null | undefined,
     legalName: string | null | undefined,
+    email: string | null | undefined,
     logger: Pick<Console, 'warn'> = console,
+    options: { adoptByEmail?: boolean } = {},
 ): Promise<ProvisionOutcome> {
     const digits = merchantIdFromDocument(document);
     if (!isSimintpayPlatformConfigured()) return 'disabled';
-    if (!legalName?.trim()) return 'invalid-document';
+    if (!legalName?.trim() || !email?.trim()) return 'invalid-document';
     try {
-        await provisionMerchant(digits, legalName);
+        await provisionMerchant(digits, legalName, email, options);
         return 'provisioned';
     } catch (error) {
         if (isMerchantWithoutAccount(error)) return 'no-account';

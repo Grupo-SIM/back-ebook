@@ -113,9 +113,9 @@ test('flag on: withdrawals history shows gross, fee and net; transactions come f
 test('pending entry, platform config and commission go through canonical routes when the flag is on', async () => {
     const { tryCanonicalPendingEntry, canonicalPlatformFees } = await import('../src/checkout/canonical-pending-entry');
     const { retryCommissionDeliveries } = await import('../src/affiliate/commission-delivery');
-    await withFakeSimintpay((method, path) => {
+    await withFakeSimintpay((method, path, body) => {
         if (path.endsWith('/finance/fees')) return json(canonicalFees);
-        if (path.endsWith('/finance/entries')) return json({ success: true, id: 'e', created: true });
+        if (path.endsWith('/finance/entries')) return json(body?.kind === 'commission' ? { success: true, created: false, skipped: 'SETTLEMENT_CREDITS_AFFILIATE' } : { success: true, id: 'e', created: true });
         if (path === '/platforms/EBOOK/finance/config') return json({ liquidityRate: 0.8501, transactionFeeCents: 400 });
     }, async calls => {
         delete process.env.EBOOK_CANONICAL_FINANCE;
@@ -125,17 +125,21 @@ test('pending entry, platform config and commission go through canonical routes 
         expect(await tryCanonicalPendingEntry({ orderNumber: 'ORD-1', amount: 100, ownerDocument: CPF, ownerName: 'Maria', buyer: { email: 'b@x.com' } })).toBe(true);
         const entry = calls.find(c => c.path.endsWith('/finance/entries'));
         expect(entry.path).toBe(`/platforms/EBOOK/merchants/${CPF}/finance/entries`);
-        expect(entry.body).toMatchObject({ referenceId: 'ORD-1', kind: 'pending', amountCents: 10000, netAmountCents: 8501, paymentMethod: 'PIX', description: `ORD-1 [CPF_DONO:${CPF}] [NOME_DONO:Maria]` });
+        expect(entry.body).toMatchObject({ referenceId: 'ORD-1', kind: 'pending', amountCents: 10000, paymentMethod: 'PIX', installments: 1, description: `ORD-1 [CPF_DONO:${CPF}] [NOME_DONO:Maria]` });
+        // o líquido é do SimIntPay: nunca enviamos netAmountCents nem consultamos finance/fees para calculá-lo
+        expect(entry.body).not.toHaveProperty('netAmountCents');
+        expect(calls.some(c => c.path.endsWith('/finance/fees'))).toBe(false);
         expect(await canonicalPlatformFees()).toMatchObject({ liquidez: 0.8501, taxaFixa: 4 });
 
         const updates = [];
         const prismaStub = {
-            $queryRaw: async () => (updates.length ? [] : [{ id: 7, snapshot: { referenceId: 'AFF-1-2', cpf: CPF, cnpj: null, amount: 8, description: 'comissao' } }]),
+            $queryRaw: async () => (updates.length ? [] : [{ id: 7, snapshot: { referenceId: 'AFF-1-2', orderNumber: 'ORD-9', cpf: CPF, cnpj: null, amount: 8, description: 'comissao' } }]),
             $executeRaw: async (parts) => { updates.push(parts.join('?')); },
         };
         await retryCommissionDeliveries(prismaStub, 2);
         const commission = calls.filter(c => c.path.endsWith('/finance/entries')).at(-1);
-        expect(commission.body).toMatchObject({ referenceId: 'AFF-1-2', kind: 'commission', amountCents: 800, netAmountCents: 800 });
+        expect(commission.body).toMatchObject({ referenceId: 'AFF-1-2', orderNumber: 'ORD-9', kind: 'commission', amountCents: 800, paymentMethod: 'PIX' });
+        expect(commission.body).not.toHaveProperty('netAmountCents');
         expect(updates[0]).toContain("'ACKNOWLEDGED'");
         expect(calls.some(c => c.internal)).toBe(false);
     });
@@ -157,20 +161,22 @@ test('auto-provision: only seller roles with a valid document, CNPJ first, never
     expect(sellerDocument({ cpf: CPF, cnpj: '11222333000181' })).toBe('11222333000181');
     expect(sellerDocument({ cpf: '11111111111', cnpj: null })).toBeNull();
     await withFakeSimintpay((method, path) => method === 'PUT' ? json({ id: 'm' }) : null, async calls => {
-        provisionSellerMerchantInBackground({ role: 'CUSTOMER', name: 'C', cpf: CPF });
-        provisionSellerMerchantInBackground({ role: 'ADMIN', name: 'Maria', cpf: CPF });
-        provisionSellerMerchantInBackground({ role: 'ADMIN', name: 'Sem doc' });
+        provisionSellerMerchantInBackground({ role: 'CUSTOMER', name: 'C', email: 'c@x.com', cpf: CPF });
+        provisionSellerMerchantInBackground({ role: 'ADMIN', name: 'Maria', email: 'Maria@X.com', cpf: CPF });
+        provisionSellerMerchantInBackground({ role: 'ADMIN', name: 'Sem doc', email: 'd@x.com' });
+        provisionSellerMerchantInBackground({ role: 'ADMIN', name: 'Sem email', cpf: CPF });
         await Bun.sleep(150);
         expect(calls).toHaveLength(1);
-        expect(calls[0]).toMatchObject({ method: 'PUT', path: `/platforms/EBOOK/merchants/${CPF}`, token: 'inbound-secret', body: { cnpj: CPF, legalName: 'Maria' } });
+        expect(calls[0]).toMatchObject({ method: 'PUT', path: `/platforms/EBOOK/merchants/${CPF}`, token: 'inbound-secret', body: { cnpj: CPF, legalName: 'Maria', email: 'maria@x.com' } });
+        expect(calls[0].body).not.toHaveProperty('adoptByEmail');
     });
     // 400 (no SimIntPay account) and unreachable server are swallowed
     await withFakeSimintpay(() => new Response('Comerciante exige conta ativa previamente cadastrada', { status: 400 }), async () => {
-        provisionSellerMerchantInBackground({ role: 'USER', name: 'Maria', cpf: CPF });
+        provisionSellerMerchantInBackground({ role: 'USER', name: 'Maria', email: 'm@x.com', cpf: CPF });
         await Bun.sleep(100);
     });
     delete process.env.SIMINTPAY_PLATFORM_TOKEN;
-    provisionSellerMerchantInBackground({ role: 'USER', name: 'Maria', cpf: CPF });
+    provisionSellerMerchantInBackground({ role: 'USER', name: 'Maria', email: 'm@x.com', cpf: CPF });
 });
 
 test('provision-merchants script: dry-run never calls the API, apply is idempotent and classifies outcomes', async () => {
@@ -191,13 +197,13 @@ test('provision-merchants script: dry-run never calls the API, apply is idempote
     expect(maskDocument(CPF)).toBe('529******25');
 
     const provisioned = [];
-    const apply = await provisionAll(users, { apply: true, delayMs: 0 }, {
+    const apply = await provisionAll(users, { apply: true, delayMs: 0, adoptByEmail: true }, {
         summary: async doc => { if (doc === CPF) return {}; if (doc === '39053344705') throw new SimintpayPlatformError(500, 'boom', 'x'); throw new SimintpayPlatformError(404, 'Comerciante não associado ou inativo', 'x'); },
-        provision: async doc => { provisioned.push(doc); },
+        provision: async (doc, name, email, options) => { provisioned.push([doc, email, options.adoptByEmail]); },
         sleep: async () => {}, log: () => {},
     });
     expect(apply.counts).toMatchObject({ 'already-ok': 1, provisioned: 1, 'invalid-document': 1, error: 1 });
-    expect(provisioned).toEqual(['11222333000181']);
+    expect(provisioned).toEqual([['11222333000181', 'ana@x.com', true]]);
     expect(apply.exitCode).toBe(1);
     const noAccount = await provisionAll([users[0]], { apply: true, delayMs: 0 }, {
         summary: async () => { throw new SimintpayPlatformError(404, 'Comerciante não associado', 'x'); },
@@ -206,4 +212,33 @@ test('provision-merchants script: dry-run never calls the API, apply is idempote
     });
     expect(noAccount.counts['no-account']).toBe(1);
     expect(noAccount.exitCode).toBe(0);
+});
+
+test('script: --adopt-by-email is opt-in (default off) and users without e-mail are skipped', async () => {
+    const { parseArgs, provisionAll } = await import('../scripts/provision-merchants');
+    expect(parseArgs([]).adoptByEmail).toBe(false);
+    expect(parseArgs(['--adopt-by-email']).adoptByEmail).toBe(true);
+    const result = await provisionAll([{ id: '1', name: 'Maria', email: '', role: 'USER', cpf: CPF, cnpj: null }], { apply: true, delayMs: 0 }, { summary: async () => { throw new Error('x'); }, provision: async () => { throw new Error('x'); }, sleep: async () => {}, log: () => {} });
+    expect(result.counts['invalid-document']).toBe(1);
+});
+
+test('order payment lookup uses finance/transactions by orderNumber (no admin/transacoes-dom) and fails closed', async () => {
+    const { isOrderPaymentCompleted } = await import('../src/common/simintpay-platform');
+    await withFakeSimintpay((method, path) => path.endsWith('/finance/transactions') ? json({ data: [{ id: 't', status: 'COMPLETED', description: 'ORD-2026-000001 [TENANT:EBOOK]' }], meta: {} }) : null, async calls => {
+        expect(await isOrderPaymentCompleted(CPF, 'ORD-2026-000001')).toBe(true);
+        expect(calls[0].path).toBe(`/platforms/EBOOK/merchants/${CPF}/finance/transactions?status=COMPLETED&description=ORD-2026-000001&limit=20`);
+        expect(await isOrderPaymentCompleted(CPF, 'ORD-2026-000002')).toBe(false);
+    });
+    await withFakeSimintpay(() => new Response('{"message":"Comerciante não associado"}', { status: 404 }), async () => {
+        expect(await isOrderPaymentCompleted(CPF, 'ORD-2026-000001')).toBe(false);
+    });
+});
+
+test('flag on: seller fees never fall back to the legacy API Machine summary', async () => {
+    const { getSellerFees } = await import('../src/common/seller-fees');
+    await withFakeSimintpay(() => null, async calls => {
+        process.env.EBOOK_CANONICAL_FINANCE = 'true';
+        expect(await getSellerFees('11222333000181')).toBeNull();
+        expect(calls.some(c => c.internal || c.path.startsWith('/internal/'))).toBe(false);
+    });
 });

@@ -2,17 +2,19 @@ import {
   isCanonicalFinanceEnabled,
   isSimintpayPlatformConfigured,
   merchantEntry,
-  merchantFees,
   platformFinanceConfig,
   SimintpayPlatformError,
 } from 'src/common/simintpay-platform';
-import { entryNetCents, entryPaymentMethod, entryPercent } from 'src/payments/canonical-finance';
+import { entryPaymentMethod } from 'src/payments/canonical-finance';
 
 /**
  * Venda pendente pela rota canônica (POST finance/entries, kind=pending, escopo ledger:write).
  * Retorna true se o lançamento foi aceito (idempotente por referenceId); false = usar o caminho legado
  * (flag desligada, sem documento do dono, vendedor não provisionado ou erro): o domPaymentId é o mesmo nos dois, então é seguro.
- * O líquido (netAmountCents) é calculado aqui a partir de finance/fees (taxa de processamento da modalidade).
+ * `amountCents` = o que o comprador pagou (juros incluídos); o líquido é SEMPRE calculado pelo SimIntPay (não enviamos
+ * netAmountCents). Limitação: o pedido nasce antes de o comprador escolher modalidade/parcelas no checkout (o Order não guarda
+ * parcelas nem juros), então o lançamento pendente sai como PIX/1x com o valor do pedido; o SimIntPay/DOM reconcilia o
+ * pagamento real (cartão, parcelas, juros) quando o webhook completa a venda.
  */
 export async function tryCanonicalPendingEntry(params: {
   orderNumber: string;
@@ -28,14 +30,12 @@ export async function tryCanonicalPendingEntry(params: {
   try {
     const method = entryPaymentMethod(params.paymentMethod);
     const amountCents = Math.round(params.amount * 100);
-    const fees = await merchantFees(document);
     const tag = `[${document.length === 14 ? 'CNPJ' : 'CPF'}_DONO:${document}]`;
     const nameTag = params.ownerName ? ` [NOME_DONO:${params.ownerName}]` : '';
     await merchantEntry(document, {
       referenceId: params.orderNumber,
       kind: 'pending',
       amountCents,
-      netAmountCents: entryNetCents(amountCents, entryPercent(fees, method)),
       paymentMethod: method,
       installments: 1,
       description: `${params.orderNumber} ${tag}${nameTag}`,

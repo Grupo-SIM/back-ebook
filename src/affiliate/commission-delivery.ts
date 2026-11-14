@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import type { PrismaService } from 'prisma/prisma.service';
 import { isCanonicalFinanceEnabled, isSimintpayPlatformConfigured, merchantEntry, SimintpayPlatformError } from '../common/simintpay-platform';
 
-type Delivery = { id: number; snapshot: { referenceId: string; cpf: string | null; cnpj: string | null; amount: number; description: string } };
+type Delivery = { id: number; snapshot: { referenceId: string; orderNumber?: string; cpf: string | null; cnpj: string | null; amount: number; description: string } };
 
 /** Compatibility transport only: a legacy receipt is NOT a wallet credit. */
 export async function retryCommissionDeliveries(prisma: PrismaService, limit = 20): Promise<void> {
@@ -25,13 +25,15 @@ export async function retryCommissionDeliveries(prisma: PrismaService, limit = 2
         const row = rows[0];
         if (!row) return;
         try {
-            const { referenceId, cpf, cnpj, amount, description } = row.snapshot;
+            const { referenceId, orderNumber, cpf, cnpj, amount, description } = row.snapshot;
             if (!cpf && !cnpj) throw new Error('Frozen recipient has no document; manual reconciliation required');
             if (canonical) {
                 // Canônico: o afiliado precisa estar provisionado como comerciante (senão 404 → RETRY/reconciliação manual).
-                const amountCents = Math.round(amount * 100);
+                // Credita a carteira do afiliado (BalanceLog EBOOK_COMMISSION). orderNumber é obrigatório: se o pedido
+                // tiver liquidação o SimIntPay responde {skipped:'SETTLEMENT_CREDITS_AFFILIATE'} (a alocação já credita) — sucesso.
+                if (!orderNumber) throw new Error('Frozen commission has no orderNumber; manual reconciliation required');
                 await merchantEntry(String(cpf || cnpj), {
-                    referenceId, kind: 'commission', amountCents, netAmountCents: amountCents,
+                    referenceId, orderNumber, kind: 'commission', amountCents: Math.round(amount * 100),
                     paymentMethod: 'PIX', description: description || 'Comissão de afiliado',
                 });
             } else {
@@ -48,7 +50,7 @@ export async function retryCommissionDeliveries(prisma: PrismaService, limit = 2
         } catch (error) {
             // Do not retain response bodies, tokens or recipient documents in diagnostics.
             const message = error instanceof SimintpayPlatformError ? `SimIntPay HTTP ${error.status}`
-                : error instanceof Error && error.message.startsWith('Legacy HTTP') ? error.message : 'Legacy delivery failed';
+                : error instanceof Error && /^(Legacy HTTP|Frozen )/.test(error.message) ? error.message : 'Legacy delivery failed';
             await prisma.$executeRaw`UPDATE affiliate_commission_deliveries SET state = 'RETRY',
                 next_attempt_at = NOW() + INTERVAL '5 minutes', last_error = ${message},
                 lease_token = NULL, lease_until = NULL WHERE id = ${row.id} AND lease_token = ${lease}`;

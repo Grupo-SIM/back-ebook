@@ -53,7 +53,7 @@ export async function getSellerFees(document: string | null | undefined): Promis
     const cached = cache.get(doc);
     if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) return cached.fees;
 
-    // Canônico (flag ligada): finance/fees. Vendedor não provisionado/erro → cai no legado abaixo.
+    // Canônico (flag ligada): finance/fees. Vendedor não provisionado/erro → null (o chamador usa a config da plataforma); nunca cai no legado.
     if (isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured()) {
         try {
             const fees = sellerFeesFromCanonical(await merchantFees(doc));
@@ -62,8 +62,9 @@ export async function getSellerFees(document: string | null | undefined): Promis
                 return fees;
             }
         } catch {
-            // fallback legado
+            // sem fallback legado com a flag ligada
         }
+        return null;
     }
 
     const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;

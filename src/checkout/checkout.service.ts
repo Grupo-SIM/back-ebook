@@ -12,6 +12,7 @@ import { AppService } from 'src/app.service';
 import { getSignedDownloadUrl } from 'src/common/storj';
 import { calcNetAmount, getSellerFees } from 'src/common/seller-fees';
 import { canonicalPlatformFees, tryCanonicalPendingEntry } from './canonical-pending-entry';
+import { isCanonicalFinanceEnabled, isOrderPaymentCompleted, isSimintpayPlatformConfigured } from '../common/simintpay-platform';
 import {
     CartItemDto,
     CheckoutItemDto,
@@ -53,6 +54,8 @@ export class CheckoutService {
         ownerName?: string | null,
     ): Promise<void> {
         if (await tryCanonicalPendingEntry({ orderNumber, amount, ownerDocument: ownerCpf, ownerName, paymentMethod, buyer })) return;
+        // Com a flag canônica ligada não há mais chamada legada (API_MACHINE_*): a falha já foi logada e o pedido segue.
+        if (isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured()) return;
         const apiMachineUrl = process.env.API_MACHINE_URL;
         const token = process.env.API_MACHINE_INTERNAL_TOKEN;
         if (!apiMachineUrl || !token) return;
@@ -155,20 +158,11 @@ export class CheckoutService {
         return attachments;
     }
 
+    /** Base do SimIntPay para /checkout/ebook-url (único uso restante do API_MACHINE_* no checkout com a flag canônica). */
     private getApiMachineBaseUrl(): string | null {
         const base = process.env.API_MACHINE_URL || null;
         if (!base) return null;
         return base.replace(/\/+$/, '');
-    }
-
-    private parseDomDate(raw: string | null | undefined): Date | null {
-        if (!raw) return null;
-        const normalized = String(raw).trim().replace(' ', 'T');
-        const withTimezone = /[zZ]|[+-]\d{2}:\d{2}$/.test(normalized)
-            ? normalized
-            : `${normalized}-03:00`;
-        const d = new Date(withTimezone);
-        return Number.isNaN(d.getTime()) ? null : d;
     }
 
     private _ebookLiquidez: number | null = null;
@@ -219,7 +213,7 @@ export class CheckoutService {
             }
             const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
             const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
-            if (base && token) {
+            if (base && token && !isCanonicalFinanceEnabled()) {
                 const res = await fetch(`${base.replace(/\/+$/, '')}/internal/ebook/finance/config`, {
                     headers: { 'x-internal-token': token },
                 });
@@ -255,7 +249,7 @@ export class CheckoutService {
             }
             const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
             const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
-            if (base && token) {
+            if (base && token && !isCanonicalFinanceEnabled()) {
                 const res = await fetch(`${base.replace(/\/+$/, '')}/internal/ebook/finance/config`, {
                     headers: { 'x-internal-token': token },
                 });
@@ -278,74 +272,24 @@ export class CheckoutService {
         return fallback;
     }
 
+    /**
+     * Confirma o pagamento de um pedido pendente consultando o SimIntPay por número do pedido
+     * (finance/transactions?status=COMPLETED&description=<orderNumber> do vendedor dono). Pedidos com liquidação
+     * não aparecem nessa consulta: são confirmados pelos recibos/webhook.
+     */
     private async tryReconcileEbookOrderPaid(order: any): Promise<void> {
         if (!order || order.store !== 'ebook') return;
         if (order.status === 'paid' || order.paymentStatus === 'paid') return;
 
-        const baseUrl = this.getApiMachineBaseUrl();
-        if (!baseUrl) return;
+        const owner = order?.orderItems?.[0]?.book?.createdBy;
+        const ownerDocument = String(owner?.cnpj || owner?.cpf || '').replace(/\D/g, '');
+        if (ownerDocument.length !== 11 && ownerDocument.length !== 14) return;
 
-        const orderAmount = Number(order.totalAmount ?? 0);
-        const orderEmail = String(order?.user?.email ?? '').trim().toLowerCase();
-        const firstBookTitle = String(order?.orderItems?.[0]?.book?.title ?? '').trim().toLowerCase();
-        if (!Number.isFinite(orderAmount) || orderAmount <= 0 || !firstBookTitle) return;
-
-        const beginDate = new Date(order.createdAt).toISOString().slice(0, 10);
-        const endDate = new Date().toISOString().slice(0, 10);
-
-        for (let page = 1; page <= 10; page++) {
-            const search = new URLSearchParams({
-                page: String(page),
-                limit: '200',
-                begin_date: beginDate,
-                end_date: endDate,
-                status: 'paid',
-                payment_method: 'pix',
+        if (await isOrderPaymentCompleted(ownerDocument, String(order.orderNumber ?? ''))) {
+            await this.prisma.order.update({
+                where: { id: order.id },
+                data: { status: 'paid', paymentStatus: 'paid' },
             });
-            const response = await fetch(`${baseUrl}/admin/transacoes-dom?${search.toString()}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (!response.ok) return;
-
-            const data = await response.json();
-            const txs = Array.isArray(data?.data?.transactions) ? data.data.transactions : [];
-            if (txs.length === 0) break;
-
-            const match = txs.find((tx: any) => {
-                const txStatus = String(tx?.status ?? '').toLowerCase();
-                if (!['paid', 'approved', 'completed'].includes(txStatus)) return false;
-
-                const txAmount = Number(tx?.amount ?? 0);
-                if (Math.abs(txAmount - orderAmount) > 0.0001) return false;
-
-                const txTitle = String(tx?.product_first ?? '').trim().toLowerCase();
-                if (!(txTitle.includes(firstBookTitle) || firstBookTitle.includes(txTitle))) return false;
-
-                const txEmail = String(tx?.customer_email ?? '').trim().toLowerCase();
-                if (orderEmail && txEmail && orderEmail !== txEmail) return false;
-
-                const txCreatedAt = this.parseDomDate(tx?.created_at);
-                if (!txCreatedAt) return false;
-
-                const orderCreatedAt = new Date(order.createdAt);
-                const diff = Math.abs(txCreatedAt.getTime() - orderCreatedAt.getTime());
-                return diff <= 12 * 60 * 60 * 1000;
-            });
-
-            if (match) {
-                await this.prisma.order.update({
-                    where: { id: order.id },
-                    data: {
-                        status: 'paid',
-                        paymentStatus: 'paid',
-                    },
-                });
-                return;
-            }
-
-            if (txs.length < 200) break;
         }
     }
 
@@ -359,7 +303,6 @@ export class CheckoutService {
         value: number | string;
         description: string;
         store?: string;
-        adminToken?: string | null;
         orderId?: string | number | null;
         orderNumber?: string | null;
         maxInstallments?: number | null;
@@ -377,9 +320,6 @@ export class CheckoutService {
         if (params.orderNumber) {
             checkoutUrl += `&orderNumber=${encodeURIComponent(params.orderNumber)}`;
         }
-        if (params.adminToken) {
-            checkoutUrl += `&adminToken=${encodeURIComponent(params.adminToken)}`;
-        }
         if (params.maxInstallments && params.maxInstallments > 1) {
             checkoutUrl += `&maxInstallments=${params.maxInstallments}`;
         }
@@ -390,7 +330,6 @@ export class CheckoutService {
         value: number | string;
         description: string;
         store?: string;
-        adminToken?: string | null;
         orderId?: string | number | null;
         orderNumber?: string | null;
         maxInstallments?: number | null;
@@ -823,22 +762,7 @@ export class CheckoutService {
         });
         const orderResponse = this.mapOrderToResponse(orderWithItems);
 
-        // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
-        let adminToken = null;
-        if (cartItems.length > 0 && cartItems[0].book.createdById) {
-            // Buscar o token do admin que criou o primeiro livro
-            const adminTokenRecord = await this.prisma.$queryRaw`
-                SELECT token FROM admin_tokens 
-                WHERE "adminId" = ${cartItems[0].book.createdById} 
-                AND "isActive" = true
-            `;
-
-            if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
-                adminToken = adminTokenRecord[0].token;
-            }
-        }
-
-        // Gerar link de checkout com o token do admin se disponível
+        // Gerar link de checkout
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
         const maxInstallmentsCart = Math.max(...cartItems.map(item => (item.book as any).maxInstallments || 1));
 
@@ -847,7 +771,6 @@ export class CheckoutService {
             // Para webhook externo, usar orderNumber como identificador canônico do pedido.
             description: orderResponse.orderNumber,
             store: 'ebook',
-            adminToken,
             orderId: orderResponse.id,
             orderNumber: orderResponse.orderNumber,
             maxInstallments: maxInstallmentsCart > 1 ? maxInstallmentsCart : null,
@@ -959,24 +882,9 @@ export class CheckoutService {
             include: { orderItems: { include: { book: true } } },
         });
 
-        // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
-        let adminToken = null;
-        if (book.createdById) {
-            // Buscar o token do admin que criou o livro
-            const adminTokenRecord = await this.prisma.$queryRaw`
-                SELECT token FROM admin_tokens 
-                WHERE "adminId" = ${book.createdById} 
-                AND "isActive" = true
-            `;
-
-            if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
-                adminToken = adminTokenRecord[0].token;
-            }
-        }
-
         const orderResponse = this.mapOrderToResponse(orderWithItems);
 
-        // Gerar link de checkout com o token do admin se disponível
+        // Gerar link de checkout
         const value = Math.round(orderResponse.totalAmount * 100); // valor em centavos
         const maxInstallmentsBook = (book as any).maxInstallments || 1;
 
@@ -985,7 +893,6 @@ export class CheckoutService {
             // Para webhook externo, usar orderNumber como identificador canônico do pedido.
             description: orderResponse.orderNumber,
             store: 'ebook',
-            adminToken,
             orderId: orderResponse.id,
             orderNumber: orderResponse.orderNumber,
             maxInstallments: maxInstallmentsBook > 1 ? maxInstallmentsBook : null,
@@ -1035,21 +942,6 @@ export class CheckoutService {
                 orders: await Promise.all(orders.map(async order => {
                     const orderResponse = this.mapOrderToResponse(order);
 
-                    // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
-                    let adminToken = null;
-                    if (order.orderItems.length > 0 && order.orderItems[0].book.createdById) {
-                        // Buscar o token do admin que criou o primeiro livro
-                        const adminTokenRecord = await this.prisma.$queryRaw`
-                            SELECT token FROM admin_tokens 
-                            WHERE "adminId" = ${order.orderItems[0].book.createdById} 
-                            AND "isActive" = true
-                        `;
-
-                        if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
-                            adminToken = adminTokenRecord[0].token;
-                        }
-                    }
-
                     // Gerar checkoutUrl baseado no primeiro item do pedido
                     const value = Math.round(orderResponse.totalAmount * 100);
                     const maxInstallmentsOrder = Math.max(...order.orderItems.map(i => (i.book as any).maxInstallments || 1));
@@ -1059,7 +951,6 @@ export class CheckoutService {
                         // Para webhook externo, usar orderNumber como identificador canônico do pedido.
                         description: orderResponse.orderNumber,
                         store: 'ebook',
-                        adminToken,
                         orderId: orderResponse.id,
                         orderNumber: orderResponse.orderNumber,
                         maxInstallments: maxInstallmentsOrder > 1 ? maxInstallmentsOrder : null,
@@ -1137,21 +1028,6 @@ export class CheckoutService {
         const orderResponse = this.mapOrderToResponse(order);
         const value = Math.round(orderResponse.totalAmount * 100);
 
-        // NOVA FUNCIONALIDADE: Identificar o token do admin que criou o livro
-        let adminToken = null;
-        if (order.orderItems.length > 0 && order.orderItems[0].book.createdById) {
-            // Buscar o token do admin que criou o primeiro livro
-            const adminTokenRecord = await this.prisma.$queryRaw`
-                SELECT token FROM admin_tokens 
-                WHERE "adminId" = ${order.orderItems[0].book.createdById} 
-                AND "isActive" = true
-            `;
-
-            if (adminTokenRecord && Array.isArray(adminTokenRecord) && adminTokenRecord.length > 0) {
-                adminToken = adminTokenRecord[0].token;
-            }
-        }
-
         const maxInstallmentsSingle = Math.max(...order.orderItems.map(i => (i.book as any).maxInstallments || 1));
 
         const checkoutUrl = await this.buildCheckoutUrl({
@@ -1161,7 +1037,6 @@ export class CheckoutService {
             orderId: orderResponse.id,
             orderNumber: orderResponse.orderNumber,
             store: 'ebook',
-            adminToken,
             maxInstallments: maxInstallmentsSingle > 1 ? maxInstallmentsSingle : null,
             existingOnly: true,
         });
