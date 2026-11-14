@@ -7,26 +7,33 @@ import {
 } from 'src/common/simintpay-platform';
 import { entryPaymentMethod } from 'src/payments/canonical-finance';
 
-/**
- * Venda pendente pela rota canônica (POST finance/entries, kind=pending, escopo ledger:write).
- * Retorna true se o lançamento foi aceito (idempotente por referenceId); false = usar o caminho legado
- * (flag desligada, sem documento do dono, vendedor não provisionado ou erro): o domPaymentId é o mesmo nos dois, então é seguro.
- * `amountCents` = o que o comprador pagou (juros incluídos); o líquido é SEMPRE calculado pelo SimIntPay (não enviamos
- * netAmountCents). Limitação: o pedido nasce antes de o comprador escolher modalidade/parcelas no checkout (o Order não guarda
- * parcelas nem juros), então o lançamento pendente sai como PIX/1x com o valor do pedido; o SimIntPay/DOM reconcilia o
- * pagamento real (cartão, parcelas, juros) quando o webhook completa a venda.
- */
-export async function tryCanonicalPendingEntry(params: {
+export type PendingEntryParams = {
   orderNumber: string;
   amount: number;
   ownerDocument: string | null;
   ownerName?: string | null;
   paymentMethod?: string;
   buyer?: { name?: string; email?: string; cpf?: string };
-}): Promise<boolean> {
+};
+
+/** A entrada canônica se aplica (flag ligada, SimIntPay configurado e dono com CPF/CNPJ). */
+export function canonicalPendingEntryApplies(ownerDocument: string | null | undefined): boolean {
+  const document = String(ownerDocument ?? '').replace(/\D/g, '');
+  return isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured() && (document.length === 11 || document.length === 14);
+}
+
+/**
+ * Venda pendente pela rota canônica (POST finance/entries, kind=pending, escopo ledger:write).
+ * Retorna true se o lançamento foi aceito (idempotente por referenceId); false = não aplicável ou falhou (o chamador
+ * decide: legado com a flag desligada; com a flag ligada, fila durável `ebook_pending_entry_deliveries`).
+ * `amountCents` = valor do dono antes dos juros; o líquido é SEMPRE calculado pelo SimIntPay (não enviamos
+ * netAmountCents). Limitação: o pedido nasce antes de o comprador escolher modalidade/parcelas no checkout (o Order não guarda
+ * parcelas nem juros), então o lançamento pendente sai como PIX/1x; quando o webhook DOM conclui a venda, o SimIntPay
+ * recota o líquido com as parcelas e o total pagos de verdade (juros do cartão) sobre esse valor do dono.
+ */
+export async function tryCanonicalPendingEntry(params: PendingEntryParams): Promise<boolean> {
   const document = String(params.ownerDocument ?? '').replace(/\D/g, '');
-  if (!isCanonicalFinanceEnabled() || !isSimintpayPlatformConfigured()) return false;
-  if (document.length !== 11 && document.length !== 14) return false;
+  if (!canonicalPendingEntryApplies(document)) return false;
   try {
     const method = entryPaymentMethod(params.paymentMethod);
     const amountCents = Math.round(params.amount * 100);
@@ -46,7 +53,7 @@ export async function tryCanonicalPendingEntry(params: {
     return true;
   } catch (error) {
     const status = error instanceof SimintpayPlatformError ? error.status : 'rede';
-    console.warn(`[simintpay] lançamento pendente canônico falhou (${status}); usando caminho legado`);
+    console.warn(`[simintpay] lançamento pendente canônico falhou (${status})`);
     return false;
   }
 }

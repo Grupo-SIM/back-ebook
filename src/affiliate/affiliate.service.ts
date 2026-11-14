@@ -1,4 +1,5 @@
 import { retryCommissionDeliveries } from './commission-delivery';
+import { retryPendingEntryDeliveries } from '../checkout/pending-entry-delivery';
 import { validateCommissionEvidence } from './commission-evidence';
 import { readAffiliateAttribution } from './affiliate-attribution';
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
@@ -31,7 +32,10 @@ export class AffiliateService {
         this.retryTimer = setInterval(() => {
             if (this.retryRunning) return;
             this.retryRunning = true;
-            void this.retryCommissionDeliveries().catch(() => {
+            void Promise.all([
+                this.retryCommissionDeliveries(),
+                retryPendingEntryDeliveries(this.prisma),
+            ]).catch(() => {
                 this.logger.error('[Affiliate] Durable delivery retry failed');
             }).finally(() => { this.retryRunning = false; });
         }, 60_000);

@@ -11,7 +11,8 @@ import { NotificationService } from 'src/notification/notification.service';
 import { AppService } from 'src/app.service';
 import { getSignedDownloadUrl } from 'src/common/storj';
 import { calcNetAmount, getSellerFees } from 'src/common/seller-fees';
-import { canonicalPlatformFees, tryCanonicalPendingEntry } from './canonical-pending-entry';
+import { canonicalPendingEntryApplies, canonicalPlatformFees, tryCanonicalPendingEntry } from './canonical-pending-entry';
+import { enqueuePendingEntry } from './pending-entry-delivery';
 import { isCanonicalFinanceEnabled, isOrderPaymentCompleted, isSimintpayPlatformConfigured } from '../common/simintpay-platform';
 import {
     CartItemDto,
@@ -53,8 +54,13 @@ export class CheckoutService {
         buyer?: { name?: string; email?: string; cpf?: string },
         ownerName?: string | null,
     ): Promise<void> {
-        if (await tryCanonicalPendingEntry({ orderNumber, amount, ownerDocument: ownerCpf, ownerName, paymentMethod, buyer })) return;
-        // Com a flag canônica ligada não há mais chamada legada (API_MACHINE_*): a falha já foi logada e o pedido segue.
+        const entry = { orderNumber, amount, ownerDocument: ownerCpf, ownerName, paymentMethod, buyer };
+        if (await tryCanonicalPendingEntry(entry)) return;
+        // Com a flag canônica ligada não há chamada legada: a falha vai para a fila durável (reenvio em segundo plano) e o pedido segue.
+        if (canonicalPendingEntryApplies(ownerCpf)) {
+            await enqueuePendingEntry(this.prisma, entry);
+            return;
+        }
         if (isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured()) return;
         const apiMachineUrl = process.env.API_MACHINE_URL;
         const token = process.env.API_MACHINE_INTERNAL_TOKEN;
