@@ -7,6 +7,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { RedisService } from 'src/redis.service';
 import { Role } from 'src/types/interfaces/role';
 import { isValidCpf, isValidCnpj, normalizeCpf } from 'src/common/utils/cpf.util';
+import { provisionSellerMerchantInBackground } from 'src/common/seller-provisioning';
 
 @Injectable()
 export class UserService extends GenericService {
@@ -256,6 +257,7 @@ export class UserService extends GenericService {
       });
 
       await this.invalidateCache('all_users');
+      provisionSellerMerchantInBackground(user);
 
       return {
         id: user.id,
@@ -385,6 +387,9 @@ export class UserService extends GenericService {
         }
       }
     });
+
+    // Primeira definição/troca de CPF/CNPJ: provisiona (ou atualiza) o comerciante no SimIntPay, best-effort.
+    if (data.document !== undefined) provisionSellerMerchantInBackground(updatedUser);
 
     if (updatedUser.role === Role.ADMIN) {
       await this.redisService.deleteByPattern(`admin:*`);

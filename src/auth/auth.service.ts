@@ -19,6 +19,7 @@ import {
 } from './dto/auth.dto';
 import { Role } from 'src/types/interfaces/role';
 import { isValidCpf, isValidCnpj, normalizeCpf } from 'src/common/utils/cpf.util';
+import { provisionSellerMerchantInBackground } from 'src/common/seller-provisioning';
 
 @Injectable()
 export class AuthService {
@@ -987,6 +988,10 @@ export class AuthService {
         // Não interrompe o fluxo se a sincronização falhar
       }
     }
+
+    // Provisiona o vendedor como comerciante canônico no SimIntPay (best-effort, sem bloquear o registro).
+    // Só funciona se a conta SimIntPay já tiver este CPF/CNPJ; senão o script provision:merchants cobre depois.
+    if (hasDocument) provisionSellerMerchantInBackground(newUser);
 
     const userResponse = {
       id: newUser.id,

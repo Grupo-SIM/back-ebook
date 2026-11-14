@@ -108,3 +108,25 @@ test('pure helpers: gross/net inversion, idempotency bucket and withdrawals mapp
     const mapped = mapCanonicalWithdrawals({ data: [{ id: 'w', amountCents: 1050, status: 'PENDING', pixKey: 'k', rejectionReason: null, createdAt: 'd' }], meta: { page: 2, limit: 5, total: 7, totalPages: 2 } }, { id: 'u', name: 'N', email: 'e' });
     expect(mapped).toEqual({ withdrawals: [{ id: 'w', userId: 'u', amount: 10.5, status: 'PENDING', pixKey: 'k', rejectionReason: null, createdAt: 'd', user: { name: 'N', email: 'e' } }], meta: { currentPage: 2, itemsPerPage: 5, totalItems: 7, totalPages: 2 } });
 });
+
+test('auto-provision: only seller roles with a valid document, CNPJ first, never throws, sends PUT with digits', async () => {
+    const { provisionSellerMerchantInBackground, sellerDocument } = await import('../src/common/seller-provisioning');
+    expect(sellerDocument({ cpf: '529.982.247-25', cnpj: null })).toBe(CPF);
+    expect(sellerDocument({ cpf: CPF, cnpj: '11222333000181' })).toBe('11222333000181');
+    expect(sellerDocument({ cpf: '11111111111', cnpj: null })).toBeNull();
+    await withFakeSimintpay((method, path) => method === 'PUT' ? json({ id: 'm' }) : null, async calls => {
+        provisionSellerMerchantInBackground({ role: 'CUSTOMER', name: 'C', cpf: CPF });
+        provisionSellerMerchantInBackground({ role: 'ADMIN', name: 'Maria', cpf: CPF });
+        provisionSellerMerchantInBackground({ role: 'ADMIN', name: 'Sem doc' });
+        await Bun.sleep(150);
+        expect(calls).toHaveLength(1);
+        expect(calls[0]).toMatchObject({ method: 'PUT', path: `/platforms/EBOOK/merchants/${CPF}`, token: 'inbound-secret', body: { cnpj: CPF, legalName: 'Maria' } });
+    });
+    // 400 (no SimIntPay account) and unreachable server are swallowed
+    await withFakeSimintpay(() => new Response('Comerciante exige conta ativa previamente cadastrada', { status: 400 }), async () => {
+        provisionSellerMerchantInBackground({ role: 'USER', name: 'Maria', cpf: CPF });
+        await Bun.sleep(100);
+    });
+    delete process.env.SIMINTPAY_PLATFORM_TOKEN;
+    provisionSellerMerchantInBackground({ role: 'USER', name: 'Maria', cpf: CPF });
+});
