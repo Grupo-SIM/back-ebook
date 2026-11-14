@@ -104,6 +104,11 @@ export type AffiliateCommission = $Result.DefaultSelection<Prisma.$AffiliateComm
  */
 export type AffiliateCommissionDelivery = $Result.DefaultSelection<Prisma.$AffiliateCommissionDeliveryPayload>
 /**
+ * Model EbookPendingEntryDelivery
+ * 
+ */
+export type EbookPendingEntryDelivery = $Result.DefaultSelection<Prisma.$EbookPendingEntryDeliveryPayload>
+/**
  * Model AffiliateProductLink
  * 
  */
@@ -458,6 +463,16 @@ export class PrismaClient<
     * ```
     */
   get affiliateCommissionDelivery(): Prisma.AffiliateCommissionDeliveryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ebookPendingEntryDelivery`: Exposes CRUD operations for the **EbookPendingEntryDelivery** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EbookPendingEntryDeliveries
+    * const ebookPendingEntryDeliveries = await prisma.ebookPendingEntryDelivery.findMany()
+    * ```
+    */
+  get ebookPendingEntryDelivery(): Prisma.EbookPendingEntryDeliveryDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.affiliateProductLink`: Exposes CRUD operations for the **AffiliateProductLink** model.
@@ -940,6 +955,7 @@ export namespace Prisma {
     ActivityLog: 'ActivityLog',
     AffiliateCommission: 'AffiliateCommission',
     AffiliateCommissionDelivery: 'AffiliateCommissionDelivery',
+    EbookPendingEntryDelivery: 'EbookPendingEntryDelivery',
     AffiliateProductLink: 'AffiliateProductLink',
     AffiliateFavorite: 'AffiliateFavorite',
     AdminToken: 'AdminToken'
@@ -958,7 +974,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "admin" | "user" | "image" | "category" | "book" | "favorite" | "cart" | "order" | "ebookSettlementManifest" | "ebookSettlementReceipt" | "orderItem" | "bookComboItem" | "orderComboBook" | "notification" | "review" | "activityLog" | "affiliateCommission" | "affiliateCommissionDelivery" | "affiliateProductLink" | "affiliateFavorite" | "adminToken"
+      modelProps: "admin" | "user" | "image" | "category" | "book" | "favorite" | "cart" | "order" | "ebookSettlementManifest" | "ebookSettlementReceipt" | "orderItem" | "bookComboItem" | "orderComboBook" | "notification" | "review" | "activityLog" | "affiliateCommission" | "affiliateCommissionDelivery" | "ebookPendingEntryDelivery" | "affiliateProductLink" | "affiliateFavorite" | "adminToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2294,6 +2310,80 @@ export namespace Prisma {
           }
         }
       }
+      EbookPendingEntryDelivery: {
+        payload: Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>
+        fields: Prisma.EbookPendingEntryDeliveryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EbookPendingEntryDeliveryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EbookPendingEntryDeliveryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>
+          }
+          findFirst: {
+            args: Prisma.EbookPendingEntryDeliveryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EbookPendingEntryDeliveryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>
+          }
+          findMany: {
+            args: Prisma.EbookPendingEntryDeliveryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>[]
+          }
+          create: {
+            args: Prisma.EbookPendingEntryDeliveryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>
+          }
+          createMany: {
+            args: Prisma.EbookPendingEntryDeliveryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.EbookPendingEntryDeliveryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>[]
+          }
+          delete: {
+            args: Prisma.EbookPendingEntryDeliveryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>
+          }
+          update: {
+            args: Prisma.EbookPendingEntryDeliveryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>
+          }
+          deleteMany: {
+            args: Prisma.EbookPendingEntryDeliveryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EbookPendingEntryDeliveryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.EbookPendingEntryDeliveryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>[]
+          }
+          upsert: {
+            args: Prisma.EbookPendingEntryDeliveryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EbookPendingEntryDeliveryPayload>
+          }
+          aggregate: {
+            args: Prisma.EbookPendingEntryDeliveryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEbookPendingEntryDelivery>
+          }
+          groupBy: {
+            args: Prisma.EbookPendingEntryDeliveryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EbookPendingEntryDeliveryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EbookPendingEntryDeliveryCountArgs<ExtArgs>
+            result: $Utils.Optional<EbookPendingEntryDeliveryCountAggregateOutputType> | number
+          }
+        }
+      }
       AffiliateProductLink: {
         payload: Prisma.$AffiliateProductLinkPayload<ExtArgs>
         fields: Prisma.AffiliateProductLinkFieldRefs
@@ -2642,6 +2732,7 @@ export namespace Prisma {
     activityLog?: ActivityLogOmit
     affiliateCommission?: AffiliateCommissionOmit
     affiliateCommissionDelivery?: AffiliateCommissionDeliveryOmit
+    ebookPendingEntryDelivery?: EbookPendingEntryDeliveryOmit
     affiliateProductLink?: AffiliateProductLinkOmit
     affiliateFavorite?: AffiliateFavoriteOmit
     adminToken?: AdminTokenOmit
@@ -24775,6 +24866,1113 @@ export namespace Prisma {
 
 
   /**
+   * Model EbookPendingEntryDelivery
+   */
+
+  export type AggregateEbookPendingEntryDelivery = {
+    _count: EbookPendingEntryDeliveryCountAggregateOutputType | null
+    _avg: EbookPendingEntryDeliveryAvgAggregateOutputType | null
+    _sum: EbookPendingEntryDeliverySumAggregateOutputType | null
+    _min: EbookPendingEntryDeliveryMinAggregateOutputType | null
+    _max: EbookPendingEntryDeliveryMaxAggregateOutputType | null
+  }
+
+  export type EbookPendingEntryDeliveryAvgAggregateOutputType = {
+    id: number | null
+    attempts: number | null
+  }
+
+  export type EbookPendingEntryDeliverySumAggregateOutputType = {
+    id: number | null
+    attempts: number | null
+  }
+
+  export type EbookPendingEntryDeliveryMinAggregateOutputType = {
+    id: number | null
+    orderNumber: string | null
+    state: string | null
+    attempts: number | null
+    nextAttemptAt: Date | null
+    leaseToken: string | null
+    leaseUntil: Date | null
+    lastError: string | null
+    acknowledgedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type EbookPendingEntryDeliveryMaxAggregateOutputType = {
+    id: number | null
+    orderNumber: string | null
+    state: string | null
+    attempts: number | null
+    nextAttemptAt: Date | null
+    leaseToken: string | null
+    leaseUntil: Date | null
+    lastError: string | null
+    acknowledgedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type EbookPendingEntryDeliveryCountAggregateOutputType = {
+    id: number
+    orderNumber: number
+    state: number
+    snapshot: number
+    attempts: number
+    nextAttemptAt: number
+    leaseToken: number
+    leaseUntil: number
+    lastError: number
+    acknowledgedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EbookPendingEntryDeliveryAvgAggregateInputType = {
+    id?: true
+    attempts?: true
+  }
+
+  export type EbookPendingEntryDeliverySumAggregateInputType = {
+    id?: true
+    attempts?: true
+  }
+
+  export type EbookPendingEntryDeliveryMinAggregateInputType = {
+    id?: true
+    orderNumber?: true
+    state?: true
+    attempts?: true
+    nextAttemptAt?: true
+    leaseToken?: true
+    leaseUntil?: true
+    lastError?: true
+    acknowledgedAt?: true
+    createdAt?: true
+  }
+
+  export type EbookPendingEntryDeliveryMaxAggregateInputType = {
+    id?: true
+    orderNumber?: true
+    state?: true
+    attempts?: true
+    nextAttemptAt?: true
+    leaseToken?: true
+    leaseUntil?: true
+    lastError?: true
+    acknowledgedAt?: true
+    createdAt?: true
+  }
+
+  export type EbookPendingEntryDeliveryCountAggregateInputType = {
+    id?: true
+    orderNumber?: true
+    state?: true
+    snapshot?: true
+    attempts?: true
+    nextAttemptAt?: true
+    leaseToken?: true
+    leaseUntil?: true
+    lastError?: true
+    acknowledgedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EbookPendingEntryDeliveryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EbookPendingEntryDelivery to aggregate.
+     */
+    where?: EbookPendingEntryDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookPendingEntryDeliveries to fetch.
+     */
+    orderBy?: EbookPendingEntryDeliveryOrderByWithRelationInput | EbookPendingEntryDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EbookPendingEntryDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookPendingEntryDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookPendingEntryDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EbookPendingEntryDeliveries
+    **/
+    _count?: true | EbookPendingEntryDeliveryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EbookPendingEntryDeliveryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EbookPendingEntryDeliverySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EbookPendingEntryDeliveryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EbookPendingEntryDeliveryMaxAggregateInputType
+  }
+
+  export type GetEbookPendingEntryDeliveryAggregateType<T extends EbookPendingEntryDeliveryAggregateArgs> = {
+        [P in keyof T & keyof AggregateEbookPendingEntryDelivery]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEbookPendingEntryDelivery[P]>
+      : GetScalarType<T[P], AggregateEbookPendingEntryDelivery[P]>
+  }
+
+
+
+
+  export type EbookPendingEntryDeliveryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EbookPendingEntryDeliveryWhereInput
+    orderBy?: EbookPendingEntryDeliveryOrderByWithAggregationInput | EbookPendingEntryDeliveryOrderByWithAggregationInput[]
+    by: EbookPendingEntryDeliveryScalarFieldEnum[] | EbookPendingEntryDeliveryScalarFieldEnum
+    having?: EbookPendingEntryDeliveryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EbookPendingEntryDeliveryCountAggregateInputType | true
+    _avg?: EbookPendingEntryDeliveryAvgAggregateInputType
+    _sum?: EbookPendingEntryDeliverySumAggregateInputType
+    _min?: EbookPendingEntryDeliveryMinAggregateInputType
+    _max?: EbookPendingEntryDeliveryMaxAggregateInputType
+  }
+
+  export type EbookPendingEntryDeliveryGroupByOutputType = {
+    id: number
+    orderNumber: string
+    state: string
+    snapshot: JsonValue
+    attempts: number
+    nextAttemptAt: Date
+    leaseToken: string | null
+    leaseUntil: Date | null
+    lastError: string | null
+    acknowledgedAt: Date | null
+    createdAt: Date
+    _count: EbookPendingEntryDeliveryCountAggregateOutputType | null
+    _avg: EbookPendingEntryDeliveryAvgAggregateOutputType | null
+    _sum: EbookPendingEntryDeliverySumAggregateOutputType | null
+    _min: EbookPendingEntryDeliveryMinAggregateOutputType | null
+    _max: EbookPendingEntryDeliveryMaxAggregateOutputType | null
+  }
+
+  type GetEbookPendingEntryDeliveryGroupByPayload<T extends EbookPendingEntryDeliveryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EbookPendingEntryDeliveryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EbookPendingEntryDeliveryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EbookPendingEntryDeliveryGroupByOutputType[P]>
+            : GetScalarType<T[P], EbookPendingEntryDeliveryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EbookPendingEntryDeliverySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderNumber?: boolean
+    state?: boolean
+    snapshot?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    leaseToken?: boolean
+    leaseUntil?: boolean
+    lastError?: boolean
+    acknowledgedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookPendingEntryDelivery"]>
+
+  export type EbookPendingEntryDeliverySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderNumber?: boolean
+    state?: boolean
+    snapshot?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    leaseToken?: boolean
+    leaseUntil?: boolean
+    lastError?: boolean
+    acknowledgedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookPendingEntryDelivery"]>
+
+  export type EbookPendingEntryDeliverySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orderNumber?: boolean
+    state?: boolean
+    snapshot?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    leaseToken?: boolean
+    leaseUntil?: boolean
+    lastError?: boolean
+    acknowledgedAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["ebookPendingEntryDelivery"]>
+
+  export type EbookPendingEntryDeliverySelectScalar = {
+    id?: boolean
+    orderNumber?: boolean
+    state?: boolean
+    snapshot?: boolean
+    attempts?: boolean
+    nextAttemptAt?: boolean
+    leaseToken?: boolean
+    leaseUntil?: boolean
+    lastError?: boolean
+    acknowledgedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type EbookPendingEntryDeliveryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "orderNumber" | "state" | "snapshot" | "attempts" | "nextAttemptAt" | "leaseToken" | "leaseUntil" | "lastError" | "acknowledgedAt" | "createdAt", ExtArgs["result"]["ebookPendingEntryDelivery"]>
+
+  export type $EbookPendingEntryDeliveryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EbookPendingEntryDelivery"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      orderNumber: string
+      state: string
+      snapshot: Prisma.JsonValue
+      attempts: number
+      nextAttemptAt: Date
+      leaseToken: string | null
+      leaseUntil: Date | null
+      lastError: string | null
+      acknowledgedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["ebookPendingEntryDelivery"]>
+    composites: {}
+  }
+
+  type EbookPendingEntryDeliveryGetPayload<S extends boolean | null | undefined | EbookPendingEntryDeliveryDefaultArgs> = $Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload, S>
+
+  type EbookPendingEntryDeliveryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EbookPendingEntryDeliveryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EbookPendingEntryDeliveryCountAggregateInputType | true
+    }
+
+  export interface EbookPendingEntryDeliveryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EbookPendingEntryDelivery'], meta: { name: 'EbookPendingEntryDelivery' } }
+    /**
+     * Find zero or one EbookPendingEntryDelivery that matches the filter.
+     * @param {EbookPendingEntryDeliveryFindUniqueArgs} args - Arguments to find a EbookPendingEntryDelivery
+     * @example
+     * // Get one EbookPendingEntryDelivery
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EbookPendingEntryDeliveryFindUniqueArgs>(args: SelectSubset<T, EbookPendingEntryDeliveryFindUniqueArgs<ExtArgs>>): Prisma__EbookPendingEntryDeliveryClient<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EbookPendingEntryDelivery that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EbookPendingEntryDeliveryFindUniqueOrThrowArgs} args - Arguments to find a EbookPendingEntryDelivery
+     * @example
+     * // Get one EbookPendingEntryDelivery
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EbookPendingEntryDeliveryFindUniqueOrThrowArgs>(args: SelectSubset<T, EbookPendingEntryDeliveryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EbookPendingEntryDeliveryClient<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EbookPendingEntryDelivery that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookPendingEntryDeliveryFindFirstArgs} args - Arguments to find a EbookPendingEntryDelivery
+     * @example
+     * // Get one EbookPendingEntryDelivery
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EbookPendingEntryDeliveryFindFirstArgs>(args?: SelectSubset<T, EbookPendingEntryDeliveryFindFirstArgs<ExtArgs>>): Prisma__EbookPendingEntryDeliveryClient<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EbookPendingEntryDelivery that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookPendingEntryDeliveryFindFirstOrThrowArgs} args - Arguments to find a EbookPendingEntryDelivery
+     * @example
+     * // Get one EbookPendingEntryDelivery
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EbookPendingEntryDeliveryFindFirstOrThrowArgs>(args?: SelectSubset<T, EbookPendingEntryDeliveryFindFirstOrThrowArgs<ExtArgs>>): Prisma__EbookPendingEntryDeliveryClient<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EbookPendingEntryDeliveries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookPendingEntryDeliveryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EbookPendingEntryDeliveries
+     * const ebookPendingEntryDeliveries = await prisma.ebookPendingEntryDelivery.findMany()
+     * 
+     * // Get first 10 EbookPendingEntryDeliveries
+     * const ebookPendingEntryDeliveries = await prisma.ebookPendingEntryDelivery.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ebookPendingEntryDeliveryWithIdOnly = await prisma.ebookPendingEntryDelivery.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EbookPendingEntryDeliveryFindManyArgs>(args?: SelectSubset<T, EbookPendingEntryDeliveryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EbookPendingEntryDelivery.
+     * @param {EbookPendingEntryDeliveryCreateArgs} args - Arguments to create a EbookPendingEntryDelivery.
+     * @example
+     * // Create one EbookPendingEntryDelivery
+     * const EbookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.create({
+     *   data: {
+     *     // ... data to create a EbookPendingEntryDelivery
+     *   }
+     * })
+     * 
+     */
+    create<T extends EbookPendingEntryDeliveryCreateArgs>(args: SelectSubset<T, EbookPendingEntryDeliveryCreateArgs<ExtArgs>>): Prisma__EbookPendingEntryDeliveryClient<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EbookPendingEntryDeliveries.
+     * @param {EbookPendingEntryDeliveryCreateManyArgs} args - Arguments to create many EbookPendingEntryDeliveries.
+     * @example
+     * // Create many EbookPendingEntryDeliveries
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EbookPendingEntryDeliveryCreateManyArgs>(args?: SelectSubset<T, EbookPendingEntryDeliveryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many EbookPendingEntryDeliveries and returns the data saved in the database.
+     * @param {EbookPendingEntryDeliveryCreateManyAndReturnArgs} args - Arguments to create many EbookPendingEntryDeliveries.
+     * @example
+     * // Create many EbookPendingEntryDeliveries
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many EbookPendingEntryDeliveries and only return the `id`
+     * const ebookPendingEntryDeliveryWithIdOnly = await prisma.ebookPendingEntryDelivery.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends EbookPendingEntryDeliveryCreateManyAndReturnArgs>(args?: SelectSubset<T, EbookPendingEntryDeliveryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a EbookPendingEntryDelivery.
+     * @param {EbookPendingEntryDeliveryDeleteArgs} args - Arguments to delete one EbookPendingEntryDelivery.
+     * @example
+     * // Delete one EbookPendingEntryDelivery
+     * const EbookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.delete({
+     *   where: {
+     *     // ... filter to delete one EbookPendingEntryDelivery
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EbookPendingEntryDeliveryDeleteArgs>(args: SelectSubset<T, EbookPendingEntryDeliveryDeleteArgs<ExtArgs>>): Prisma__EbookPendingEntryDeliveryClient<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EbookPendingEntryDelivery.
+     * @param {EbookPendingEntryDeliveryUpdateArgs} args - Arguments to update one EbookPendingEntryDelivery.
+     * @example
+     * // Update one EbookPendingEntryDelivery
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EbookPendingEntryDeliveryUpdateArgs>(args: SelectSubset<T, EbookPendingEntryDeliveryUpdateArgs<ExtArgs>>): Prisma__EbookPendingEntryDeliveryClient<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EbookPendingEntryDeliveries.
+     * @param {EbookPendingEntryDeliveryDeleteManyArgs} args - Arguments to filter EbookPendingEntryDeliveries to delete.
+     * @example
+     * // Delete a few EbookPendingEntryDeliveries
+     * const { count } = await prisma.ebookPendingEntryDelivery.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EbookPendingEntryDeliveryDeleteManyArgs>(args?: SelectSubset<T, EbookPendingEntryDeliveryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EbookPendingEntryDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookPendingEntryDeliveryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EbookPendingEntryDeliveries
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EbookPendingEntryDeliveryUpdateManyArgs>(args: SelectSubset<T, EbookPendingEntryDeliveryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EbookPendingEntryDeliveries and returns the data updated in the database.
+     * @param {EbookPendingEntryDeliveryUpdateManyAndReturnArgs} args - Arguments to update many EbookPendingEntryDeliveries.
+     * @example
+     * // Update many EbookPendingEntryDeliveries
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more EbookPendingEntryDeliveries and only return the `id`
+     * const ebookPendingEntryDeliveryWithIdOnly = await prisma.ebookPendingEntryDelivery.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends EbookPendingEntryDeliveryUpdateManyAndReturnArgs>(args: SelectSubset<T, EbookPendingEntryDeliveryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one EbookPendingEntryDelivery.
+     * @param {EbookPendingEntryDeliveryUpsertArgs} args - Arguments to update or create a EbookPendingEntryDelivery.
+     * @example
+     * // Update or create a EbookPendingEntryDelivery
+     * const ebookPendingEntryDelivery = await prisma.ebookPendingEntryDelivery.upsert({
+     *   create: {
+     *     // ... data to create a EbookPendingEntryDelivery
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EbookPendingEntryDelivery we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EbookPendingEntryDeliveryUpsertArgs>(args: SelectSubset<T, EbookPendingEntryDeliveryUpsertArgs<ExtArgs>>): Prisma__EbookPendingEntryDeliveryClient<$Result.GetResult<Prisma.$EbookPendingEntryDeliveryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EbookPendingEntryDeliveries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookPendingEntryDeliveryCountArgs} args - Arguments to filter EbookPendingEntryDeliveries to count.
+     * @example
+     * // Count the number of EbookPendingEntryDeliveries
+     * const count = await prisma.ebookPendingEntryDelivery.count({
+     *   where: {
+     *     // ... the filter for the EbookPendingEntryDeliveries we want to count
+     *   }
+     * })
+    **/
+    count<T extends EbookPendingEntryDeliveryCountArgs>(
+      args?: Subset<T, EbookPendingEntryDeliveryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EbookPendingEntryDeliveryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EbookPendingEntryDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookPendingEntryDeliveryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EbookPendingEntryDeliveryAggregateArgs>(args: Subset<T, EbookPendingEntryDeliveryAggregateArgs>): Prisma.PrismaPromise<GetEbookPendingEntryDeliveryAggregateType<T>>
+
+    /**
+     * Group by EbookPendingEntryDelivery.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EbookPendingEntryDeliveryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EbookPendingEntryDeliveryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EbookPendingEntryDeliveryGroupByArgs['orderBy'] }
+        : { orderBy?: EbookPendingEntryDeliveryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EbookPendingEntryDeliveryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEbookPendingEntryDeliveryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EbookPendingEntryDelivery model
+   */
+  readonly fields: EbookPendingEntryDeliveryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EbookPendingEntryDelivery.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EbookPendingEntryDeliveryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EbookPendingEntryDelivery model
+   */
+  interface EbookPendingEntryDeliveryFieldRefs {
+    readonly id: FieldRef<"EbookPendingEntryDelivery", 'Int'>
+    readonly orderNumber: FieldRef<"EbookPendingEntryDelivery", 'String'>
+    readonly state: FieldRef<"EbookPendingEntryDelivery", 'String'>
+    readonly snapshot: FieldRef<"EbookPendingEntryDelivery", 'Json'>
+    readonly attempts: FieldRef<"EbookPendingEntryDelivery", 'Int'>
+    readonly nextAttemptAt: FieldRef<"EbookPendingEntryDelivery", 'DateTime'>
+    readonly leaseToken: FieldRef<"EbookPendingEntryDelivery", 'String'>
+    readonly leaseUntil: FieldRef<"EbookPendingEntryDelivery", 'DateTime'>
+    readonly lastError: FieldRef<"EbookPendingEntryDelivery", 'String'>
+    readonly acknowledgedAt: FieldRef<"EbookPendingEntryDelivery", 'DateTime'>
+    readonly createdAt: FieldRef<"EbookPendingEntryDelivery", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EbookPendingEntryDelivery findUnique
+   */
+  export type EbookPendingEntryDeliveryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookPendingEntryDelivery to fetch.
+     */
+    where: EbookPendingEntryDeliveryWhereUniqueInput
+  }
+
+  /**
+   * EbookPendingEntryDelivery findUniqueOrThrow
+   */
+  export type EbookPendingEntryDeliveryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookPendingEntryDelivery to fetch.
+     */
+    where: EbookPendingEntryDeliveryWhereUniqueInput
+  }
+
+  /**
+   * EbookPendingEntryDelivery findFirst
+   */
+  export type EbookPendingEntryDeliveryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookPendingEntryDelivery to fetch.
+     */
+    where?: EbookPendingEntryDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookPendingEntryDeliveries to fetch.
+     */
+    orderBy?: EbookPendingEntryDeliveryOrderByWithRelationInput | EbookPendingEntryDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EbookPendingEntryDeliveries.
+     */
+    cursor?: EbookPendingEntryDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookPendingEntryDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookPendingEntryDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EbookPendingEntryDeliveries.
+     */
+    distinct?: EbookPendingEntryDeliveryScalarFieldEnum | EbookPendingEntryDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * EbookPendingEntryDelivery findFirstOrThrow
+   */
+  export type EbookPendingEntryDeliveryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookPendingEntryDelivery to fetch.
+     */
+    where?: EbookPendingEntryDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookPendingEntryDeliveries to fetch.
+     */
+    orderBy?: EbookPendingEntryDeliveryOrderByWithRelationInput | EbookPendingEntryDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EbookPendingEntryDeliveries.
+     */
+    cursor?: EbookPendingEntryDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookPendingEntryDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookPendingEntryDeliveries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EbookPendingEntryDeliveries.
+     */
+    distinct?: EbookPendingEntryDeliveryScalarFieldEnum | EbookPendingEntryDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * EbookPendingEntryDelivery findMany
+   */
+  export type EbookPendingEntryDeliveryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * Filter, which EbookPendingEntryDeliveries to fetch.
+     */
+    where?: EbookPendingEntryDeliveryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EbookPendingEntryDeliveries to fetch.
+     */
+    orderBy?: EbookPendingEntryDeliveryOrderByWithRelationInput | EbookPendingEntryDeliveryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EbookPendingEntryDeliveries.
+     */
+    cursor?: EbookPendingEntryDeliveryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EbookPendingEntryDeliveries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EbookPendingEntryDeliveries.
+     */
+    skip?: number
+    distinct?: EbookPendingEntryDeliveryScalarFieldEnum | EbookPendingEntryDeliveryScalarFieldEnum[]
+  }
+
+  /**
+   * EbookPendingEntryDelivery create
+   */
+  export type EbookPendingEntryDeliveryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EbookPendingEntryDelivery.
+     */
+    data: XOR<EbookPendingEntryDeliveryCreateInput, EbookPendingEntryDeliveryUncheckedCreateInput>
+  }
+
+  /**
+   * EbookPendingEntryDelivery createMany
+   */
+  export type EbookPendingEntryDeliveryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EbookPendingEntryDeliveries.
+     */
+    data: EbookPendingEntryDeliveryCreateManyInput | EbookPendingEntryDeliveryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EbookPendingEntryDelivery createManyAndReturn
+   */
+  export type EbookPendingEntryDeliveryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to create many EbookPendingEntryDeliveries.
+     */
+    data: EbookPendingEntryDeliveryCreateManyInput | EbookPendingEntryDeliveryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * EbookPendingEntryDelivery update
+   */
+  export type EbookPendingEntryDeliveryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EbookPendingEntryDelivery.
+     */
+    data: XOR<EbookPendingEntryDeliveryUpdateInput, EbookPendingEntryDeliveryUncheckedUpdateInput>
+    /**
+     * Choose, which EbookPendingEntryDelivery to update.
+     */
+    where: EbookPendingEntryDeliveryWhereUniqueInput
+  }
+
+  /**
+   * EbookPendingEntryDelivery updateMany
+   */
+  export type EbookPendingEntryDeliveryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EbookPendingEntryDeliveries.
+     */
+    data: XOR<EbookPendingEntryDeliveryUpdateManyMutationInput, EbookPendingEntryDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which EbookPendingEntryDeliveries to update
+     */
+    where?: EbookPendingEntryDeliveryWhereInput
+    /**
+     * Limit how many EbookPendingEntryDeliveries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookPendingEntryDelivery updateManyAndReturn
+   */
+  export type EbookPendingEntryDeliveryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * The data used to update EbookPendingEntryDeliveries.
+     */
+    data: XOR<EbookPendingEntryDeliveryUpdateManyMutationInput, EbookPendingEntryDeliveryUncheckedUpdateManyInput>
+    /**
+     * Filter which EbookPendingEntryDeliveries to update
+     */
+    where?: EbookPendingEntryDeliveryWhereInput
+    /**
+     * Limit how many EbookPendingEntryDeliveries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookPendingEntryDelivery upsert
+   */
+  export type EbookPendingEntryDeliveryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EbookPendingEntryDelivery to update in case it exists.
+     */
+    where: EbookPendingEntryDeliveryWhereUniqueInput
+    /**
+     * In case the EbookPendingEntryDelivery found by the `where` argument doesn't exist, create a new EbookPendingEntryDelivery with this data.
+     */
+    create: XOR<EbookPendingEntryDeliveryCreateInput, EbookPendingEntryDeliveryUncheckedCreateInput>
+    /**
+     * In case the EbookPendingEntryDelivery was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EbookPendingEntryDeliveryUpdateInput, EbookPendingEntryDeliveryUncheckedUpdateInput>
+  }
+
+  /**
+   * EbookPendingEntryDelivery delete
+   */
+  export type EbookPendingEntryDeliveryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+    /**
+     * Filter which EbookPendingEntryDelivery to delete.
+     */
+    where: EbookPendingEntryDeliveryWhereUniqueInput
+  }
+
+  /**
+   * EbookPendingEntryDelivery deleteMany
+   */
+  export type EbookPendingEntryDeliveryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EbookPendingEntryDeliveries to delete
+     */
+    where?: EbookPendingEntryDeliveryWhereInput
+    /**
+     * Limit how many EbookPendingEntryDeliveries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EbookPendingEntryDelivery without action
+   */
+  export type EbookPendingEntryDeliveryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EbookPendingEntryDelivery
+     */
+    select?: EbookPendingEntryDeliverySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EbookPendingEntryDelivery
+     */
+    omit?: EbookPendingEntryDeliveryOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model AffiliateProductLink
    */
 
@@ -28381,6 +29579,23 @@ export namespace Prisma {
   export type AffiliateCommissionDeliveryScalarFieldEnum = (typeof AffiliateCommissionDeliveryScalarFieldEnum)[keyof typeof AffiliateCommissionDeliveryScalarFieldEnum]
 
 
+  export const EbookPendingEntryDeliveryScalarFieldEnum: {
+    id: 'id',
+    orderNumber: 'orderNumber',
+    state: 'state',
+    snapshot: 'snapshot',
+    attempts: 'attempts',
+    nextAttemptAt: 'nextAttemptAt',
+    leaseToken: 'leaseToken',
+    leaseUntil: 'leaseUntil',
+    lastError: 'lastError',
+    acknowledgedAt: 'acknowledgedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type EbookPendingEntryDeliveryScalarFieldEnum = (typeof EbookPendingEntryDeliveryScalarFieldEnum)[keyof typeof EbookPendingEntryDeliveryScalarFieldEnum]
+
+
   export const AffiliateProductLinkScalarFieldEnum: {
     id: 'id',
     bookId: 'bookId',
@@ -30159,6 +31374,90 @@ export namespace Prisma {
     lastError?: StringNullableWithAggregatesFilter<"AffiliateCommissionDelivery"> | string | null
     acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"AffiliateCommissionDelivery"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"AffiliateCommissionDelivery"> | Date | string
+  }
+
+  export type EbookPendingEntryDeliveryWhereInput = {
+    AND?: EbookPendingEntryDeliveryWhereInput | EbookPendingEntryDeliveryWhereInput[]
+    OR?: EbookPendingEntryDeliveryWhereInput[]
+    NOT?: EbookPendingEntryDeliveryWhereInput | EbookPendingEntryDeliveryWhereInput[]
+    id?: IntFilter<"EbookPendingEntryDelivery"> | number
+    orderNumber?: StringFilter<"EbookPendingEntryDelivery"> | string
+    state?: StringFilter<"EbookPendingEntryDelivery"> | string
+    snapshot?: JsonFilter<"EbookPendingEntryDelivery">
+    attempts?: IntFilter<"EbookPendingEntryDelivery"> | number
+    nextAttemptAt?: DateTimeFilter<"EbookPendingEntryDelivery"> | Date | string
+    leaseToken?: StringNullableFilter<"EbookPendingEntryDelivery"> | string | null
+    leaseUntil?: DateTimeNullableFilter<"EbookPendingEntryDelivery"> | Date | string | null
+    lastError?: StringNullableFilter<"EbookPendingEntryDelivery"> | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"EbookPendingEntryDelivery"> | Date | string | null
+    createdAt?: DateTimeFilter<"EbookPendingEntryDelivery"> | Date | string
+  }
+
+  export type EbookPendingEntryDeliveryOrderByWithRelationInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    state?: SortOrder
+    snapshot?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrderInput | SortOrder
+    leaseUntil?: SortOrderInput | SortOrder
+    lastError?: SortOrderInput | SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookPendingEntryDeliveryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    orderNumber?: string
+    AND?: EbookPendingEntryDeliveryWhereInput | EbookPendingEntryDeliveryWhereInput[]
+    OR?: EbookPendingEntryDeliveryWhereInput[]
+    NOT?: EbookPendingEntryDeliveryWhereInput | EbookPendingEntryDeliveryWhereInput[]
+    state?: StringFilter<"EbookPendingEntryDelivery"> | string
+    snapshot?: JsonFilter<"EbookPendingEntryDelivery">
+    attempts?: IntFilter<"EbookPendingEntryDelivery"> | number
+    nextAttemptAt?: DateTimeFilter<"EbookPendingEntryDelivery"> | Date | string
+    leaseToken?: StringNullableFilter<"EbookPendingEntryDelivery"> | string | null
+    leaseUntil?: DateTimeNullableFilter<"EbookPendingEntryDelivery"> | Date | string | null
+    lastError?: StringNullableFilter<"EbookPendingEntryDelivery"> | string | null
+    acknowledgedAt?: DateTimeNullableFilter<"EbookPendingEntryDelivery"> | Date | string | null
+    createdAt?: DateTimeFilter<"EbookPendingEntryDelivery"> | Date | string
+  }, "id" | "orderNumber">
+
+  export type EbookPendingEntryDeliveryOrderByWithAggregationInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    state?: SortOrder
+    snapshot?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrderInput | SortOrder
+    leaseUntil?: SortOrderInput | SortOrder
+    lastError?: SortOrderInput | SortOrder
+    acknowledgedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: EbookPendingEntryDeliveryCountOrderByAggregateInput
+    _avg?: EbookPendingEntryDeliveryAvgOrderByAggregateInput
+    _max?: EbookPendingEntryDeliveryMaxOrderByAggregateInput
+    _min?: EbookPendingEntryDeliveryMinOrderByAggregateInput
+    _sum?: EbookPendingEntryDeliverySumOrderByAggregateInput
+  }
+
+  export type EbookPendingEntryDeliveryScalarWhereWithAggregatesInput = {
+    AND?: EbookPendingEntryDeliveryScalarWhereWithAggregatesInput | EbookPendingEntryDeliveryScalarWhereWithAggregatesInput[]
+    OR?: EbookPendingEntryDeliveryScalarWhereWithAggregatesInput[]
+    NOT?: EbookPendingEntryDeliveryScalarWhereWithAggregatesInput | EbookPendingEntryDeliveryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"EbookPendingEntryDelivery"> | number
+    orderNumber?: StringWithAggregatesFilter<"EbookPendingEntryDelivery"> | string
+    state?: StringWithAggregatesFilter<"EbookPendingEntryDelivery"> | string
+    snapshot?: JsonWithAggregatesFilter<"EbookPendingEntryDelivery">
+    attempts?: IntWithAggregatesFilter<"EbookPendingEntryDelivery"> | number
+    nextAttemptAt?: DateTimeWithAggregatesFilter<"EbookPendingEntryDelivery"> | Date | string
+    leaseToken?: StringNullableWithAggregatesFilter<"EbookPendingEntryDelivery"> | string | null
+    leaseUntil?: DateTimeNullableWithAggregatesFilter<"EbookPendingEntryDelivery"> | Date | string | null
+    lastError?: StringNullableWithAggregatesFilter<"EbookPendingEntryDelivery"> | string | null
+    acknowledgedAt?: DateTimeNullableWithAggregatesFilter<"EbookPendingEntryDelivery"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EbookPendingEntryDelivery"> | Date | string
   }
 
   export type AffiliateProductLinkWhereInput = {
@@ -32019,6 +33318,101 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type EbookPendingEntryDeliveryCreateInput = {
+    orderNumber: string
+    state?: string
+    snapshot: JsonNullValueInput | InputJsonValue
+    attempts?: number
+    nextAttemptAt?: Date | string
+    leaseToken?: string | null
+    leaseUntil?: Date | string | null
+    lastError?: string | null
+    acknowledgedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EbookPendingEntryDeliveryUncheckedCreateInput = {
+    id?: number
+    orderNumber: string
+    state?: string
+    snapshot: JsonNullValueInput | InputJsonValue
+    attempts?: number
+    nextAttemptAt?: Date | string
+    leaseToken?: string | null
+    leaseUntil?: Date | string | null
+    lastError?: string | null
+    acknowledgedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EbookPendingEntryDeliveryUpdateInput = {
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookPendingEntryDeliveryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookPendingEntryDeliveryCreateManyInput = {
+    id?: number
+    orderNumber: string
+    state?: string
+    snapshot: JsonNullValueInput | InputJsonValue
+    attempts?: number
+    nextAttemptAt?: Date | string
+    leaseToken?: string | null
+    leaseUntil?: Date | string | null
+    lastError?: string | null
+    acknowledgedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type EbookPendingEntryDeliveryUpdateManyMutationInput = {
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EbookPendingEntryDeliveryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    orderNumber?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    snapshot?: JsonNullValueInput | InputJsonValue
+    attempts?: IntFieldUpdateOperationsInput | number
+    nextAttemptAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leaseToken?: NullableStringFieldUpdateOperationsInput | string | null
+    leaseUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lastError?: NullableStringFieldUpdateOperationsInput | string | null
+    acknowledgedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AffiliateProductLinkCreateInput = {
     code: string
     createdAt?: Date | string
@@ -33740,6 +35134,56 @@ export namespace Prisma {
   export type AffiliateCommissionDeliverySumOrderByAggregateInput = {
     id?: SortOrder
     commissionId?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type EbookPendingEntryDeliveryCountOrderByAggregateInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    state?: SortOrder
+    snapshot?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrder
+    leaseUntil?: SortOrder
+    lastError?: SortOrder
+    acknowledgedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookPendingEntryDeliveryAvgOrderByAggregateInput = {
+    id?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type EbookPendingEntryDeliveryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    state?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrder
+    leaseUntil?: SortOrder
+    lastError?: SortOrder
+    acknowledgedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookPendingEntryDeliveryMinOrderByAggregateInput = {
+    id?: SortOrder
+    orderNumber?: SortOrder
+    state?: SortOrder
+    attempts?: SortOrder
+    nextAttemptAt?: SortOrder
+    leaseToken?: SortOrder
+    leaseUntil?: SortOrder
+    lastError?: SortOrder
+    acknowledgedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EbookPendingEntryDeliverySumOrderByAggregateInput = {
+    id?: SortOrder
     attempts?: SortOrder
   }
 

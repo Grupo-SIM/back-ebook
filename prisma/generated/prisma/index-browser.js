@@ -350,6 +350,20 @@ exports.Prisma.AffiliateCommissionDeliveryScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.EbookPendingEntryDeliveryScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  state: 'state',
+  snapshot: 'snapshot',
+  attempts: 'attempts',
+  nextAttemptAt: 'nextAttemptAt',
+  leaseToken: 'leaseToken',
+  leaseUntil: 'leaseUntil',
+  lastError: 'lastError',
+  acknowledgedAt: 'acknowledgedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AffiliateProductLinkScalarFieldEnum = {
   id: 'id',
   bookId: 'bookId',
@@ -440,6 +454,7 @@ exports.Prisma.ModelName = {
   ActivityLog: 'ActivityLog',
   AffiliateCommission: 'AffiliateCommission',
   AffiliateCommissionDelivery: 'AffiliateCommissionDelivery',
+  EbookPendingEntryDelivery: 'EbookPendingEntryDelivery',
   AffiliateProductLink: 'AffiliateProductLink',
   AffiliateFavorite: 'AffiliateFavorite',
   AdminToken: 'AdminToken'

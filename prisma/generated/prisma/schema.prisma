@@ -374,6 +374,24 @@ model AffiliateCommissionDelivery {
   @@map("affiliate_commission_deliveries")
 }
 
+// Durable retry of the SimIntPay pending entry of an Ebook order (canonical finance); entry is idempotent by orderNumber.
+model EbookPendingEntryDelivery {
+  id             Int       @id @default(autoincrement())
+  orderNumber    String    @unique @map("order_number")
+  state          String    @default("PENDING")
+  snapshot       Json
+  attempts       Int       @default(0)
+  nextAttemptAt  DateTime  @default(now()) @map("next_attempt_at") @db.Timestamptz
+  leaseToken     String?   @map("lease_token")
+  leaseUntil     DateTime? @map("lease_until") @db.Timestamptz
+  lastError      String?   @map("last_error")
+  acknowledgedAt DateTime? @map("acknowledged_at") @db.Timestamptz
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([state, nextAttemptAt], map: "ebook_pending_entry_retry")
+  @@map("ebook_pending_entry_deliveries")
+}
+
 model AffiliateProductLink {
   id          Int      @id @default(autoincrement())
   bookId      Int
