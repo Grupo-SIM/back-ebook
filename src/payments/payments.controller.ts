@@ -21,17 +21,22 @@ import { calcNetAmount, getSellerFees, parseSellerFees, SellerFees } from 'src/c
 import {
   isMerchantNotAssociated,
   isMerchantWithoutAccount,
+  merchantFees,
   merchantQuote,
   merchantSummary,
+  merchantTransactions,
+  platformFinanceConfig,
   merchantWithdraw,
   merchantWithdrawals,
   SimintpayPlatformError,
 } from 'src/common/simintpay-platform';
 import {
-  grossForNet,
   isCanonicalFinanceEnabled,
   mapCanonicalSummary,
+  mapCanonicalTransaction,
   mapCanonicalWithdrawals,
+  mapPlatformConfigFallback,
+  mapWithdrawalQuote,
   withdrawalIdempotencyKey,
 } from './canonical-finance';
 
@@ -357,8 +362,7 @@ export class PaymentsController {
     const normalizedStatus = String(status || '').toUpperCase();
     const machineStatus = normalizedStatus === 'PAID' ? 'COMPLETED' : (normalizedStatus || undefined);
 
-    const machineData = await this.machineGet('/internal/ebook/finance/transactions', cpf, {
-      page: 1,
+    const machineData = await this.machineTransactions(cpf, {
       limit: 5000,
       startDate,
       endDate,
@@ -420,44 +424,53 @@ export class PaymentsController {
     throw new ServiceUnavailableException(`${action}: SimIntPay indisponível`);
   }
 
-  /** Campos do summary que o contrato canônico ainda não expõe (TODO plano 'taxas por modalidade'): vêm do legado. */
-  private async legacyFeeFields(cpf: string) {
+  private async canonicalSummary(cpf: string) {
     try {
-      return await this.machineGet('/internal/ebook/finance/summary', cpf);
-    } catch {
-      return null;
-    }
-  }
-
-  private async canonicalSummary(user: RequestWithUser['user'], cpf: string) {
-    let canonical;
-    try {
-      canonical = await merchantSummary(cpf);
+      // Saldo já escopado à plataforma EBOOK; taxas reais (taxa alvo, saque mínimo) vêm de finance/fees.
+      const [summary, fees] = await Promise.all([merchantSummary(cpf), merchantFees(cpf)]);
+      return mapCanonicalSummary(summary, fees);
     } catch (error) {
       if (isMerchantNotAssociated(error) || isMerchantWithoutAccount(error)) {
-        // Sem comerciante no SimIntPay: mantém o fallback de saldo estimado local (accountExists:false).
-        const legacy = await this.legacyFeeFields(cpf);
-        return {
-          availableBalance: 0,
-          pendingWithdraws: 0,
-          lockedBalance: 0,
-          minimumWithdrawalAmount: legacy?.minimumWithdrawalAmount,
-          withdrawalFeeBrl: legacy?.withdrawalFeeBrl,
-          pixFeePercent: legacy?.pixFeePercent,
-          transactionFeeBrl: legacy?.transactionFeeBrl,
-          accountExists: false,
-        };
+        // Vendedor não provisionado: accountExists:false mantém o saldo estimado local; taxas pela config da plataforma.
+        const config = await platformFinanceConfig().catch(() => null);
+        return mapPlatformConfigFallback(config);
       }
       this.canonicalError(error, 'Falha ao consultar saldo');
     }
-    return mapCanonicalSummary(canonical, await this.legacyFeeFields(cpf));
+  }
+
+  /**
+   * Transações no formato legado `{ transactions }` (R$). Canônico: máx. 200 por página, então pagina até `limit`.
+   * `PAID` deve chegar aqui já como `COMPLETED`.
+   */
+  private async machineTransactions(
+    cpf: string,
+    query: { limit: number; startDate?: string; endDate?: string; status?: string; description?: string },
+  ): Promise<{ transactions: any[] }> {
+    if (!isCanonicalFinanceEnabled()) {
+      const { limit, ...rest } = query;
+      return this.machineGet('/internal/ebook/finance/transactions', cpf, { page: 1, limit, ...rest });
+    }
+    const pageSize = Math.min(200, query.limit);
+    const transactions: any[] = [];
+    try {
+      for (let page = 1; transactions.length < query.limit; page++) {
+        const result = await merchantTransactions(cpf, { ...query, page, limit: pageSize });
+        transactions.push(...result.data.map(mapCanonicalTransaction));
+        if (page >= result.meta.totalPages) break;
+      }
+    } catch (error) {
+      if (isMerchantNotAssociated(error) || isMerchantWithoutAccount(error)) return { transactions: [] };
+      this.canonicalError(error, 'Falha ao consultar transações');
+    }
+    return { transactions: transactions.slice(0, query.limit) };
   }
 
   @Get('summary')
   async summary(@GetUser() user: RequestWithUser['user']) {
     const cpf = await this.getCpfFromUser(user);
     const machineSummary = isCanonicalFinanceEnabled()
-      ? await this.canonicalSummary(user, cpf)
+      ? await this.canonicalSummary(cpf)
       : await this.machineGet('/internal/ebook/finance/summary', cpf);
 
     // Sem conta ativa no Simintpay: gateway não tem onde guardar saldo.
@@ -472,7 +485,7 @@ export class PaymentsController {
         },
         select: { netAmount: true, totalAmount: true },
       });
-      const sellerFees = parseSellerFees(machineSummary);
+      const sellerFees = parseSellerFees(machineSummary) ?? (await getSellerFees(cpf));
       const estimatedBalance = paidOrders.reduce((sum, o) => sum + this.localNetAmount(o, sellerFees), 0);
       return {
         ...machineSummary,
@@ -669,8 +682,29 @@ export class PaymentsController {
   }
 
   /**
-   * Saque canônico. `amount` é o valor LÍQUIDO desejado (semântica legada: taxa somada por cima);
-   * o canônico recebe o bruto, calculado a partir da feePolicy e conferido com /withdrawals/quote.
+   * Cotação do saque (antes de confirmar): `amount` é o valor BRUTO retirado do saldo; a taxa é subtraída.
+   * Resposta em R$: { grossAmount, fee, netAmount, minimumWithdrawalAmount }.
+   */
+  @Post('withdraw/quote')
+  @ApiOperation({ summary: 'Cotar saque (bruto, taxa e líquido)' })
+  async withdrawQuote(@GetUser() user: RequestWithUser['user'], @Body() body: { amount: number }) {
+    const grossCents = Math.round(Number(body?.amount) * 100);
+    if (!Number.isSafeInteger(grossCents) || grossCents <= 0) {
+      throw new BadRequestException('Valor de saque inválido ou não informado.');
+    }
+    if (!isCanonicalFinanceEnabled()) throw new BadRequestException('Cotação de saque indisponível.');
+    const cpf = await this.getCpfFromUser(user);
+    try {
+      const [quote, fees] = await Promise.all([merchantQuote(cpf, grossCents), merchantFees(cpf)]);
+      return mapWithdrawalQuote(quote, fees);
+    } catch (error) {
+      this.canonicalError(error, 'Falha ao cotar saque');
+    }
+  }
+
+  /**
+   * Saque canônico. `amount` é o valor BRUTO (a taxa é subtraída; o vendedor recebe o líquido, que o histórico mostra).
+   * Valida o mínimo com finance/fees e confere a taxa com /withdrawals/quote antes de enviar.
    */
   private async canonicalWithdraw(
     user: RequestWithUser['user'],
@@ -678,13 +712,12 @@ export class PaymentsController {
     body: WithdrawRequestDto,
     idempotencyHeader?: string,
   ) {
-    const netCents = Math.round(Number(body.amount) * 100);
+    const grossCents = Math.round(Number(body.amount) * 100);
     try {
-      const summary = await merchantSummary(cpf);
-      if (!summary.feePolicy) throw new Error('feePolicy ausente no summary canônico');
-      let grossCents = grossForNet(netCents, summary.feePolicy);
-      const quote = await merchantQuote(cpf, grossCents);
-      if (quote.netAmountCents < netCents) grossCents += netCents - quote.netAmountCents;
+      const [quote, fees] = await Promise.all([merchantQuote(cpf, grossCents), merchantFees(cpf)]);
+      if (grossCents < fees.withdrawal.minimumCents) {
+        throw new BadRequestException(`Valor mínimo para saque é de R$ ${(fees.withdrawal.minimumCents / 100).toFixed(2)}`);
+      }
       const idempotencyKey = withdrawalIdempotencyKey({
         userId: user.id,
         grossCents,
@@ -692,12 +725,21 @@ export class PaymentsController {
         clientKey: body.idempotencyKey ?? idempotencyHeader,
       });
       const result = await merchantWithdraw(cpf, { amountCents: grossCents, pixKey: body.pixKey.trim(), idempotencyKey });
-      return { success: true, id: result.id, status: result.status };
+      const r = result as any;
+      return {
+        success: true,
+        id: result.id,
+        status: result.status,
+        grossAmount: Number(((r.grossAmountCents ?? quote.grossAmountCents) / 100).toFixed(2)),
+        fee: Number(((r.feeCents ?? quote.feeCents) / 100).toFixed(2)),
+        amount: Number(((r.amountCents ?? quote.netAmountCents) / 100).toFixed(2)),
+      };
     } catch (error) {
+      if (error instanceof BadRequestException) throw error;
       if (isMerchantNotAssociated(error)) {
         throw new BadRequestException('Nenhuma conta encontrada para este CPF');
       }
-      if (error instanceof Error && !(error instanceof SimintpayPlatformError) && /idempotencyKey|feePolicy|Política/.test(error.message)) {
+      if (error instanceof Error && !(error instanceof SimintpayPlatformError) && /idempotencyKey/.test(error.message)) {
         throw new BadRequestException(error.message);
       }
       this.canonicalError(error, 'Falha ao solicitar saque');
@@ -713,8 +755,7 @@ export class PaymentsController {
     @Query('description') description?: string,
   ) {
     const cpf = await this.getCpfFromUser(user);
-    const data = await this.machineGet('/internal/ebook/finance/transactions', cpf, {
-      page: 1,
+    const data = await this.machineTransactions(cpf, {
       limit: 5000,
       startDate,
       endDate,
@@ -739,8 +780,7 @@ export class PaymentsController {
     const startDate = start.toISOString().slice(0, 10);
     const endDate = end.toISOString().slice(0, 10);
 
-    const data = await this.machineGet('/internal/ebook/finance/transactions', cpf, {
-      page: 1,
+    const data = await this.machineTransactions(cpf, {
       limit: 5000,
       startDate,
       endDate,

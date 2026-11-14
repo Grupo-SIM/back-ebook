@@ -105,9 +105,16 @@ async function main() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
   try {
-    // Somente leitura. ADMIN = dono dos livros; USER = afiliados que recebem comissão. CUSTOMER não recebe repasse.
+    // Somente leitura. ADMIN/USER (vendedores e afiliados) + qualquer um que seja dono de livros ou tenha comissões de afiliado.
     const users = (await prisma.user.findMany({
-      where: { isActive: true, role: { in: args.roles as any }, OR: [{ cpf: { not: null } }, { cnpj: { not: null } }] },
+      where: {
+        isActive: true,
+        AND: [
+          { OR: [{ cpf: { not: null } }, { cnpj: { not: null } }] },
+          // Vendedores E afiliados: papéis configurados, ou quem é dono de livros / recebeu comissão (qualquer papel).
+          { OR: [{ role: { in: args.roles as any } }, { booksCreated: { some: {} } }, { affiliateCommissions: { some: {} } }] },
+        ],
+      },
       select: { id: true, name: true, email: true, role: true, cpf: true, cnpj: true },
       orderBy: { createdAt: 'asc' },
       take: args.limit,

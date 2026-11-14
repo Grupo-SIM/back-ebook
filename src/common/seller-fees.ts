@@ -1,3 +1,7 @@
+import { isCanonicalFinanceEnabled, isSimintpayPlatformConfigured, merchantFees } from './simintpay-platform';
+import type { SimintpayMerchantFees } from './simintpay-platform';
+import { processingPercent } from '../payments/canonical-finance';
+
 /**
  * Taxas do vendedor vindas do método de pagamento (API Machine → /internal/ebook/finance/summary).
  * É a mesma fonte exibida em admin.ebooksim.com/taxa — todo cálculo de líquido deve usar isto.
@@ -27,6 +31,20 @@ export function parseSellerFees(summary: any): SellerFees | null {
     return { percent, fixedBrl, withdrawalBrl: toNumber(summary?.withdrawalFeeBrl) };
 }
 
+/**
+ * finance/fees canônico → SellerFees: percentual = taxa de processamento real (taxa alvo, ex.: 14.99),
+ * fixa = taxa de serviço por venda (mesma TAXA_SERVICO do legado `transactionFeeBrl`), saque = taxa fixa de saque.
+ */
+export function sellerFeesFromCanonical(fees: SimintpayMerchantFees): SellerFees | null {
+    const percent = processingPercent(fees);
+    if (percent === null || !Number.isFinite(fees.transaction?.serviceFeeCents)) return null;
+    return {
+        percent,
+        fixedBrl: fees.transaction.serviceFeeCents / 100,
+        withdrawalBrl: Number.isFinite(fees.withdrawal?.fixedFeeCents) ? fees.withdrawal.fixedFeeCents / 100 : null,
+    };
+}
+
 /** Busca as taxas do vendedor pelo CPF/CNPJ. Retorna null se a API de pagamento não responder. */
 export async function getSellerFees(document: string | null | undefined): Promise<SellerFees | null> {
     const doc = String(document ?? '').replace(/\D/g, '');
@@ -34,6 +52,19 @@ export async function getSellerFees(document: string | null | undefined): Promis
 
     const cached = cache.get(doc);
     if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) return cached.fees;
+
+    // Canônico (flag ligada): finance/fees. Vendedor não provisionado/erro → cai no legado abaixo.
+    if (isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured()) {
+        try {
+            const fees = sellerFeesFromCanonical(await merchantFees(doc));
+            if (fees) {
+                cache.set(doc, { fees, fetchedAt: Date.now() });
+                return fees;
+            }
+        } catch {
+            // fallback legado
+        }
+    }
 
     const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
     const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;

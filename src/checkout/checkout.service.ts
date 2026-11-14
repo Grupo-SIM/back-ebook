@@ -11,6 +11,7 @@ import { NotificationService } from 'src/notification/notification.service';
 import { AppService } from 'src/app.service';
 import { getSignedDownloadUrl } from 'src/common/storj';
 import { calcNetAmount, getSellerFees } from 'src/common/seller-fees';
+import { canonicalPlatformFees, tryCanonicalPendingEntry } from './canonical-pending-entry';
 import {
     CartItemDto,
     CheckoutItemDto,
@@ -51,6 +52,7 @@ export class CheckoutService {
         buyer?: { name?: string; email?: string; cpf?: string },
         ownerName?: string | null,
     ): Promise<void> {
+        if (await tryCanonicalPendingEntry({ orderNumber, amount, ownerDocument: ownerCpf, ownerName, paymentMethod, buyer })) return;
         const apiMachineUrl = process.env.API_MACHINE_URL;
         const token = process.env.API_MACHINE_INTERNAL_TOKEN;
         if (!apiMachineUrl || !token) return;
@@ -209,6 +211,12 @@ export class CheckoutService {
             return this._ebookLiquidez;
         }
         try {
+            const canonical = await canonicalPlatformFees();
+            if (canonical?.liquidez != null) {
+                this._ebookLiquidez = canonical.liquidez;
+                this._ebookLiquidezFetchedAt = now;
+                return canonical.liquidez;
+            }
             const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
             const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
             if (base && token) {
@@ -238,6 +246,13 @@ export class CheckoutService {
             return this._ebookTaxaFixa;
         }
         try {
+            const canonical = await canonicalPlatformFees();
+            if (canonical?.taxaFixa != null) {
+                this._ebookTaxaFixaSource = 'CONFIGURED';
+                this._ebookTaxaFixa = canonical.taxaFixa;
+                this._ebookTaxaFixaFetchedAt = now;
+                return canonical.taxaFixa;
+            }
             const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
             const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
             if (base && token) {

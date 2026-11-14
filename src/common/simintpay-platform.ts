@@ -9,6 +9,11 @@
 
 export const SIMINTPAY_PLATFORM_TAG = 'EBOOK';
 
+/** Rotas financeiras canônicas só valem com EBOOK_CANONICAL_FINANCE=true (padrão: desligado → caminho legado). */
+export function isCanonicalFinanceEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+    return String(env.EBOOK_CANONICAL_FINANCE ?? '').trim().toLowerCase() === 'true';
+}
+
 export class SimintpayPlatformError extends Error {
     constructor(
         readonly status: number,
@@ -44,6 +49,71 @@ export type SimintpayWithdrawal = {
     requestId: string | null;
     createdAt: string;
     updatedAt: string;
+};
+
+type ModalityFees = {
+    available: boolean;
+    processingFeeCents?: number;
+    processingRatePpm?: number;
+    netCents?: number;
+    installments?: number;
+    [key: string]: unknown;
+};
+
+/** GET finance/fees: taxas reais do vendedor (centavos; ppm: 149900 = 14,99%; netCents sobre referenceAmountCents). */
+export type SimintpayMerchantFees = {
+    withdrawal: { minimumCents: number; fixedFeeCents: number; percentFee: number };
+    transaction: { serviceFeeCents: number; fixedFeeCents: number; cashbackCents?: number };
+    referenceAmountCents?: number;
+    effectiveTargetFeePpm?: number;
+    pix?: ModalityFees;
+    debit?: ModalityFees;
+    boleto?: ModalityFees;
+    credit?: ModalityFees[];
+};
+
+/** GET /platforms/EBOOK/finance/config (nível plataforma, sem comerciante). */
+export type SimintpayPlatformConfig = {
+    liquidityRate?: number;
+    transactionFeeCents?: number;
+    withdrawal?: { minimumCents: number; fixedFeeCents: number; percentFee: number };
+    [key: string]: unknown;
+};
+
+export type SimintpayTransaction = {
+    id: string;
+    amountCents: number;
+    netAmountCents: number;
+    platformFeeCents: number;
+    acquirerFeeCents: number;
+    transactionFeeCents: number;
+    sellerNetCents: number;
+    status: string;
+    paymentMethod: string | null;
+    description: string | null;
+    customerName: string | null;
+    customerEmail: string | null;
+    customerPhone: string | null;
+    customerDocument: string | null;
+    createdAt: string;
+};
+
+export type SimintpayTransactionPage = {
+    data: SimintpayTransaction[];
+    meta: { page: number; limit: number; total: number; totalPages: number };
+};
+
+export type SimintpayEntryInput = {
+    referenceId: string;
+    kind: 'pending' | 'commission';
+    amountCents: number;
+    netAmountCents: number;
+    paymentMethod: 'PIX' | 'CREDIT_CARD';
+    installments?: number;
+    description?: string;
+    customerName?: string;
+    customerEmail?: string;
+    customerDocument?: string;
 };
 
 export type SimintpayQuote = { feeCents: number; grossAmountCents: number; netAmountCents: number };
@@ -97,6 +167,30 @@ export function provisionMerchant(document: string, legalName: string) {
 
 export function merchantSummary(document: string) {
     return request<SimintpayMerchantSummary>('GET', `${merchantPath(document)}/finance/summary`);
+}
+
+export function merchantFees(document: string) {
+    return request<SimintpayMerchantFees>('GET', `${merchantPath(document)}/finance/fees`);
+}
+
+export function merchantTransactions(
+    document: string,
+    query: { page?: number; limit?: number; startDate?: string; endDate?: string; status?: string; description?: string },
+) {
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)) {
+        if (value !== undefined && value !== null && `${value}` !== '') search.set(key, String(value));
+    }
+    return request<SimintpayTransactionPage>('GET', `${merchantPath(document)}/finance/transactions?${search}`);
+}
+
+/** Escopo ledger:write. Idempotente por referenceId (409 se o replay divergir). */
+export function merchantEntry(document: string, entry: SimintpayEntryInput) {
+    return request<{ success: boolean; id: string; created: boolean }>('POST', `${merchantPath(document)}/finance/entries`, entry);
+}
+
+export function platformFinanceConfig() {
+    return request<SimintpayPlatformConfig>('GET', `/platforms/${SIMINTPAY_PLATFORM_TAG}/finance/config`);
 }
 
 export function merchantWithdrawals(document: string, page: number, limit: number) {

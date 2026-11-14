@@ -1,6 +1,6 @@
 import { test, expect } from 'bun:test';
 import { PaymentsController } from '../src/payments/payments.controller';
-import { grossForNet, isCanonicalFinanceEnabled, mapCanonicalWithdrawals, withdrawalFeeCents, withdrawalIdempotencyKey } from '../src/payments/canonical-finance';
+import { isCanonicalFinanceEnabled, mapCanonicalWithdrawals, withdrawalFeeCents, withdrawalIdempotencyKey } from '../src/payments/canonical-finance';
 import { merchantIdFromDocument } from '../src/common/simintpay-platform';
 
 const CPF = '52998224725';
@@ -46,22 +46,24 @@ test('flag off keeps the legacy path untouched', async () => {
     });
 });
 
-test('flag on: summary maps cents to reais and borrows missing fee fields from legacy', async () => {
+const canonicalFees = { withdrawal: { minimumCents: 10000, fixedFeeCents: 350, percentFee: 0.01 }, transaction: { serviceFeeCents: 400, fixedFeeCents: 100 }, pix: { available: true, processingRatePpm: 149900, netCents: 8501 }, credit: [] };
+
+test('flag on: summary maps cents to reais using the real fees (target rate, not legacy 6.99)', async () => {
     await withFakeSimintpay((method, path) => {
         if (path === `/platforms/EBOOK/merchants/${CPF}/finance/summary`) return json(canonicalSummary);
-        if (path === '/internal/ebook/finance/summary') return json(legacySummary);
+        if (path === `/platforms/EBOOK/merchants/${CPF}/finance/fees`) return json(canonicalFees);
     }, async calls => {
         process.env.EBOOK_CANONICAL_FINANCE = 'true';
         const result = await new PaymentsController(prisma).summary(user);
-        expect(result).toMatchObject({ availableBalance: 123.45, lockedBalance: 26.55, pendingWithdraws: 26.55, withdrawalFeeBrl: 3.5, minimumWithdrawalAmount: 20, pixFeePercent: 4.99, transactionFeeBrl: 1, accountExists: true });
-        expect(calls[0].token).toBe('inbound-secret');
+        expect(result).toMatchObject({ availableBalance: 123.45, lockedBalance: 26.55, pendingWithdraws: 26.55, withdrawalFeeBrl: 3.5, minimumWithdrawalAmount: 100, pixFeePercent: 14.99, transactionFeeBrl: 4, accountExists: true });
+        expect(calls.every(c => c.token === 'inbound-secret')).toBe(true);
     });
 });
 
 test('flag on: 404 Comerciante não associado => accountExists false with local estimate', async () => {
     await withFakeSimintpay((method, path) => {
         if (path.includes('/platforms/')) return new Response('{"message":"Comerciante não associado ou inativo"}', { status: 404 });
-        if (path === '/internal/ebook/finance/summary') return json(legacySummary);
+        if (path === '/platforms/EBOOK/finance/config') return json({ liquidityRate: 0.8501, transactionFeeCents: 400, withdrawal: { minimumCents: 10000, fixedFeeCents: 350, percentFee: 0 } });
     }, async () => {
         process.env.EBOOK_CANONICAL_FINANCE = 'true';
         const result = await new PaymentsController(prisma).summary(user);
@@ -71,42 +73,82 @@ test('flag on: 404 Comerciante não associado => accountExists false with local 
     });
 });
 
-test('flag on: withdraw converts net to gross, quotes and sends a deterministic idempotency key', async () => {
-    await withFakeSimintpay((method, path, body) => {
-        if (path.endsWith('/finance/summary')) return json(canonicalSummary);
-        if (path.endsWith('/withdrawals/quote')) {
-            const fee = withdrawalFeeCents(body.amountCents, canonicalSummary.feePolicy);
-            return json({ feeCents: fee, grossAmountCents: body.amountCents, netAmountCents: body.amountCents - fee });
-        }
-        if (path.endsWith('/finance/withdrawals')) return json({ id: 'w1', status: 'PENDING' });
+test('flag on: withdraw amount is GROSS, quotes first, enforces the minimum and returns gross/fee/net', async () => {
+    const handler = (method, path, body) => {
+        if (path.endsWith('/finance/fees')) return json(canonicalFees);
+        if (path.endsWith('/withdrawals/quote')) { const fee = withdrawalFeeCents(body.amountCents, { fixedCents: 350, rate: 0.01 }); return json({ feeCents: fee, grossAmountCents: body.amountCents, netAmountCents: body.amountCents - fee }); }
+        if (path.endsWith('/finance/withdrawals')) return json({ id: 'w1', status: 'PENDING', amountCents: body.amountCents - 450, grossAmountCents: body.amountCents, feeCents: 450 });
+    };
+    await withFakeSimintpay(handler, async calls => {
+        process.env.EBOOK_CANONICAL_FINANCE = 'true';
+        const controller = new PaymentsController(prisma);
+        const quote = await controller.withdrawQuote(user, { amount: 100 });
+        expect(quote).toEqual({ grossAmount: 100, fee: 4.5, netAmount: 95.5, minimumWithdrawalAmount: 100 });
+        const first = await controller.withdraw(user, { amount: 100, pixKey: CPF });
+        expect(first).toEqual({ success: true, id: 'w1', status: 'PENDING', grossAmount: 100, fee: 4.5, amount: 95.5 });
+        const post = calls.filter(c => c.method === 'POST' && c.path.endsWith('/finance/withdrawals')).at(0);
+        expect(post.body.amountCents).toBe(10000);
+        expect(post.body.idempotencyKey).toMatch(/^ebook-[0-9a-f]{40}$/);
+        await controller.withdraw(user, { amount: 100, pixKey: CPF, idempotencyKey: 'abc-1' });
+        expect(calls.filter(c => c.path.endsWith('/finance/withdrawals')).at(-1).body.idempotencyKey).toBe('abc-1');
+        await expect(controller.withdraw(user, { amount: 50, pixKey: CPF })).rejects.toThrow('Valor mínimo');
+    });
+});
+
+test('flag on: withdrawals history shows gross, fee and net; transactions come from the canonical list', async () => {
+    await withFakeSimintpay((method, path) => {
+        if (path.endsWith('/finance/withdrawals')) return json({ data: [{ id: 'w1', amountCents: 9550, grossAmountCents: 10000, feeCents: 450, status: 'PENDING', pixKey: 'k', rejectionReason: null, createdAt: 'd' }], meta: { page: 1, limit: 10, total: 1, totalPages: 1 } });
+        if (path.endsWith('/finance/transactions')) return json({ data: [{ id: 't1', amountCents: 10000, netAmountCents: 8501, platformFeeCents: 1499, acquirerFeeCents: 0, transactionFeeCents: 400, sellerNetCents: 8101, status: 'COMPLETED', paymentMethod: 'PIX', description: 'ORD-2026-000001 [TENANT:EBOOK]', customerName: 'Ana', customerEmail: 'a@x.com', customerDocument: null, createdAt: '2026-11-14T12:00:00.000Z' }], meta: { page: 1, limit: 200, total: 1, totalPages: 1 } });
     }, async calls => {
         process.env.EBOOK_CANONICAL_FINANCE = 'true';
         const controller = new PaymentsController(prisma);
-        const first = await controller.withdraw(user, { amount: 100, pixKey: CPF });
-        expect(first).toEqual({ success: true, id: 'w1', status: 'PENDING' });
-        const posts = calls.filter(c => c.path.endsWith('/finance/withdrawals'));
-        expect(posts[0].body.amountCents - withdrawalFeeCents(posts[0].body.amountCents, canonicalSummary.feePolicy)).toBeGreaterThanOrEqual(10000);
-        expect(posts[0].body.idempotencyKey).toMatch(/^ebook-[0-9a-f]{40}$/);
-        const clientKey = await controller.withdraw(user, { amount: 100, pixKey: CPF, idempotencyKey: 'abc-1' });
-        expect(clientKey.id).toBe('w1');
-        expect(calls.filter(c => c.path.endsWith('/finance/withdrawals')).at(-1).body.idempotencyKey).toBe('abc-1');
+        const history = await controller.withdrawals(user);
+        expect(history.withdrawals[0]).toMatchObject({ grossAmount: 100, fee: 4.5, amount: 95.5, netAmount: 95.5 });
+        const txs = await controller.allTransactionsExcel(user, undefined, undefined, 'PAID');
+        expect(txs[0]).toMatchObject({ amount: 100, amountWithoutAllFee: 81.01, fee: 14.99, taxa_fixa_transacao: 4, status: 'COMPLETED' });
+        expect(calls.at(-1).path).toContain('status=PAID');
+    });
+});
+
+test('pending entry, platform config and commission go through canonical routes when the flag is on', async () => {
+    const { tryCanonicalPendingEntry, canonicalPlatformFees } = await import('../src/checkout/canonical-pending-entry');
+    const { retryCommissionDeliveries } = await import('../src/affiliate/commission-delivery');
+    await withFakeSimintpay((method, path) => {
+        if (path.endsWith('/finance/fees')) return json(canonicalFees);
+        if (path.endsWith('/finance/entries')) return json({ success: true, id: 'e', created: true });
+        if (path === '/platforms/EBOOK/finance/config') return json({ liquidityRate: 0.8501, transactionFeeCents: 400 });
+    }, async calls => {
+        delete process.env.EBOOK_CANONICAL_FINANCE;
+        expect(await tryCanonicalPendingEntry({ orderNumber: 'ORD-1', amount: 100, ownerDocument: CPF })).toBe(false);
+        expect(calls).toHaveLength(0);
+        process.env.EBOOK_CANONICAL_FINANCE = 'true';
+        expect(await tryCanonicalPendingEntry({ orderNumber: 'ORD-1', amount: 100, ownerDocument: CPF, ownerName: 'Maria', buyer: { email: 'b@x.com' } })).toBe(true);
+        const entry = calls.find(c => c.path.endsWith('/finance/entries'));
+        expect(entry.path).toBe(`/platforms/EBOOK/merchants/${CPF}/finance/entries`);
+        expect(entry.body).toMatchObject({ referenceId: 'ORD-1', kind: 'pending', amountCents: 10000, netAmountCents: 8501, paymentMethod: 'PIX', description: `ORD-1 [CPF_DONO:${CPF}] [NOME_DONO:Maria]` });
+        expect(await canonicalPlatformFees()).toMatchObject({ liquidez: 0.8501, taxaFixa: 4 });
+
+        const updates = [];
+        const prismaStub = {
+            $queryRaw: async () => (updates.length ? [] : [{ id: 7, snapshot: { referenceId: 'AFF-1-2', cpf: CPF, cnpj: null, amount: 8, description: 'comissao' } }]),
+            $executeRaw: async (parts) => { updates.push(parts.join('?')); },
+        };
+        await retryCommissionDeliveries(prismaStub, 2);
+        const commission = calls.filter(c => c.path.endsWith('/finance/entries')).at(-1);
+        expect(commission.body).toMatchObject({ referenceId: 'AFF-1-2', kind: 'commission', amountCents: 800, netAmountCents: 800 });
+        expect(updates[0]).toContain("'ACKNOWLEDGED'");
+        expect(calls.some(c => c.internal)).toBe(false);
     });
 });
 
 test('pure helpers: gross/net inversion, idempotency bucket and withdrawals mapping', () => {
-    const policy = { fixedCents: 350, rate: 0.01 };
-    for (const net of [2000, 10000, 12345]) {
-        const gross = grossForNet(net, policy);
-        expect(gross - withdrawalFeeCents(gross, policy)).toBeGreaterThanOrEqual(net);
-        expect(gross - 1 - withdrawalFeeCents(gross - 1, policy)).toBeLessThan(net);
-    }
     const a = withdrawalIdempotencyKey({ userId: 'u', grossCents: 100, pixKey: 'k', now: 60_000 });
     expect(withdrawalIdempotencyKey({ userId: 'u', grossCents: 100, pixKey: 'k', now: 119_999 })).toBe(a);
     expect(withdrawalIdempotencyKey({ userId: 'u', grossCents: 100, pixKey: 'k', now: 120_000 })).not.toBe(a);
     expect(() => withdrawalIdempotencyKey({ userId: 'u', grossCents: 1, pixKey: 'k', clientKey: 'bad key!' })).toThrow();
     expect(merchantIdFromDocument('529.982.247-25')).toBe(CPF);
-    const mapped = mapCanonicalWithdrawals({ data: [{ id: 'w', amountCents: 1050, status: 'PENDING', pixKey: 'k', rejectionReason: null, createdAt: 'd' }], meta: { page: 2, limit: 5, total: 7, totalPages: 2 } }, { id: 'u', name: 'N', email: 'e' });
-    expect(mapped).toEqual({ withdrawals: [{ id: 'w', userId: 'u', amount: 10.5, status: 'PENDING', pixKey: 'k', rejectionReason: null, createdAt: 'd', user: { name: 'N', email: 'e' } }], meta: { currentPage: 2, itemsPerPage: 5, totalItems: 7, totalPages: 2 } });
+    const mapped = mapCanonicalWithdrawals({ data: [{ id: 'w', amountCents: 1050, status: 'PENDING', pixKey: 'k', rejectionReason: null, createdAt: 'd', grossAmountCents: 1100, feeCents: 50 }], meta: { page: 2, limit: 5, total: 7, totalPages: 2 } }, { id: 'u', name: 'N', email: 'e' });
+    expect(mapped).toEqual({ withdrawals: [{ id: 'w', userId: 'u', grossAmount: 11, fee: 0.5, amount: 10.5, netAmount: 10.5, status: 'PENDING', pixKey: 'k', rejectionReason: null, createdAt: 'd', user: { name: 'N', email: 'e' } }], meta: { currentPage: 2, itemsPerPage: 5, totalItems: 7, totalPages: 2 } });
 });
 
 test('auto-provision: only seller roles with a valid document, CNPJ first, never throws, sends PUT with digits', async () => {

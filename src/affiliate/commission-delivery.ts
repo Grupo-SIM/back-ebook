@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import type { PrismaService } from 'prisma/prisma.service';
+import { isCanonicalFinanceEnabled, isSimintpayPlatformConfigured, merchantEntry, SimintpayPlatformError } from '../common/simintpay-platform';
 
 type Delivery = { id: number; snapshot: { referenceId: string; cpf: string | null; cnpj: string | null; amount: number; description: string } };
 
@@ -7,7 +8,8 @@ type Delivery = { id: number; snapshot: { referenceId: string; cpf: string | nul
 export async function retryCommissionDeliveries(prisma: PrismaService, limit = 20): Promise<void> {
     const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
     const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
-    if (!base || !token) return;
+    const canonical = isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured();
+    if (!canonical && (!base || !token)) return;
     for (let i = 0; i < Math.min(Math.max(limit, 0), 100); i++) {
         const lease = randomUUID();
         const rows = await prisma.$queryRaw<Delivery[]>`
@@ -25,18 +27,28 @@ export async function retryCommissionDeliveries(prisma: PrismaService, limit = 2
         try {
             const { referenceId, cpf, cnpj, amount, description } = row.snapshot;
             if (!cpf && !cnpj) throw new Error('Frozen recipient has no document; manual reconciliation required');
-            const response = await fetch(`${base.replace(/\/+$/, '')}/internal/ebook/finance/credit-commission`, {
+            if (canonical) {
+                // Canônico: o afiliado precisa estar provisionado como comerciante (senão 404 → RETRY/reconciliação manual).
+                const amountCents = Math.round(amount * 100);
+                await merchantEntry(String(cpf || cnpj), {
+                    referenceId, kind: 'commission', amountCents, netAmountCents: amountCents,
+                    paymentMethod: 'PIX', description: description || 'Comissão de afiliado',
+                });
+            } else {
+            const response = await fetch(`${(base as string).replace(/\/+$/, '')}/internal/ebook/finance/credit-commission`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json', 'x-internal-token': token },
                 body: JSON.stringify({ referenceId, cpf: cpf || undefined, cnpj: cpf ? undefined : cnpj || undefined, amount, description }),
                 signal: AbortSignal.timeout(15000),
             });
             if (!response.ok) throw new Error(`Legacy HTTP ${response.status}`);
+            }
             await prisma.$executeRaw`UPDATE affiliate_commission_deliveries SET state = 'ACKNOWLEDGED',
                 financial_state = 'LEGACY_RECORDED', acknowledged_at = NOW(), lease_token = NULL,
                 lease_until = NULL, last_error = NULL WHERE id = ${row.id} AND lease_token = ${lease}`;
         } catch (error) {
             // Do not retain response bodies, tokens or recipient documents in diagnostics.
-            const message = error instanceof Error && error.message.startsWith('Legacy HTTP') ? error.message : 'Legacy delivery failed';
+            const message = error instanceof SimintpayPlatformError ? `SimIntPay HTTP ${error.status}`
+                : error instanceof Error && error.message.startsWith('Legacy HTTP') ? error.message : 'Legacy delivery failed';
             await prisma.$executeRaw`UPDATE affiliate_commission_deliveries SET state = 'RETRY',
                 next_attempt_at = NOW() + INTERVAL '5 minutes', last_error = ${message},
                 lease_token = NULL, lease_until = NULL WHERE id = ${row.id} AND lease_token = ${lease}`;

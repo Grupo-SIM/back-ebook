@@ -2,8 +2,8 @@ import { isValidCnpj, isValidCpf, normalizeCpf } from './utils/cpf.util';
 import { provisionMerchantSafe } from './simintpay-platform';
 
 /**
- * Papéis que recebem repasse no SimIntPay: ADMIN (dono dos livros, único papel que cria livros e acessa /payments)
- * e USER (afiliados, que recebem comissão na carteira por CPF). CUSTOMER é comprador/gestor de contas e não recebe.
+ * Papéis provisionados automaticamente: ADMIN (vendedores) e USER (afiliados, comissão na carteira por CPF).
+ * CUSTOMER só é provisionado pelo script quando é dono de livros ou tem comissões de afiliado.
  */
 export const SELLER_ROLES = ['ADMIN', 'USER'] as const;
 
