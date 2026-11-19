@@ -1,5 +1,4 @@
 import {
-  isCanonicalFinanceEnabled,
   isSimintpayPlatformConfigured,
   merchantEntry,
   platformFinanceConfig,
@@ -16,10 +15,10 @@ export type PendingEntryParams = {
   buyer?: { name?: string; email?: string; cpf?: string };
 };
 
-/** A entrada canônica se aplica (flag ligada, SimIntPay configurado e dono com CPF/CNPJ). */
+/** A entrada canônica se aplica quando o SimIntPay está configurado e o dono tem CPF/CNPJ. */
 export function canonicalPendingEntryApplies(ownerDocument: string | null | undefined): boolean {
   const document = String(ownerDocument ?? '').replace(/\D/g, '');
-  return isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured() && (document.length === 11 || document.length === 14);
+  return isSimintpayPlatformConfigured() && (document.length === 11 || document.length === 14);
 }
 
 /**
@@ -60,14 +59,26 @@ export async function tryCanonicalPendingEntry(params: PendingEntryParams): Prom
 
 let cached: { liquidez: number | null; taxaFixa: number | null; at: number } | null = null;
 
-/** Config da plataforma (fallback de líquido no checkout): liquidityRate e transactionFeeCents/100. null = indisponível. */
+/** Config da plataforma (fallback de líquido no checkout): taxa efetiva/alvo ativa e transactionFeeCents/100. null = indisponível. */
 export async function canonicalPlatformFees(): Promise<{ liquidez: number | null; taxaFixa: number | null } | null> {
-  if (!isCanonicalFinanceEnabled() || !isSimintpayPlatformConfigured()) return null;
+  if (!isSimintpayPlatformConfigured()) return null;
   if (cached && Date.now() - cached.at < 30_000) return cached;
   try {
     const config = await platformFinanceConfig();
+    const ratePpm =
+      typeof config.pixProcessingRatePpm === 'number' && Number.isFinite(config.pixProcessingRatePpm)
+        ? config.pixProcessingRatePpm
+        : typeof config.effectiveTargetFeePpm === 'number' && Number.isFinite(config.effectiveTargetFeePpm)
+          ? config.effectiveTargetFeePpm
+          : null;
+    const liquidez =
+      ratePpm !== null
+        ? Number((1 - ratePpm / 1_000_000).toFixed(6))
+        : Number.isFinite(config.liquidityRate)
+          ? Number(config.liquidityRate)
+          : null;
     cached = {
-      liquidez: Number.isFinite(config.liquidityRate) ? Number(config.liquidityRate) : null,
+      liquidez,
       taxaFixa: Number.isFinite(config.transactionFeeCents) ? Number(config.transactionFeeCents) / 100 : null,
       at: Date.now(),
     };

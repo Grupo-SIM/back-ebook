@@ -8,8 +8,6 @@ import type {
   SimintpayWithdrawalPage,
 } from 'src/common/simintpay-platform';
 
-export { isCanonicalFinanceEnabled } from 'src/common/simintpay-platform';
-
 const reais = (cents: unknown): number => Number((Number(cents ?? 0) / 100).toFixed(2));
 
 /** Taxa de processamento PIX em % (processingRatePpm 149900 → 14.99). Sem PIX disponível, tenta débito/crédito à vista. */
@@ -39,16 +37,27 @@ export function mapCanonicalSummary(canonical: SimintpayMerchantSummary, fees: S
   };
 }
 
-/** Sem comerciante: usa a config da plataforma (liquidityRate é só o atalho LIQUIDEZ, usado como aproximação). */
+/** Sem comerciante: usa a config da plataforma (taxa efetiva/alvo ativa, com fallback em liquidityRate). */
 export function mapPlatformConfigFallback(config: SimintpayPlatformConfig | null) {
+  const ratePpm =
+    typeof config?.pixProcessingRatePpm === 'number' && Number.isFinite(config.pixProcessingRatePpm)
+      ? config.pixProcessingRatePpm
+      : typeof config?.effectiveTargetFeePpm === 'number' && Number.isFinite(config.effectiveTargetFeePpm)
+        ? config.effectiveTargetFeePpm
+        : null;
+  const pixFeePercent =
+    ratePpm !== null
+      ? Number((ratePpm / 10_000).toFixed(4))
+      : typeof config?.liquidityRate === 'number' && Number.isFinite(config.liquidityRate)
+        ? Number(((1 - config.liquidityRate) * 100).toFixed(2))
+        : undefined;
   return {
     availableBalance: 0,
     pendingWithdraws: 0,
     lockedBalance: 0,
     minimumWithdrawalAmount: config?.withdrawal ? reais(config.withdrawal.minimumCents) : undefined,
     withdrawalFeeBrl: config?.withdrawal ? reais(config.withdrawal.fixedFeeCents) : undefined,
-    pixFeePercent:
-      typeof config?.liquidityRate === 'number' ? Number(((1 - config.liquidityRate) * 100).toFixed(2)) : undefined,
+    pixFeePercent,
     transactionFeeBrl: typeof config?.transactionFeeCents === 'number' ? reais(config.transactionFeeCents) : undefined,
     accountExists: false,
   };

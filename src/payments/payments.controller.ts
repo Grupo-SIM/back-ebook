@@ -32,7 +32,6 @@ import {
   SimintpayPlatformError,
 } from 'src/common/simintpay-platform';
 import {
-  isCanonicalFinanceEnabled,
   mapCanonicalSummary,
   mapCanonicalTransaction,
   mapCanonicalWithdrawals,
@@ -79,24 +78,6 @@ export class PaymentsController {
     return Number.isNaN(d.getTime()) ? undefined : d;
   }
 
-  private getApiMachineUrl() {
-    const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
-    if (!base) {
-      throw new ServiceUnavailableException('Integração com API Machine não configurada');
-    }
-    return base.replace(/\/+$/, '');
-  }
-
-  private getInternalToken() {
-    const token =
-      process.env.API_MACHINE_INTERNAL_TOKEN ||
-      process.env.INTERNAL_SERVICE_TOKEN;
-    if (!token) {
-      throw new ServiceUnavailableException('Token interno da integração não configurado');
-    }
-    return token;
-  }
-
   // Mesma tag gravada no checkout (buildInternalOrderTag): CNPJ_DONO p/ 14 dígitos, CPF_DONO p/ 11.
   private ownerTag(doc: string): string {
     return doc.length === 14 ? `[CNPJ_DONO:${doc}]` : `[CPF_DONO:${doc}]`;
@@ -127,24 +108,6 @@ export class PaymentsController {
       throw new BadRequestException('CPF ou CNPJ inválido ou não configurado para acessar o financeiro');
     }
     return cpf;
-  }
-
-  private async machineGet(path: string, cpf: string, query?: Record<string, string | number | undefined>) {
-    const search = new URLSearchParams({ cpf });
-    for (const [k, v] of Object.entries(query ?? {})) {
-      if (v !== undefined && v !== null && `${v}` !== '') search.set(k, String(v));
-    }
-    const response = await fetch(`${this.getApiMachineUrl()}${path}?${search.toString()}`, {
-      headers: {
-        'x-internal-token': this.getInternalToken(),
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      const text = await response.text();
-      throw new ServiceUnavailableException(`Falha ao consultar API Machine: ${response.status} ${text}`);
-    }
-    return response.json();
   }
 
   /**
@@ -359,10 +322,6 @@ export class PaymentsController {
     cpf: string,
     query: { limit: number; startDate?: string; endDate?: string; status?: string; description?: string },
   ): Promise<{ transactions: any[] }> {
-    if (!isCanonicalFinanceEnabled()) {
-      const { limit, ...rest } = query;
-      return this.machineGet('/internal/ebook/finance/transactions', cpf, { page: 1, limit, ...rest });
-    }
     const pageSize = Math.min(200, query.limit);
     const transactions: any[] = [];
     try {
@@ -381,9 +340,7 @@ export class PaymentsController {
   @Get('summary')
   async summary(@GetUser() user: RequestWithUser['user']) {
     const cpf = await this.getCpfFromUser(user);
-    const machineSummary = isCanonicalFinanceEnabled()
-      ? await this.canonicalSummary(cpf)
-      : await this.machineGet('/internal/ebook/finance/summary', cpf);
+    const machineSummary = await this.canonicalSummary(cpf);
 
     // Sem conta ativa no Simintpay: gateway não tem onde guardar saldo.
     // Calcula um saldo estimado a partir dos pedidos pagos localmente, só para exibição —
@@ -534,26 +491,20 @@ export class PaymentsController {
     @Query('limit') limit?: string,
   ) {
     const cpf = await this.getCpfFromUser(user);
-    if (isCanonicalFinanceEnabled()) {
-      try {
-        const result = await merchantWithdrawals(
-          cpf,
-          Math.max(1, Number(page || 1)),
-          Math.min(Math.max(1, Number(limit || 10)), 100), // canônico limita a 100 por página
-        );
-        const dbUser = await this.prisma.user.findUnique({ where: { id: user.id }, select: { name: true, email: true } });
-        return mapCanonicalWithdrawals(result, { id: user.id, ...dbUser });
-      } catch (error) {
-        if (isMerchantNotAssociated(error) || isMerchantWithoutAccount(error)) {
-          return { withdrawals: [], meta: { currentPage: 1, itemsPerPage: 10, totalItems: 0, totalPages: 1 } };
-        }
-        this.canonicalError(error, 'Falha ao listar saques');
+    try {
+      const result = await merchantWithdrawals(
+        cpf,
+        Math.max(1, Number(page || 1)),
+        Math.min(Math.max(1, Number(limit || 10)), 100), // canônico limita a 100 por página
+      );
+      const dbUser = await this.prisma.user.findUnique({ where: { id: user.id }, select: { name: true, email: true } });
+      return mapCanonicalWithdrawals(result, { id: user.id, ...dbUser });
+    } catch (error) {
+      if (isMerchantNotAssociated(error) || isMerchantWithoutAccount(error)) {
+        return { withdrawals: [], meta: { currentPage: 1, itemsPerPage: 10, totalItems: 0, totalPages: 1 } };
       }
+      this.canonicalError(error, 'Falha ao listar saques');
     }
-    return this.machineGet('/internal/ebook/finance/withdrawals', cpf, {
-      page: page ? Number(page) : 1,
-      limit: limit ? Number(limit) : 10,
-    });
   }
 
   @Post('withdraw')
@@ -571,26 +522,7 @@ export class PaymentsController {
     }
 
     const cpf = await this.getCpfFromUser(user);
-    if (isCanonicalFinanceEnabled()) {
-      return this.canonicalWithdraw(user, cpf, body, idempotencyHeader);
-    }
-    const response = await fetch(`${this.getApiMachineUrl()}/internal/ebook/finance/withdraw`, {
-      method: 'POST',
-      headers: {
-        'x-internal-token': this.getInternalToken(),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        cpf,
-        amount: Number(body.amount),
-        pixKey: body.pixKey,
-      }),
-    });
-    if (!response.ok) {
-      const text = await response.text();
-      throw new ServiceUnavailableException(`Falha ao solicitar saque: ${response.status} ${text}`);
-    }
-    return response.json();
+    return this.canonicalWithdraw(user, cpf, body, idempotencyHeader);
   }
 
   /**
@@ -604,7 +536,6 @@ export class PaymentsController {
     if (!Number.isSafeInteger(grossCents) || grossCents <= 0) {
       throw new BadRequestException('Valor de saque inválido ou não informado.');
     }
-    if (!isCanonicalFinanceEnabled()) throw new BadRequestException('Cotação de saque indisponível.');
     const cpf = await this.getCpfFromUser(user);
     try {
       const [quote, fees] = await Promise.all([merchantQuote(cpf, grossCents), merchantFees(cpf)]);

@@ -13,7 +13,7 @@ import { getSignedDownloadUrl } from 'src/common/storj';
 import { calcNetAmount, getSellerFees } from 'src/common/seller-fees';
 import { canonicalPendingEntryApplies, canonicalPlatformFees, tryCanonicalPendingEntry } from './canonical-pending-entry';
 import { enqueuePendingEntry } from './pending-entry-delivery';
-import { isCanonicalFinanceEnabled, isOrderPaymentCompleted, isSimintpayPlatformConfigured } from '../common/simintpay-platform';
+import { isOrderPaymentCompleted } from '../common/simintpay-platform';
 import {
     CartItemDto,
     CheckoutItemDto,
@@ -56,32 +56,9 @@ export class CheckoutService {
     ): Promise<void> {
         const entry = { orderNumber, amount, ownerDocument: ownerCpf, ownerName, paymentMethod, buyer };
         if (await tryCanonicalPendingEntry(entry)) return;
-        // Com a flag canônica ligada não há chamada legada: a falha vai para a fila durável (reenvio em segundo plano) e o pedido segue.
+        // Falha vai para a fila durável (reenvio em segundo plano) e o pedido segue.
         if (canonicalPendingEntryApplies(ownerCpf)) {
             await enqueuePendingEntry(this.prisma, entry);
-            return;
-        }
-        if (isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured()) return;
-        const apiMachineUrl = process.env.API_MACHINE_URL;
-        const token = process.env.API_MACHINE_INTERNAL_TOKEN;
-        if (!apiMachineUrl || !token) return;
-        try {
-            await fetch(`${apiMachineUrl.replace(/\/+$/, '')}/internal/ebook/finance/pending-transaction`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'x-internal-token': token },
-                body: JSON.stringify({
-                    orderNumber,
-                    amount,
-                    ownerCpf: ownerCpf ?? undefined,
-                    ownerName: ownerName ?? undefined,
-                    paymentMethod,
-                    buyerName: buyer?.name ?? undefined,
-                    buyerEmail: buyer?.email ?? undefined,
-                    buyerDocument: buyer?.cpf ?? undefined,
-                }),
-            });
-        } catch {
-            // não bloqueia o fluxo de checkout se a api-machine estiver indisponível
         }
     }
 
@@ -217,22 +194,6 @@ export class CheckoutService {
                 this._ebookLiquidezFetchedAt = now;
                 return canonical.liquidez;
             }
-            const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
-            const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
-            if (base && token && !isCanonicalFinanceEnabled()) {
-                const res = await fetch(`${base.replace(/\/+$/, '')}/internal/ebook/finance/config`, {
-                    headers: { 'x-internal-token': token },
-                });
-                if (res.ok) {
-                    const body = await res.json() as { liquidez?: number };
-                    const v = body?.liquidez;
-                    if (typeof v === 'number' && Number.isFinite(v)) {
-                        this._ebookLiquidez = v;
-                        this._ebookLiquidezFetchedAt = now;
-                        return v;
-                    }
-                }
-            }
         } catch { /* fallback abaixo */ }
         const fallback = parseFloat(process.env.EBOOKSIM_LIQUIDEZ ?? '0.91');
         this._ebookLiquidez = fallback;
@@ -253,25 +214,8 @@ export class CheckoutService {
                 this._ebookTaxaFixaFetchedAt = now;
                 return canonical.taxaFixa;
             }
-            const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
-            const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
-            if (base && token && !isCanonicalFinanceEnabled()) {
-                const res = await fetch(`${base.replace(/\/+$/, '')}/internal/ebook/finance/config`, {
-                    headers: { 'x-internal-token': token },
-                });
-                if (res.ok) {
-                    const body = await res.json() as { transactionFeeBrl?: number };
-                    const v = body?.transactionFeeBrl;
-                    if (typeof v === 'number' && Number.isFinite(v)) {
-                        this._ebookTaxaFixaSource = 'CONFIGURED';
-                        this._ebookTaxaFixa = v;
-                        this._ebookTaxaFixaFetchedAt = now;
-                        return v;
-                    }
-                }
-            }
         } catch { /* fallback abaixo */ }
-        const fallback = parseFloat(process.env.EBOOKSIM_TAXA_FIXA ?? '4');
+        const fallback = parseFloat(process.env.EBOOKSIM_TAXA_FIXA ?? '0');
         this._ebookTaxaFixaSource = 'LEGACY_FALLBACK';
         this._ebookTaxaFixa = fallback;
         this._ebookTaxaFixaFetchedAt = now;

@@ -1,9 +1,9 @@
-import { isCanonicalFinanceEnabled, isSimintpayPlatformConfigured, merchantFees } from './simintpay-platform';
+import { isSimintpayPlatformConfigured, merchantFees } from './simintpay-platform';
 import type { SimintpayMerchantFees } from './simintpay-platform';
 import { processingPercent } from '../payments/canonical-finance';
 
 /**
- * Taxas do vendedor vindas do método de pagamento (API Machine → /internal/ebook/finance/summary).
+ * Taxas do vendedor vindas do SimIntPay (rotas canônicas por comerciante).
  * É a mesma fonte exibida em admin.ebooksim.com/taxa — todo cálculo de líquido deve usar isto.
  */
 export interface SellerFees {
@@ -53,36 +53,18 @@ export async function getSellerFees(document: string | null | undefined): Promis
     const cached = cache.get(doc);
     if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) return cached.fees;
 
-    // Canônico (flag ligada): finance/fees. Vendedor não provisionado/erro → null (o chamador usa a config da plataforma); nunca cai no legado.
-    if (isCanonicalFinanceEnabled() && isSimintpayPlatformConfigured()) {
-        try {
-            const fees = sellerFeesFromCanonical(await merchantFees(doc));
-            if (fees) {
-                cache.set(doc, { fees, fetchedAt: Date.now() });
-                return fees;
-            }
-        } catch {
-            // sem fallback legado com a flag ligada
-        }
-        return null;
-    }
-
-    const base = process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
-    const token = process.env.API_MACHINE_INTERNAL_TOKEN || process.env.INTERNAL_SERVICE_TOKEN;
-    if (!base || !token) return null;
+    if (!isSimintpayPlatformConfigured()) return null;
 
     try {
-        const res = await fetch(
-            `${base.replace(/\/+$/, '')}/internal/ebook/finance/summary?${new URLSearchParams({ cpf: doc })}`,
-            { headers: { 'x-internal-token': token, 'Content-Type': 'application/json' } },
-        );
-        if (!res.ok) return null;
-        const fees = parseSellerFees(await res.json());
-        if (fees) cache.set(doc, { fees, fetchedAt: Date.now() });
-        return fees;
+        const fees = sellerFeesFromCanonical(await merchantFees(doc));
+        if (fees) {
+            cache.set(doc, { fees, fetchedAt: Date.now() });
+            return fees;
+        }
     } catch {
-        return null;
+        // vendedor não provisionado ou SimIntPay indisponível → chamador usa config da plataforma
     }
+    return null;
 }
 
 /** Líquido = bruto − (bruto × percentual + fixo), arredondado em centavos. */

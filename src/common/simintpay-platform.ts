@@ -9,11 +9,6 @@
 
 export const SIMINTPAY_PLATFORM_TAG = 'EBOOK';
 
-/** Rotas financeiras canônicas só valem com EBOOK_CANONICAL_FINANCE=true (padrão: desligado → caminho legado). */
-export function isCanonicalFinanceEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-    return String(env.EBOOK_CANONICAL_FINANCE ?? '').trim().toLowerCase() === 'true';
-}
-
 export class SimintpayPlatformError extends Error {
     constructor(
         readonly status: number,
@@ -75,6 +70,8 @@ export type SimintpayMerchantFees = {
 /** GET /platforms/EBOOK/finance/config (nível plataforma, sem comerciante). */
 export type SimintpayPlatformConfig = {
     liquidityRate?: number;
+    effectiveTargetFeePpm?: number | null;
+    pixProcessingRatePpm?: number | null;
     transactionFeeCents?: number;
     withdrawal?: { minimumCents: number; fixedFeeCents: number; percentFee: number };
     [key: string]: unknown;
@@ -132,7 +129,7 @@ export function isSimintpayPlatformConfigured(): boolean {
 }
 
 function baseUrl(): string | null {
-    const base = process.env.SIMINTPAY_URL || process.env.API_MACHINE_URL || process.env.API_MACHINE_INTERNAL_URL;
+    const base = process.env.SIMINTPAY_URL || process.env.API_MACHINE_URL;
     return base ? base.replace(/\/+$/, '') : null;
 }
 
